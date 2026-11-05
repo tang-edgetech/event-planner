@@ -1,0 +1,12 @@
+# WordPress core & environment are not versioned — only our theme + plugin.
+/*
+!/.gitignore
+!/README.md
+!/wp-content/
+/wp-content/*
+!/wp-content/themes/
+/wp-content/themes/*
+!/wp-content/themes/epevents/
+!/wp-content/plugins/
+/wp-content/plugins/*
+!/wp-content/plugins/epevents-core/

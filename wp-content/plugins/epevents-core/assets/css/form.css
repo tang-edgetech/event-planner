@@ -1,0 +1,38 @@
+/* EP Events – registration form. Colours inherit theme tokens with safe fallbacks. */
+.epc-form-wrap { --epc-accent: var(--ep-accent, #7a0f3d); --epc-border: var(--ep-border, #d9d4cc); --epc-bg: var(--ep-surface, #fff); --epc-text: var(--ep-text, #1d1b19); --epc-muted: var(--ep-muted, #6b665f); --epc-danger: #c0392b; color: var(--epc-text); }
+.epc-form-intro { margin-bottom: 1.5rem; }
+.epc-grid { display: flex; flex-wrap: wrap; gap: 1.25rem 1.5rem; }
+.epc-field { display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
+.epc-field[hidden] { display: none; }
+.epc-w-100 { flex: 0 0 100%; }
+.epc-w-66 { flex: 0 0 calc(66.666% - .75rem); }
+.epc-w-50 { flex: 0 0 calc(50% - .75rem); }
+.epc-w-33 { flex: 0 0 calc(33.333% - 1rem); }
+.epc-w-25 { flex: 0 0 calc(25% - 1.125rem); }
+@media (max-width: 720px) { .epc-w-66, .epc-w-50, .epc-w-33, .epc-w-25 { flex-basis: 100%; } }
+
+.epc-field > label, .epc-field legend { font-weight: 600; font-size: .95rem; }
+.epc-field fieldset { border: 0; padding: 0; margin: 0; }
+.epc-req { color: var(--epc-danger); }
+.epc-field input[type=text], .epc-field input[type=email], .epc-field input[type=tel], .epc-field input[type=number], .epc-field input[type=date], .epc-field select, .epc-field textarea, .epc-other {
+	width: 100%; box-sizing: border-box; padding: .75rem .9rem; font: inherit; color: inherit; background: var(--epc-bg);
+	border: 1px solid var(--epc-border); border-radius: var(--ep-input-radius, 8px); transition: border-color .15s, box-shadow .15s;
+}
+.epc-field input:focus, .epc-field select:focus, .epc-field textarea:focus, .epc-other:focus { outline: none; border-color: var(--epc-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--epc-accent) 20%, transparent); }
+.epc-other { margin-top: .5rem; }
+.epc-choices { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; margin-top: .4rem; }
+.epc-choice { display: inline-flex; gap: .55rem; align-items: flex-start; font-weight: 400; cursor: pointer; line-height: 1.45; }
+.epc-choice input { margin-top: .25rem; width: 1.05rem; height: 1.05rem; accent-color: var(--epc-accent); flex: none; }
+.epc-help { color: var(--epc-muted); font-size: .85rem; }
+.epc-field--heading h3 { margin: 1rem 0 0; font-size: 1.2rem; }
+.epc-error { color: var(--epc-danger); font-size: .85rem; }
+.epc-field.is-invalid input, .epc-field.is-invalid select, .epc-field.is-invalid textarea { border-color: var(--epc-danger); }
+.epc-form-errors { margin-top: 1.25rem; padding: .8rem 1rem; border-radius: 8px; background: #fdecea; color: var(--epc-danger); }
+.epc-actions { margin-top: 2rem; text-align: center; }
+.epc-submit { appearance: none; border: 0; cursor: pointer; padding: .9rem 2.75rem; font: inherit; font-weight: 700; letter-spacing: .02em; color: var(--ep-accent-contrast, #fff); background: var(--epc-accent); border-radius: var(--ep-btn-radius, 999px); transition: transform .1s, opacity .15s; }
+.epc-submit:hover { transform: translateY(-1px); }
+.epc-submit:disabled { opacity: .6; cursor: progress; }
+.epc-hp { position: absolute !important; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.epc-success, .epc-closed { text-align: center; padding: 2.5rem 1.5rem; border-radius: 12px; background: var(--epc-bg); border: 1px solid var(--epc-border); }
+.epc-notice { padding: .9rem 1.1rem; border-radius: 8px; margin-bottom: 1.25rem; }
+.epc-notice--warn { background: #fff6e0; color: #7a5300; }

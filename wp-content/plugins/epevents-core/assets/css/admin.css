@@ -1,0 +1,40 @@
+/* EP Events – admin */
+.epc-muted { color: #787c82; }
+.epc-bar { height: 6px; background: #e5e5e5; border-radius: 3px; margin: 4px 0 2px; max-width: 160px; overflow: hidden; }
+.epc-bar span { display: block; height: 100%; background: #7a0f3d; }
+.epc-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; line-height: 1.6; background: #eee; color: #333; vertical-align: middle; }
+.epc-badge--open, .epc-badge--confirmed, .epc-badge--attended { background: #d7f2df; color: #146c2e; }
+.epc-badge--registered { background: #dbe8fb; color: #1d4f91; }
+.epc-badge--waitlist, .epc-badge--not_open { background: #fff1cc; color: #7a5300; }
+.epc-badge--full, .epc-badge--closed, .epc-badge--cancelled { background: #fbe0e0; color: #8a1f1f; }
+
+.epc-kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin: 16px 0; }
+.epc-kpi { background: #fff; border: 1px solid #dcdcde; border-radius: 8px; padding: 14px 16px; }
+.epc-kpi span { display: block; color: #646970; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
+.epc-kpi strong { display: block; font-size: 24px; margin-top: 4px; }
+.epc-card { background: #fff; border: 1px solid #dcdcde; border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; min-width: 0; }
+.epc-card h2 { margin: 0 0 10px; font-size: 14px; }
+.epc-grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+.epc-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1100px) { .epc-grid-2, .epc-grid-3 { grid-template-columns: 1fr; } }
+.epc-chart { position: relative; height: 300px; }
+.epc-chart--sm { height: 220px; }
+.epc-report-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+.epc-quick a { margin: 0 4px; }
+.epc-dim { width: 100%; border-collapse: collapse; }
+.epc-dim th { text-align: right; font-weight: 500; color: #646970; font-size: 11px; }
+.epc-dim td { padding: 4px 0; border-top: 1px solid #f0f0f1; text-align: right; width: 60px; }
+.epc-dim td:first-child { text-align: left; width: auto; position: relative; }
+.epc-dim td:first-child span { position: relative; padding-left: 6px; }
+.epc-dim-bar { position: absolute; inset: 3px auto 3px 0; width: var(--w); background: #f6e7ee; border-radius: 3px; }
+
+.epc-matrix { max-width: 1000px; }
+.epc-matrix th.c, .epc-matrix td.c { text-align: center; width: 130px; }
+.epc-matrix .epc-matrix-group th { background: #f6f7f7; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: .04em; }
+.epc-yes { color: #146c2e; font-weight: 600; }
+.epc-no { color: #8a1f1f; }
+.epc-applicant-table th { width: 30%; }
+.epc-io .epc-card { max-width: 900px; }
+.epc-io table.form-table th { width: 200px; }
+/* Hidden read-only applicant screen (registered under Event Plus for a proper page title). */
+#adminmenu a[href="admin.php?page=epc-applicant"] { display: none; }

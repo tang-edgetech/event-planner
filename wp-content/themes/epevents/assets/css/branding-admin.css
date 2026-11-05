@@ -1,0 +1,27 @@
+/* Branding page live preview */
+#ept-brand-preview { --p: #6d1a45; --pc: #fff; --s: #e0a23a; --sc: #141414; --page: #f7f5f2; --surface: #fff; --text: #1c1a1f; --muted: #6b6570; --border: #e4dfe3; --fbg: #1c1a1f; --ftx: #d9d4da; --fh: system-ui; --fb: system-ui; --hw: 800; --fs: 16px; --r: 14px; --ri: 8px; --rb: 999px; --lh: 30px; max-width: 980px; margin: 4px 0 8px; }
+.eptp-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #646970; margin-bottom: 6px; font-weight: 600; }
+.eptp { background: var(--page); color: var(--text); font-family: var(--fb); font-size: calc(var(--fs) * .82); border: 1px solid #dcdcde; border-radius: 10px; overflow: hidden; line-height: 1.55; }
+#ept-brand-preview .eptp h2, #ept-brand-preview .eptp h3 { font-family: var(--fh); font-weight: var(--hw); color: inherit; margin: 0 0 .35em; line-height: 1.2; }
+#ept-brand-preview .eptp h2 { font-size: 1.9em; padding: 0; }
+#ept-brand-preview .eptp h3 { font-size: 1.15em; }
+#ept-brand-preview .eptp p { margin: 0 0 .7em; color: var(--muted); font-size: 1em; }
+.eptp-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 20px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.eptp-head nav { display: flex; align-items: center; gap: 16px; font-weight: 600; }
+.eptp-logo { font-family: var(--fh); font-weight: var(--hw); font-size: 1.15em; display: inline-flex; align-items: center; }
+.eptp-logo img { height: var(--lh); width: auto; max-width: 200px; display: block; }
+.eptp-hero { background: var(--p); color: var(--pc); padding: 32px 24px; text-align: center; }
+#ept-brand-preview .eptp-hero p { color: inherit; opacity: .85; }
+.eptp-badge { display: inline-block; background: var(--s); color: var(--sc); font-weight: 700; font-size: .8em; padding: 2px 10px; border-radius: var(--rb); margin-bottom: 10px; }
+.eptp-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 20px; background: var(--p); color: var(--pc); border-radius: var(--rb); font-weight: 700; }
+.eptp-btn--sm { min-height: 30px; padding: 0 14px; font-size: .9em; }
+.eptp-btn--light { background: #fff; color: var(--p); }
+.eptp-body { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; }
+.eptp-card { background: var(--surface); border-radius: var(--r); padding: 18px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 6px 18px rgba(0,0,0,.06); display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.eptp-card label { font-weight: 700; font-size: .9em; }
+.eptp-input { align-self: stretch; border: 1px solid var(--border); border-radius: var(--ri); padding: 7px 10px; background: var(--surface); margin-bottom: 6px; }
+.eptp-img { align-self: stretch; height: 64px; border-radius: var(--ri); background: linear-gradient(135deg, var(--s), var(--p)); margin-bottom: 6px; }
+.eptp-card a { color: var(--p); font-weight: 700; text-decoration: none; }
+.eptp-foot { background: var(--fbg); color: var(--ftx); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: .9em; }
+.eptp-foot .eptp-logo img { height: calc(var(--lh) * .8); }
+@media (max-width: 782px) { .eptp-body { grid-template-columns: 1fr; } .eptp-head nav span:not(.eptp-btn) { display: none; } }
