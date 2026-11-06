@@ -11,6 +11,9 @@ echo ept_section_open( 'image-text', $args['s'] ); // phpcs:ignore
 		<?php endif; ?>
 	</div>
 	<div class="ep-split__body ep-reveal">
+		<?php if ( ! empty( $row['eyebrow'] ) ) : ?>
+			<p class="ep-eyebrow"><?php echo esc_html( $row['eyebrow'] ); ?></p>
+		<?php endif; ?>
 		<?php if ( ! empty( $row['heading'] ) ) : ?>
 			<h2 class="ep-section__title"><?php echo esc_html( $row['heading'] ); ?></h2>
 		<?php endif; ?>
