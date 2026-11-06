@@ -40,6 +40,8 @@ add_action( 'acf/init', function () {
 				array( 'key' => 'field_epc_ev_accent', 'label' => 'Accent colour', 'name' => 'accent_color', 'type' => 'color_picker', 'wrapper' => array( 'width' => 33 ) ),
 				array( 'key' => 'field_epc_ev_page_bg', 'label' => 'Page background', 'name' => 'page_bg', 'type' => 'color_picker', 'wrapper' => array( 'width' => 33 ) ),
 				array( 'key' => 'field_epc_ev_show_title', 'label' => 'Show title above form', 'name' => 'show_title', 'type' => 'true_false', 'ui' => 1, 'default_value' => 1, 'wrapper' => array( 'width' => 34 ) ),
+				array( 'key' => 'field_epc_ev_layout', 'label' => 'Page layout', 'name' => 'page_layout', 'type' => 'button_group', 'choices' => array( 'split' => 'Details beside form', 'single' => 'Form only' ), 'default_value' => 'split', 'instructions' => 'On phones the details always sit above the form.', 'wrapper' => array( 'width' => 33 ) ),
+				array( 'key' => 'field_epc_ev_summary', 'label' => 'About this event', 'name' => 'summary', 'type' => 'wysiwyg', 'toolbar' => 'basic', 'media_upload' => 0, 'delay' => 1, 'instructions' => 'Short description shown beside the form (optional).', 'wrapper' => array( 'width' => 67 ) ),
 
 				/* ---------------- Form builder ---------------- */
 				array( 'key' => 'field_epc_ev_tab_form', 'label' => 'Form', 'type' => 'tab' ),

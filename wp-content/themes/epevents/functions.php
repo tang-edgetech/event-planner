@@ -5,7 +5,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EPT_VERSION', '1.1.2' );
+define( 'EPT_VERSION', '1.2.0' );
 
 require_once get_template_directory() . '/inc/template-helpers.php';
 require_once get_template_directory() . '/inc/branding.php';

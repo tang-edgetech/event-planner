@@ -28,7 +28,7 @@ function ept_brand_defaults(): array {
 		'brand_font_custom'    => '',
 		'brand_font_custom_url' => '',
 		'brand_font_size'      => '16',
-		'brand_heading_weight' => '800',
+		'brand_heading_weight' => '700',
 		'brand_corners'        => 'soft',
 		'brand_buttons'        => 'pill',
 		'login_logo'           => null,
@@ -141,7 +141,7 @@ function ept_brand_css(): string {
 		'square'  => '4px',
 	)[ ept_brand( 'brand_buttons' ) ] ?? '999px';
 	$size    = in_array( (string) ept_brand( 'brand_font_size' ), array( '15', '16', '17', '18' ), true ) ? ept_brand( 'brand_font_size' ) : '16';
-	$weight  = in_array( (string) ept_brand( 'brand_heading_weight' ), array( '600', '700', '800' ), true ) ? ept_brand( 'brand_heading_weight' ) : '800';
+	$weight  = in_array( (string) ept_brand( 'brand_heading_weight' ), array( '600', '700', '800' ), true ) ? ept_brand( 'brand_heading_weight' ) : '700';
 
 	$vars = array(
 		'--ep-accent'          => $c( 'brand_primary' ),

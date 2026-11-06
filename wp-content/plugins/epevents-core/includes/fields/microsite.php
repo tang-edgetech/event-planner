@@ -37,7 +37,7 @@ function epc_section_settings( string $p ): array {
 				'wrapper'       => array( 'width' => 30 ),
 			),
 			array( 'key' => "field_epc_{$p}_text_color", 'label' => 'Custom text', 'name' => 'text_color', 'type' => 'color_picker', 'wrapper' => array( 'width' => 20 ), 'conditional_logic' => epc_when( "field_epc_{$p}_text_scheme", 'custom' ) ),
-			array( 'key' => "field_epc_{$p}_bg_color", 'label' => 'Colour', 'name' => 'bg_color', 'type' => 'color_picker', 'default_value' => 'banner' === $p ? '#7a0f3d' : '', 'wrapper' => array( 'width' => 25 ), 'conditional_logic' => epc_when( $bg, array( 'color', 'gradient', 'image', 'video' ) ) ),
+			array( 'key' => "field_epc_{$p}_bg_color", 'label' => 'Colour', 'name' => 'bg_color', 'type' => 'color_picker', 'default_value' => '', 'wrapper' => array( 'width' => 25 ), 'conditional_logic' => epc_when( $bg, array( 'color', 'gradient', 'image', 'video' ) ) ),
 			array( 'key' => "field_epc_{$p}_bg_color2", 'label' => 'Gradient to', 'name' => 'bg_color2', 'type' => 'color_picker', 'wrapper' => array( 'width' => 25 ), 'conditional_logic' => epc_when( $bg, 'gradient' ) ),
 			array( 'key' => "field_epc_{$p}_bg_angle", 'label' => 'Angle', 'name' => 'bg_angle', 'type' => 'range', 'min' => 0, 'max' => 360, 'default_value' => 135, 'append' => '°', 'wrapper' => array( 'width' => 25 ), 'conditional_logic' => epc_when( $bg, 'gradient' ) ),
 			array( 'key' => "field_epc_{$p}_bg_image", 'label' => 'Image', 'name' => 'bg_image', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'medium', 'wrapper' => array( 'width' => 25 ), 'conditional_logic' => epc_when( $bg, 'image' ) ),
@@ -133,8 +133,9 @@ function epc_buttons_field( string $p ): array {
 
 function epc_heading_fields( string $p, bool $intro = true ): array {
 	$f = array(
-		array( 'key' => "field_epc_{$p}_heading", 'label' => 'Heading', 'name' => 'heading', 'type' => 'text', 'wrapper' => array( 'width' => 70 ) ),
-		array( 'key' => "field_epc_{$p}_align", 'label' => 'Heading align', 'name' => 'align', 'type' => 'button_group', 'choices' => array( 'center' => 'Center', 'left' => 'Left' ), 'default_value' => 'center', 'wrapper' => array( 'width' => 30 ) ),
+		array( 'key' => "field_epc_{$p}_eyebrow", 'label' => 'Small label', 'name' => 'eyebrow', 'type' => 'text', 'placeholder' => 'e.g. Day 1', 'instructions' => 'Optional, above the heading.', 'wrapper' => array( 'width' => 25 ) ),
+		array( 'key' => "field_epc_{$p}_heading", 'label' => 'Heading', 'name' => 'heading', 'type' => 'text', 'wrapper' => array( 'width' => 50 ) ),
+		array( 'key' => "field_epc_{$p}_align", 'label' => 'Heading align', 'name' => 'align', 'type' => 'button_group', 'choices' => array( 'center' => 'Center', 'left' => 'Left' ), 'default_value' => 'center', 'wrapper' => array( 'width' => 25 ) ),
 	);
 	if ( $intro ) {
 		$f[] = array( 'key' => "field_epc_{$p}_intro", 'label' => 'Intro', 'name' => 'intro', 'type' => 'wysiwyg', 'toolbar' => 'basic', 'media_upload' => 0, 'tabs' => 'all', 'delay' => 1 );
@@ -159,6 +160,8 @@ add_action( 'acf/init', function () {
 			'banner',
 			'Introduction banner',
 			array(
+				array( 'key' => 'field_epc_banner_style', 'label' => 'Banner style', 'name' => 'style', 'type' => 'button_group', 'choices' => array( 'center' => 'Centred', 'split' => 'Text + image', 'card' => 'Card on background' ), 'default_value' => 'center', 'instructions' => 'Text + image: key visual beside the text. Card: text in a white panel over the background image.', 'wrapper' => array( 'width' => 60 ) ),
+				array( 'key' => 'field_epc_banner_side_image', 'label' => 'Key visual', 'name' => 'side_image', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'medium', 'wrapper' => array( 'width' => 40 ), 'conditional_logic' => epc_when( 'field_epc_banner_style', 'split' ) ),
 				array( 'key' => 'field_epc_banner_title', 'label' => 'Title', 'name' => 'title', 'type' => 'text', 'instructions' => 'Empty = microsite title.', 'wrapper' => array( 'width' => 60 ) ),
 				array( 'key' => 'field_epc_banner_eyebrow', 'label' => 'Small text above title', 'name' => 'eyebrow', 'type' => 'text', 'wrapper' => array( 'width' => 40 ) ),
 				array( 'key' => 'field_epc_banner_logo', 'label' => 'Logo / key visual', 'name' => 'logo', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'thumbnail', 'wrapper' => array( 'width' => 30 ) ),
@@ -379,8 +382,8 @@ add_action( 'acf/init', function () {
 				),
 				array( 'key' => 'field_epc_ms_tab_general', 'label' => 'General', 'type' => 'tab' ),
 				array( 'key' => 'field_epc_ms_event', 'label' => 'Linked event', 'name' => 'linked_event', 'type' => 'post_object', 'post_type' => array( EPC_Post_Types::EVENT ), 'return_format' => 'id', 'ui' => 1, 'allow_null' => 1, 'instructions' => 'Banner date/time/venue fall back to this event. Visits & registrations are reported together.', 'wrapper' => array( 'width' => 50 ) ),
-				array( 'key' => 'field_epc_ms_accent', 'label' => 'Accent colour', 'name' => 'accent_color', 'type' => 'color_picker', 'default_value' => '#7a0f3d', 'wrapper' => array( 'width' => 25 ) ),
-				array( 'key' => 'field_epc_ms_page_bg', 'label' => 'Page background', 'name' => 'page_bg', 'type' => 'color_picker', 'default_value' => '#f1eee9', 'wrapper' => array( 'width' => 25 ) ),
+				array( 'key' => 'field_epc_ms_accent', 'label' => 'Accent colour', 'name' => 'accent_color', 'type' => 'color_picker', 'instructions' => 'Empty = brand colour.', 'wrapper' => array( 'width' => 25 ) ),
+				array( 'key' => 'field_epc_ms_page_bg', 'label' => 'Page background', 'name' => 'page_bg', 'type' => 'color_picker', 'instructions' => 'Empty = brand page colour.', 'wrapper' => array( 'width' => 25 ) ),
 				array( 'key' => 'field_epc_ms_nav', 'label' => 'Show top menu', 'name' => 'show_nav', 'type' => 'true_false', 'ui' => 1, 'default_value' => 1, 'instructions' => 'Menu items come from each section\'s "Menu label".', 'wrapper' => array( 'width' => 25 ) ),
 				array( 'key' => 'field_epc_ms_logo', 'label' => 'Menu logo', 'name' => 'nav_logo', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'thumbnail', 'wrapper' => array( 'width' => 25 ) ),
 				array( 'key' => 'field_epc_ms_cta', 'label' => 'Menu button', 'name' => 'nav_cta', 'type' => 'link', 'instructions' => 'e.g. Register Now.', 'wrapper' => array( 'width' => 25 ) ),

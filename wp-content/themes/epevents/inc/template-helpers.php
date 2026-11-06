@@ -35,6 +35,12 @@ function ept_is_dark( ?string $color ): bool {
 	return $lum < 0.55;
 }
 
+/** Accent colour of the current event / microsite, else the brand primary. */
+function ept_accent(): string {
+	$own = ( function_exists( 'get_field' ) && is_singular( array( 'ep_event', 'ep_microsite' ) ) ) ? (string) get_field( 'accent_color', get_queried_object_id() ) : '';
+	return $own ?: ( function_exists( 'ept_brand' ) ? (string) ept_brand( 'brand_primary' ) : '#6d1a45' );
+}
+
 /** Modals collected while rendering, printed in the footer. */
 function ept_modals( ?string $add = null ): string {
 	static $modals = array();
@@ -58,6 +64,10 @@ function ept_section_open( string $layout, array $s, string $extra = '' ): strin
 	if ( in_array( $type, array( 'color', 'gradient', 'image', 'video' ), true ) && ! empty( $s['bg_color'] ) ) {
 		$style[] = '--sec-bg:' . $s['bg_color'];
 		$dark    = ept_is_dark( $s['bg_color'] );
+	} elseif ( 'color' === $type ) {
+		// No colour picked: use the page / brand accent.
+		$style[] = '--sec-bg:var(--ep-accent)';
+		$dark    = ept_is_dark( ept_accent() );
 	}
 	if ( 'gradient' === $type ) {
 		$c2      = $s['bg_color2'] ?: '#000000';
@@ -115,6 +125,9 @@ function ept_section_head( array $row ): string {
 	}
 	$align = 'left' === ( $row['align'] ?? 'center' ) ? 'is-left' : 'is-center';
 	$out   = '<header class="ep-section__head ' . $align . ' ep-reveal">';
+	if ( ! empty( $row['eyebrow'] ) ) {
+		$out .= '<p class="ep-eyebrow">' . esc_html( $row['eyebrow'] ) . '</p>';
+	}
 	if ( $h ) {
 		$out .= '<h2 class="ep-section__title">' . esc_html( $h ) . '</h2>';
 	}
