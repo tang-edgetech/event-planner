@@ -38,3 +38,42 @@
 .epc-io table.form-table th { width: 200px; }
 /* Hidden read-only applicant screen (registered under Event Plus for a proper page title). */
 #adminmenu a[href="admin.php?page=epc-applicant"] { display: none; }
+
+/* Applicants: event summary bar */
+.epc-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; background: #fff; border: 1px solid #dcdcde; border-radius: 8px; padding: 14px 18px; margin: 14px 0 6px; }
+.epc-summary__title { flex: 1 1 240px; line-height: 1.7; }
+.epc-summary__seats { display: flex; flex-direction: column; gap: 4px; min-width: 180px; }
+.epc-summary__num { font-size: 20px; font-weight: 600; }
+.epc-progress { display: block; height: 6px; background: #eee; border-radius: 3px; overflow: hidden; }
+.epc-progress span { display: block; height: 100%; background: #2271b1; }
+.epc-summary__counts { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0; padding: 0; list-style: none; }
+.epc-summary__counts li { margin: 0; }
+
+/* Notes & activity */
+.epc-log { list-style: none; margin: 8px 0 0; padding: 0; border-left: 2px solid #dcdcde; }
+.epc-log li { position: relative; margin: 0; padding: 4px 0 10px 16px; }
+.epc-log li::before { content: ""; position: absolute; left: -6px; top: 9px; width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 2px solid #8c8f94; }
+.epc-log__when { display: block; color: #646970; font-size: 12px; }
+
+/* Mobile admin (phones) */
+.epc-matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+@media (max-width: 782px) {
+	.epc-matrix th.c, .epc-matrix td.c { width: 72px; min-width: 72px; }
+	.epc-matrix td:first-child { min-width: 180px; }
+	.epc-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.epc-kpi strong { font-size: 20px; }
+	.epc-summary { padding: 12px; gap: 10px; }
+	.epc-summary__seats { min-width: 0; width: 100%; }
+	.epc-export-buttons { display: flex; flex-wrap: wrap; gap: 6px; float: none; margin: 6px 0; }
+	.epc-export-buttons .button { margin: 0; }
+	.tablenav .actions select[name="epc_event"] { max-width: 100%; width: 100%; margin-bottom: 6px; }
+	.epc-report-filters > * { flex: 1 1 100%; }
+	.epc-chart { height: 240px; }
+	.epc-dim { font-size: 13px; }
+	.epc-applicant-table th { width: auto; }
+	.epc-io table.form-table th { width: auto; }
+	.wrap .widefat { font-size: 13px; }
+	.epc-dash-events th:nth-child(2), .epc-dash-events td:nth-child(2) { display: none; }
+	.epc-dash-events .row-actions { position: static; left: auto; }
+	.epc-card { overflow-x: auto; }
+}

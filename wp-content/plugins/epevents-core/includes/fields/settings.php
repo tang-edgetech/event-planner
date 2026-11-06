@@ -71,6 +71,32 @@ add_action( 'acf/init', function () {
 				),
 				array( 'key' => 'field_epc_geo_token', 'label' => 'ipinfo.io token', 'name' => 'epc_geo_token', 'type' => 'text', 'wrapper' => array( 'width' => 50 ), 'conditional_logic' => array( array( array( 'field' => 'field_epc_geo_provider', 'operator' => '==', 'value' => 'ipinfo' ) ) ) ),
 				array( 'key' => 'field_epc_track_retention', 'label' => 'Keep raw visit data for (days)', 'name' => 'epc_track_retention', 'type' => 'number', 'default_value' => 730, 'min' => 0, 'instructions' => '0 = forever.', 'wrapper' => array( 'width' => 50 ) ),
+
+				/* Optional features: all off by default. */
+				array( 'key' => 'field_epc_tab_features', 'label' => 'Features', 'type' => 'tab' ),
+				array( 'key' => 'field_epc_features_intro', 'label' => '', 'type' => 'message', 'message' => 'Optional features. Each is off until you switch it on.' ),
+				array( 'key' => 'field_epc_f_alert', 'label' => 'Capacity alert email', 'name' => 'epc_feature_capacity_alert', 'type' => 'true_false', 'ui' => 1, 'default_value' => 0, 'instructions' => 'Emails the event\'s notification recipients when registrations reach a percentage of capacity, and again when full.', 'wrapper' => array( 'width' => 50 ) ),
+				array( 'key' => 'field_epc_f_alert_pct', 'label' => 'Alert at', 'name' => 'epc_capacity_alert_pct', 'type' => 'number', 'default_value' => 90, 'min' => 1, 'max' => 99, 'append' => '%', 'wrapper' => array( 'width' => 50 ), 'conditional_logic' => array( array( array( 'field' => 'field_epc_f_alert', 'operator' => '==', 'value' => '1' ) ) ) ),
+				array(
+					'key'           => 'field_epc_f_waitlist',
+					'label'         => 'When a seat frees up (events with a waiting list)',
+					'name'          => 'epc_feature_waitlist',
+					'type'          => 'radio',
+					'choices'       => array(
+						'manual' => 'Do nothing (follow up manually)',
+						'notify' => 'Email the team that a seat is available',
+						'auto'   => 'Give the seat to the next person on the waiting list and email them',
+					),
+					'default_value' => 'manual',
+					'instructions'  => 'A seat frees up when an applicant is cancelled or deleted, or the maximum capacity is raised.',
+				),
+				array( 'key' => 'field_epc_f_ics', 'label' => 'Calendar invite in confirmation emails', 'name' => 'epc_feature_ics', 'type' => 'true_false', 'ui' => 1, 'default_value' => 0, 'instructions' => 'Attaches an .ics file (Outlook, Apple Calendar) and an "Add to Google Calendar" link. Needs the event start date. You can also use {calendar_link} in email text.', 'wrapper' => array( 'width' => 50 ) ),
+				array( 'key' => 'field_epc_f_countdown', 'label' => 'Countdown on new banners', 'name' => 'epc_feature_countdown', 'type' => 'true_false', 'ui' => 1, 'default_value' => 0, 'instructions' => 'Turns the countdown on by default when a banner is added. Each banner can still switch it off.', 'wrapper' => array( 'width' => 50 ) ),
+				array( 'key' => 'field_epc_f_mask', 'label' => 'Hide personal data from Viewers', 'name' => 'epc_feature_mask_viewers', 'type' => 'true_false', 'ui' => 1, 'default_value' => 0, 'instructions' => 'Users who cannot edit applicants see emails, phone numbers and NRIC partly hidden (e.g. j•••@mail.com, ••••••-••-1234).', 'wrapper' => array( 'width' => 50 ) ),
+				array( 'key' => 'field_epc_f_wl_subject', 'label' => 'Waiting list email subject', 'name' => 'epc_waitlist_subject', 'type' => 'text', 'placeholder' => 'You are on the waiting list: {event_title}', 'wrapper' => array( 'width' => 50 ) ),
+				array( 'key' => 'field_epc_f_offer_subject', 'label' => 'Seat offer email subject', 'name' => 'epc_offer_subject', 'type' => 'text', 'placeholder' => 'A seat is now available: {event_title}', 'wrapper' => array( 'width' => 50 ), 'conditional_logic' => array( array( array( 'field' => 'field_epc_f_waitlist', 'operator' => '==', 'value' => 'auto' ) ) ) ),
+				array( 'key' => 'field_epc_f_wl_body', 'label' => 'Waiting list email', 'name' => 'epc_waitlist_body', 'type' => 'wysiwyg', 'toolbar' => 'basic', 'media_upload' => 0, 'delay' => 1, 'instructions' => 'Sent when someone joins the waiting list. Empty = standard text. Placeholders: {fullname}, {event_title}, {event_date}, {registration_details}…', 'wrapper' => array( 'width' => 50 ) ),
+				array( 'key' => 'field_epc_f_offer_body', 'label' => 'Seat offer email', 'name' => 'epc_offer_body', 'type' => 'wysiwyg', 'toolbar' => 'basic', 'media_upload' => 0, 'delay' => 1, 'instructions' => 'Sent when a waiting applicant gets a seat. Empty = standard text.', 'wrapper' => array( 'width' => 50 ), 'conditional_logic' => array( array( array( 'field' => 'field_epc_f_waitlist', 'operator' => '==', 'value' => 'auto' ) ) ) ),
 			),
 		)
 	);

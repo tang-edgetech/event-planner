@@ -88,14 +88,24 @@ class EPC_Admin {
 			</p>
 			<table class="widefat striped" style="max-width:900px">
 				<tbody>
-				<?php foreach ( $data as $k => $v ) : ?>
-					<tr><th style="width:35%"><?php echo esc_html( $labels[ $k ] ?? $k ); ?></th><td><?php echo esc_html( is_array( $v ) ? implode( ', ', $v ) : (string) $v ); ?></td></tr>
+				<?php
+				$mask  = EPC_Features::mask_personal_data();
+				$types = $mask ? EPC_Features::field_types( $event ) : array();
+				foreach ( $data as $k => $v ) :
+					$v = is_array( $v ) ? implode( ', ', $v ) : (string) $v;
+					if ( $mask ) {
+						$v = EPC_Features::mask( $v, $types[ $k ] ?? '' );
+					}
+					?>
+					<tr><th style="width:35%"><?php echo esc_html( $labels[ $k ] ?? $k ); ?></th><td><?php echo esc_html( $v ); ?></td></tr>
 				<?php endforeach; ?>
 				<?php foreach ( array_filter( $src ) as $k => $v ) : ?>
 					<tr><th class="epc-muted">Source: <?php echo esc_html( $k ); ?></th><td class="epc-muted"><?php echo esc_html( $v ); ?></td></tr>
 				<?php endforeach; ?>
 				</tbody>
 			</table>
+			<h2>Activity</h2>
+			<div class="epc-card" style="max-width:900px"><?php echo EPC_Applicants_Admin::log_html( $id ); // phpcs:ignore -- escaped. ?></div>
 			<p><a href="<?php echo esc_url( admin_url( 'edit.php?post_type=' . EPC_Post_Types::APPLICANT . '&epc_event=' . $event ) ); ?>">← Back to applicants</a></p>
 		</div>
 		<?php
@@ -137,7 +147,7 @@ class EPC_Admin {
 							<a class="page-title-action" href="<?php echo esc_url( admin_url( 'post-new.php?post_type=' . EPC_Post_Types::EVENT ) ); ?>">Add event</a>
 						<?php endif; ?>
 					</h2>
-					<table class="widefat striped">
+					<table class="widefat striped epc-dash-events">
 						<thead><tr><th>Event</th><th>Date</th><th>Registrations</th><th>Status</th></tr></thead>
 						<tbody>
 						<?php foreach ( $events as $e ) : $s = EPC_Capacity::state( $e->ID ); ?>

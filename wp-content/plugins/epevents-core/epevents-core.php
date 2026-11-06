@@ -11,7 +11,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EPC_VERSION', '1.1.0' );
+define( 'EPC_VERSION', '1.2.1' );
 define( 'EPC_FILE', __FILE__ );
 define( 'EPC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'EPC_URL', plugin_dir_url( __FILE__ ) );
@@ -22,6 +22,8 @@ require_once EPC_DIR . 'includes/class-roles.php';
 require_once EPC_DIR . 'includes/class-post-types.php';
 require_once EPC_DIR . 'includes/class-validator.php';
 require_once EPC_DIR . 'includes/class-capacity.php';
+require_once EPC_DIR . 'includes/class-mailer.php';
+require_once EPC_DIR . 'includes/class-features.php';
 require_once EPC_DIR . 'includes/class-form.php';
 require_once EPC_DIR . 'includes/class-applicants-admin.php';
 require_once EPC_DIR . 'includes/class-analytics.php';
@@ -49,6 +51,7 @@ EPC_Roles::init();
 EPC_Post_Types::init();
 EPC_Capacity::init();
 EPC_Form::init();
+EPC_Features::init();
 EPC_Applicants_Admin::init();
 EPC_Analytics::init();
 EPC_Analytics_Admin::init();

@@ -346,7 +346,7 @@ class EPC_Form {
 		}
 
 		do_action( 'epc_applicant_registered', $applicant_id, $event_id, $data );
-		self::send_emails( $applicant_id, $event_id, $data, $fields );
+		EPC_Mailer::registered( $applicant_id );
 
 		$message  = get_field( 'confirmation_message', $event_id ) ?: '<h3>Thank you!</h3><p>Your registration for {event_title} has been received.</p>';
 		$redirect = 'redirect' === get_field( 'confirmation_type', $event_id ) ? (string) get_field( 'redirect_url', $event_id ) : '';
@@ -469,46 +469,4 @@ class EPC_Form {
 		return trim( (string) preg_replace( '/\bOthers: /', '', implode( ' ', $parts ) ) );
 	}
 
-	private static function send_emails( int $applicant_id, int $event_id, array $data, array $fields ): void {
-		$rows = '';
-		foreach ( $fields as $f ) {
-			if ( array_key_exists( $f['name'], $data ) ) {
-				$v     = $data[ $f['name'] ];
-				$rows .= '<tr><th align="left" style="padding:4px 12px 4px 0">' . esc_html( wp_strip_all_tags( $f['label'] ) ) . '</th><td style="padding:4px 0">' . esc_html( is_array( $v ) ? implode( ', ', $v ) : $v ) . '</td></tr>';
-			}
-		}
-		$table   = '<table cellspacing="0" cellpadding="0">' . $rows . '</table>';
-		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
-		$from    = epc_setting( 'epc_mail_from_name', get_bloginfo( 'name' ) );
-		$from_em = epc_setting( 'epc_mail_from_email', '' );
-		if ( $from_em ) {
-			$headers[] = 'From: ' . $from . ' <' . $from_em . '>';
-		}
-
-		// Admin notification.
-		if ( get_field( 'notify_admin', $event_id ) ) {
-			$to = epc_lines( str_replace( ',', "\n", (string) ( get_field( 'admin_emails', $event_id ) ?: epc_setting( 'epc_admin_emails', get_option( 'admin_email' ) ) ) ) );
-			if ( $to ) {
-				$link = admin_url( 'post.php?action=edit&post=' . $applicant_id );
-				wp_mail( $to, 'New registration: ' . get_the_title( $event_id ), apply_filters( 'epc_email_html', '<p>A new registration was received for <strong>' . esc_html( get_the_title( $event_id ) ) . '</strong>.</p>' . $table . '<p><a href="' . esc_url( $link ) . '">View applicant</a></p>', 'admin' ), $headers );
-			}
-		}
-
-		// Applicant confirmation.
-		if ( get_field( 'notify_applicant', $event_id ) ) {
-			$email = '';
-			foreach ( $fields as $f ) {
-				if ( 'email' === $f['type'] && ! empty( $data[ $f['name'] ] ) ) {
-					$email = $data[ $f['name'] ];
-					break;
-				}
-			}
-			if ( $email ) {
-				$subject = epc_replace_placeholders( (string) ( get_field( 'email_subject', $event_id ) ?: 'Registration received: {event_title}' ), $data, $event_id );
-				$body    = epc_replace_placeholders( (string) ( get_field( 'email_body', $event_id ) ?: '<p>Dear {salutation} {fullname},</p><p>Thank you for registering for <strong>{event_title}</strong>.</p><p>{event_date} {event_time}<br>{event_venue}</p>' ), $data, $event_id );
-				$body    = str_replace( '{registration_details}', $table, $body );
-				wp_mail( $email, wp_strip_all_tags( $subject ), apply_filters( 'epc_email_html', $body, 'applicant' ), $headers );
-			}
-		}
-	}
 }
