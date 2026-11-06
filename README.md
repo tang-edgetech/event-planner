@@ -84,6 +84,15 @@ Seats are taken by Registered, Confirmed and Attended applicants; Waitlist and C
 Waiting-list and seat-offer email texts are editable in the same tab. People on the waiting list now get a waiting-list email instead of the normal confirmation.
 Emails are built in `includes/class-mailer.php`; features and status changes in `includes/class-features.php` (`EPC_Features::set_status()` is the only place a status should change).
 
+## Email sending (SMTP)
+Event Plus → Settings → **Email**: From name / From email (used for every email the site sends), default notification recipients, and **SMTP**:
+host, encryption (TLS 587 / SSL 465 / none), port, login, username and password.
+
+- The password is stored encrypted with the site's secret keys and is never shown again; leave it empty to keep the saved one.
+- **Send test email** (same tab, after saving) reports the mail server's error message if sending fails.
+- `wp-config.php` can override: `EPC_SMTP_HOST`, `EPC_SMTP_PORT`, `EPC_SMTP_SECURE` (`tls` / `ssl` / `none`), `EPC_SMTP_USER`, `EPC_SMTP_PASSWORD`.
+- Code: `includes/class-smtp.php`.
+
 ## Site access (maintenance page)
 Event Plus → Settings → **Site access**. Default: **Direct links only**.
 

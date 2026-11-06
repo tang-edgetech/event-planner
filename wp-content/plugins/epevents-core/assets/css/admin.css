@@ -77,3 +77,12 @@
 	.epc-dash-events .row-actions { position: static; left: auto; }
 	.epc-card { overflow-x: auto; }
 }
+
+/* Event form builder: zebra rows so each field is easy to spot */
+.acf-field[data-key="field_epc_form_fields"] > .acf-input > .acf-repeater > .acf-table > tbody > .acf-row:not(.acf-clone) > td { background: #fff; border-top: 2px solid #c3c4c7; transition: background-color .15s; }
+.acf-field[data-key="field_epc_form_fields"] > .acf-input > .acf-repeater > .acf-table > tbody > .acf-row:not(.acf-clone):nth-child(even) > td { background: #f0f4f8; }
+.acf-field[data-key="field_epc_form_fields"] > .acf-input > .acf-repeater > .acf-table > tbody > .acf-row:not(.acf-clone):hover > td { background: #fbf6e9; }
+.acf-field[data-key="field_epc_form_fields"] > .acf-input > .acf-repeater > .acf-table > tbody > .acf-row > td.acf-row-handle.order { font-weight: 700; color: #1d2327; }
+.acf-field[data-key="field_epc_form_fields"] > .acf-input > .acf-repeater > .acf-table > tbody > .acf-row:nth-child(even) > td.acf-row-handle.order { background: #dfe8f1; }
+.acf-field[data-key="field_epc_form_fields"] > .acf-input > .acf-repeater > .acf-table > tbody > .acf-row:nth-child(odd):not(.acf-clone) > td.acf-row-handle.order { background: #ececee; }
+.acf-field[data-key="field_epc_form_fields"] .acf-fields > .acf-field { border-color: rgba(0, 0, 0, .06); }

@@ -50,6 +50,25 @@ add_action( 'acf/init', function () {
 				array( 'key' => 'field_epc_mail_from_email', 'label' => 'From email', 'name' => 'epc_mail_from_email', 'type' => 'email', 'wrapper' => array( 'width' => 50 ) ),
 				array( 'key' => 'field_epc_admin_emails', 'label' => 'Default notification recipients', 'name' => 'epc_admin_emails', 'type' => 'textarea', 'rows' => 3, 'instructions' => 'One email per line. Events can override this.' ),
 
+				/* SMTP: send all site email through a mail server instead of PHP mail(). */
+				array( 'key' => 'field_epc_smtp_enable', 'label' => 'Send email through SMTP', 'name' => 'epc_smtp_enable', 'type' => 'true_false', 'ui' => 1, 'default_value' => 0, 'instructions' => 'Recommended: hosting PHP mail often lands in spam. Applies to every email the site sends.' ),
+				array( 'key' => 'field_epc_smtp_host', 'label' => 'SMTP host', 'name' => 'epc_smtp_host', 'type' => 'text', 'placeholder' => 'smtp.gmail.com / mail.yourdomain.com', 'wrapper' => array( 'width' => 40 ), 'conditional_logic' => array( array( array( 'field' => 'field_epc_smtp_enable', 'operator' => '==', 'value' => '1' ) ) ) ),
+				array(
+					'key'               => 'field_epc_smtp_secure',
+					'label'             => 'Encryption',
+					'name'              => 'epc_smtp_secure',
+					'type'              => 'select',
+					'choices'           => array( 'tls' => 'TLS (port 587)', 'ssl' => 'SSL (port 465)', 'none' => 'None (port 25)' ),
+					'default_value'     => 'tls',
+					'wrapper'           => array( 'width' => 30 ),
+					'conditional_logic' => array( array( array( 'field' => 'field_epc_smtp_enable', 'operator' => '==', 'value' => '1' ) ) ),
+				),
+				array( 'key' => 'field_epc_smtp_port', 'label' => 'Port', 'name' => 'epc_smtp_port', 'type' => 'number', 'placeholder' => '587', 'min' => 1, 'max' => 65535, 'instructions' => 'Empty = usual port for the encryption.', 'wrapper' => array( 'width' => 30 ), 'conditional_logic' => array( array( array( 'field' => 'field_epc_smtp_enable', 'operator' => '==', 'value' => '1' ) ) ) ),
+				array( 'key' => 'field_epc_smtp_auth', 'label' => 'Server requires login', 'name' => 'epc_smtp_auth', 'type' => 'true_false', 'ui' => 1, 'default_value' => 1, 'wrapper' => array( 'width' => 40 ), 'conditional_logic' => array( array( array( 'field' => 'field_epc_smtp_enable', 'operator' => '==', 'value' => '1' ) ) ) ),
+				array( 'key' => 'field_epc_smtp_user', 'label' => 'Username', 'name' => 'epc_smtp_user', 'type' => 'text', 'placeholder' => 'Usually the full email address', 'wrapper' => array( 'width' => 30 ), 'conditional_logic' => array( array( array( 'field' => 'field_epc_smtp_enable', 'operator' => '==', 'value' => '1' ), array( 'field' => 'field_epc_smtp_auth', 'operator' => '==', 'value' => '1' ) ) ) ),
+				array( 'key' => 'field_epc_smtp_pass', 'label' => 'Password', 'name' => 'epc_smtp_pass', 'type' => 'password', 'instructions' => 'Stored encrypted. Leave empty to keep the saved password. For Gmail / Microsoft 365 use an app password.', 'wrapper' => array( 'width' => 30 ), 'conditional_logic' => array( array( array( 'field' => 'field_epc_smtp_enable', 'operator' => '==', 'value' => '1' ), array( 'field' => 'field_epc_smtp_auth', 'operator' => '==', 'value' => '1' ) ) ) ),
+				array( 'key' => 'field_epc_smtp_test', 'label' => 'Send a test email', 'name' => '', 'type' => 'message', 'message' => '<div id="epc-smtp-test"></div>', 'esc_html' => 0, 'instructions' => 'Save first, then send a test to check the settings.' ),
+
 				array( 'key' => 'field_epc_tab_track', 'label' => 'Tracking', 'type' => 'tab' ),
 				array( 'key' => 'field_epc_track_enabled', 'label' => 'Enable visitor tracking', 'name' => 'epc_track_enabled', 'type' => 'true_false', 'ui' => 1, 'default_value' => 1, 'wrapper' => array( 'width' => 33 ) ),
 				array( 'key' => 'field_epc_track_admins', 'label' => 'Track logged-in editors', 'name' => 'epc_track_admins', 'type' => 'true_false', 'ui' => 1, 'default_value' => 0, 'wrapper' => array( 'width' => 33 ) ),
