@@ -17,7 +17,7 @@ class EPC_Roles {
 	const SUPER     = 'ep_super_admin';
 	const MANAGER   = 'ep_manager';
 	const VIEWER    = 'ep_viewer';
-	const VERSION   = '2';
+	const VERSION   = '3';
 
 	/** Roles controlled by the permission matrix, highest first. */
 	public static function matrix_roles(): array {
@@ -126,13 +126,9 @@ class EPC_Roles {
 			'data_import'        => array( 'Import / Export', 'Import content', 'Import events, microsites and applicants from files.', array( 'epc_import' ), false, false ),
 
 			// Content.
-			'news'               => array( 'Content', 'Manage news / blog posts', 'Write and publish articles shown in microsite "News" sections, and their categories.', array( 'edit_posts', 'edit_others_posts', 'edit_published_posts', 'publish_posts', 'delete_posts', 'delete_published_posts', 'manage_categories' ), true, false ),
-			'pages'              => array( 'Content', 'Manage pages', 'Create and edit normal pages (About, Contact, Privacy…).', array( 'edit_pages', 'edit_others_pages', 'edit_published_pages', 'edit_private_pages', 'read_private_pages', 'publish_pages', 'delete_pages', 'delete_others_pages', 'delete_published_pages', 'delete_private_pages' ), false, false ),
 			'media'              => array( 'Content', 'Upload media', 'Upload images, videos and documents.', array( 'upload_files' ), true, false ),
 			'html'               => array( 'Content', 'Custom HTML & embed codes', 'Keep scripts and embeds in the Custom HTML section (without it only safe HTML and iframes are kept).', array( 'unfiltered_html' ), false, false ),
 
-			// Appearance.
-			'branding'           => array( 'Appearance', 'Branding & menus', 'Logo, brand colours, fonts, login page, email look and site menus.', array( 'edit_theme_options' ), false, false ),
 
 			// Settings.
 			'settings'           => array( 'Settings', 'Manage settings', 'Option lists (Salutation etc.), email sender, tracking options.', array( 'epc_manage_settings' ), false, false ),
@@ -140,6 +136,23 @@ class EPC_Roles {
 			// Users.
 			'users'              => array( 'Users', 'Manage users', 'Add / edit / remove accounts at their own level or below (never higher roles).', array( 'list_users', 'create_users', 'edit_users', 'promote_users', 'delete_users', 'remove_users', 'epc_manage_users' ), false, false ),
 			'permissions'        => array( 'Users', 'Manage permissions', 'Open this page and change permissions of roles and users ranked below their own.', array( 'epc_manage_permissions' ), false, false ),
+		);
+	}
+
+	/**
+	 * WordPress capabilities that only Developers may hold: posts, pages, comments, appearance, plugins,
+	 * tools, settings and ACF. They are stripped from every other role and user, whatever the matrix says.
+	 */
+	public static function developer_only_caps(): array {
+		return array(
+			'edit_posts', 'edit_others_posts', 'edit_published_posts', 'edit_private_posts', 'read_private_posts', 'publish_posts',
+			'delete_posts', 'delete_others_posts', 'delete_published_posts', 'delete_private_posts', 'manage_categories',
+			'edit_pages', 'edit_others_pages', 'edit_published_pages', 'edit_private_pages', 'read_private_pages', 'publish_pages',
+			'delete_pages', 'delete_others_pages', 'delete_published_pages', 'delete_private_pages',
+			'moderate_comments', 'edit_comment',
+			'edit_theme_options', 'switch_themes', 'edit_themes', 'install_themes', 'update_themes', 'delete_themes', 'customize',
+			'activate_plugins', 'edit_plugins', 'install_plugins', 'update_plugins', 'delete_plugins',
+			'manage_options', 'import', 'export', 'edit_files', 'update_core', 'edit_dashboard', 'manage_links',
 		);
 	}
 
@@ -166,6 +179,68 @@ class EPC_Roles {
 		add_filter( 'editable_roles', array( __CLASS__, 'limit_editable_roles' ) );
 		add_filter( 'map_meta_cap', array( __CLASS__, 'protect_higher_users' ), 10, 4 );
 		add_filter( 'login_redirect', array( __CLASS__, 'login_redirect' ), 10, 3 );
+
+		// Developer accounts are "ghosts": invisible to everyone who is not a Developer.
+		add_filter( 'get_the_author_display_name', array( __CLASS__, 'ghost_author_name' ), 10, 2 );
+		add_filter( 'rest_user_query', array( __CLASS__, 'ghost_rest_users' ) );
+		add_filter( 'rest_pre_dispatch', array( __CLASS__, 'ghost_rest_user' ), 10, 3 );
+		add_action( 'template_redirect', array( __CLASS__, 'ghost_author_archive' ), 0 );
+		add_filter( 'oembed_response_data', array( __CLASS__, 'ghost_oembed' ), 10, 2 );
+	}
+
+	/* ------------------------------------------------------------------ */
+	/* Ghost developers                                                    */
+	/* ------------------------------------------------------------------ */
+
+	/** Name to show for a user: Developers appear as "System" to everyone else. */
+	public static function public_name( int $user_id ): string {
+		$user = get_userdata( $user_id );
+		if ( ! $user ) {
+			return 'User';
+		}
+		return self::is_developer( $user ) && ! self::is_developer() ? 'System' : $user->display_name;
+	}
+
+	public static function ghost_author_name( $name, $user_id ) {
+		return $user_id && self::is_developer( (int) $user_id ) && ! self::is_developer() ? get_bloginfo( 'name' ) : $name;
+	}
+
+	/** REST user lists (e.g. /wp/v2/users) never include Developers for non-Developers. */
+	public static function ghost_rest_users( array $args ): array {
+		if ( ! self::is_developer() ) {
+			$args['role__not_in'] = array_values( array_unique( array_merge( (array) ( $args['role__not_in'] ?? array() ), array( self::DEVELOPER, 'administrator' ) ) ) );
+		}
+		return $args;
+	}
+
+	public static function ghost_rest_user( $result, $server, WP_REST_Request $request ) {
+		if ( null === $result && ! self::is_developer() && preg_match( '#^/wp/v2/users/(\d+)#', $request->get_route(), $m ) && self::is_developer( (int) $m[1] ) ) {
+			return new WP_Error( 'rest_user_invalid_id', 'Invalid user ID.', array( 'status' => 404 ) );
+		}
+		return $result;
+	}
+
+	/** Author archives (and ?author=ID lookups) of Developers are "not found". */
+	public static function ghost_author_archive(): void {
+		if ( ! is_author() || self::is_developer() ) {
+			return;
+		}
+		$author = get_queried_object();
+		if ( $author instanceof WP_User && self::is_developer( $author ) ) {
+			global $wp_query;
+			$wp_query->set_404();
+			status_header( 404 );
+			nocache_headers();
+			remove_action( 'template_redirect', 'redirect_canonical' );
+		}
+	}
+
+	public static function ghost_oembed( array $data, WP_Post $post ): array {
+		if ( self::is_developer( (int) $post->post_author ) ) {
+			$data['author_name'] = get_bloginfo( 'name' );
+			$data['author_url']  = home_url( '/' );
+		}
+		return $data;
 	}
 
 	public static function maybe_install(): void {
@@ -244,6 +319,9 @@ class EPC_Roles {
 				}
 			}
 			$grant = array_unique( $grant );
+			foreach ( self::developer_only_caps() as $cap ) {
+				$role->remove_cap( $cap );
+			}
 			foreach ( self::all_caps() as $cap ) {
 				if ( in_array( $cap, $grant, true ) ) {
 					$role->add_cap( $cap );
@@ -308,24 +386,50 @@ class EPC_Roles {
 	/* Only show what each role is allowed                                 */
 	/* ------------------------------------------------------------------ */
 
-	/** WordPress screens that are developer-only even when a capability would let them in. */
+	/** WordPress screens that are developer-only, whatever capabilities a user has. */
 	private static function developer_screens(): array {
-		return array( 'tools.php', 'import.php', 'export.php', 'export-personal-data.php', 'erase-personal-data.php', 'site-health.php', 'edit-comments.php', 'comment.php', 'customize.php', 'site-editor.php', 'widgets.php', 'font-library.php' );
+		return array(
+			'tools.php', 'import.php', 'export.php', 'export-personal-data.php', 'erase-personal-data.php', 'site-health.php',
+			'edit-comments.php', 'comment.php', 'customize.php', 'site-editor.php', 'widgets.php', 'font-library.php',
+			'themes.php', 'theme-install.php', 'theme-editor.php', 'nav-menus.php', 'plugins.php', 'plugin-install.php', 'plugin-editor.php',
+			'update-core.php', 'update.php', 'options.php', 'options-general.php', 'options-writing.php', 'options-reading.php',
+			'options-discussion.php', 'options-media.php', 'options-permalink.php', 'options-privacy.php', 'privacy.php',
+			'edit-tags.php', 'term.php', 'link-manager.php',
+		);
+	}
+
+	/** Post types whose screens are developer-only. */
+	private static function developer_post_type( string $type ): bool {
+		return in_array( $type, array( 'post', 'page', 'wp_block', 'wp_navigation', 'wp_template', 'wp_template_part' ), true ) || str_starts_with( $type, 'acf-' );
+	}
+
+	private static function is_developer_screen( string $pagenow ): bool {
+		// phpcs:disable WordPress.Security.NonceVerification
+		if ( in_array( $pagenow, self::developer_screens(), true ) ) {
+			return true;
+		}
+		if ( in_array( $pagenow, array( 'edit.php', 'post-new.php' ), true ) ) {
+			return self::developer_post_type( sanitize_key( $_GET['post_type'] ?? '' ) ?: 'post' );
+		}
+		if ( 'post.php' === $pagenow ) {
+			$id = absint( $_GET['post'] ?? ( $_POST['post_ID'] ?? 0 ) );
+			return $id && self::developer_post_type( (string) get_post_type( $id ) );
+		}
+		if ( 'admin.php' === $pagenow && str_starts_with( sanitize_key( $_GET['page'] ?? '' ), 'acf' ) ) {
+			return true;
+		}
+		return false;
+		// phpcs:enable
 	}
 
 	public static function trim_menu(): void {
 		if ( self::is_developer() || ! is_user_logged_in() ) {
 			return;
 		}
-		remove_menu_page( 'index.php' );
-		remove_menu_page( 'tools.php' );
-		remove_menu_page( 'edit-comments.php' );
-		// Appearance: only Branding and Menus; themes, patterns, fonts, widgets and the Customizer are developer tools.
-		global $submenu;
-		foreach ( (array) ( $submenu['themes.php'] ?? array() ) as $i => $item ) {
-			if ( ! in_array( $item[2] ?? '', array( 'ept-branding', 'nav-menus.php' ), true ) ) {
-				unset( $submenu['themes.php'][ $i ] );
-			}
+		// Only Developers see WordPress's own areas: Dashboard, Posts, Pages, Comments, Appearance,
+		// Plugins, Tools, Settings and ACF. Everyone else works in Event Plus, Media, Users and Profile.
+		foreach ( array( 'index.php', 'edit.php', 'edit.php?post_type=page', 'edit-comments.php', 'themes.php', 'plugins.php', 'tools.php', 'options-general.php', 'edit.php?post_type=acf-field-group' ) as $slug ) {
+			remove_menu_page( $slug );
 		}
 	}
 
@@ -338,10 +442,7 @@ class EPC_Roles {
 			wp_safe_redirect( current_user_can( 'epc_view_dashboard' ) ? admin_url( 'admin.php?page=epc' ) : admin_url( 'profile.php' ) );
 			exit;
 		}
-		// themes.php itself is the theme switcher; themes.php?page=… (Branding) stays reachable.
-		$themes_screen = ( 'themes.php' === $pagenow && empty( $_GET['page'] ) ) // phpcs:ignore
-			|| ( in_array( $pagenow, array( 'edit.php', 'post-new.php' ), true ) && 'wp_block' === ( $_GET['post_type'] ?? '' ) ); // phpcs:ignore
-		if ( $themes_screen || in_array( $pagenow, self::developer_screens(), true ) ) {
+		if ( self::is_developer_screen( $pagenow ) ) {
 			wp_die( 'This area is only available to Developers.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 		}
 	}
@@ -350,7 +451,7 @@ class EPC_Roles {
 		if ( self::is_developer() ) {
 			return;
 		}
-		foreach ( array( 'comments', 'customize', 'updates', 'themes', 'widgets', 'dashboard', 'site-editor' ) as $node ) {
+		foreach ( array( 'comments', 'customize', 'updates', 'themes', 'widgets', 'dashboard', 'site-editor', 'menus', 'new-post', 'new-page', 'edit' ) as $node ) {
 			$bar->remove_node( $node );
 		}
 	}
@@ -616,7 +717,7 @@ class EPC_Roles {
 
 	/** Translate overrides into user-level caps (true = grant, false = explicit deny). */
 	public static function apply_user_overrides( WP_User $user, array $over ): void {
-		foreach ( self::all_caps() as $cap ) {
+		foreach ( array_merge( self::all_caps(), self::developer_only_caps() ) as $cap ) {
 			if ( array_key_exists( $cap, $user->caps ) && ! wp_roles()->is_role( $cap ) ) {
 				$user->remove_cap( $cap );
 			}

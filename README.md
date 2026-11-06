@@ -127,7 +127,8 @@ server-side with the visitor's original campaign attribution, giving a conversio
 Roles, highest first: **Developer** → **Super Admin** → **Manager** → **Viewer**.
 WordPress *Administrator* is treated as Developer.
 
-- **Developer** always has everything, including the technical areas that are never in the matrix: plugins, themes, ACF field groups, WordPress settings, tools, updates, comments, site health, patterns, fonts and the Customizer.
+- **Developer** always has everything, and is the only role that sees WordPress's own areas: Dashboard, Posts, Pages, Comments, Appearance (incl. Branding and Menus), Plugins, Tools, Settings and ACF. These are never in the matrix: menus are removed, screens are blocked by direct URL, and the matching capabilities are stripped from every other role and user.
+- Everyone else works only in **Event Plus**, **Media** (if allowed), **Users** (if allowed) and their **Profile**.
 - **Super Admin, Manager and Viewer** get exactly what the matrix grants, so each role only sees the sections it is allowed (menus are hidden *and* the screens are blocked). The WordPress dashboard is skipped: they land on Event Plus → Overview.
 - Event Plus → **Permissions** has the full matrix, per-user Allow/Deny overrides and a "who has which role" view. Anyone with *Manage permissions* can only change roles and users ranked **below** their own: a Developer edits Super Admin, Manager and Viewer; a Super Admin edits Manager and Viewer, and sees their own column locked.
 - Enforcement uses real WordPress capabilities (custom capability types on each post type), not just hidden menus.
@@ -148,10 +149,8 @@ WordPress *Administrator* is treated as Developer.
 | Export report data | ✔ | ✔ | – |
 | Export content | ✔ | ✔ | – |
 | Import content | ✔ | – | – |
-| News / blog posts and categories, media uploads | ✔ | ✔ | – |
-| Pages | ✔ | – | – |
+| Media uploads | ✔ | ✔ | – |
 | Custom HTML & embed codes (scripts) | ✔ | – | – |
-| Branding & menus | ✔ | – | – |
 | Settings (lists, email, tracking) | ✔ | – | – |
 | Manage users | ✔ | – | – |
 | Manage permissions | ✔ | – | – |
@@ -159,10 +158,12 @@ WordPress *Administrator* is treated as Developer.
 User management rules:
 - Nobody can edit, delete or promote a user ranked above them.
 - Roles can only be assigned up to your own level (a Super Admin can add another Super Admin, never a Developer).
-- Developer and Administrator accounts are hidden from the user list for everyone below Developer.
+- Developer (and Administrator) accounts are **ghosts** to everyone else: not in the user list, user counts, role filters or "Who has which role"; shown as "System" in activity logs; their author name shows as the site name; their author pages and REST user entries return "not found".
+
+News articles (Posts) are written by a Developer; microsite "News" sections pick them up as before.
 
 ## Branding (white label)
-Appearance → **Branding** (theme `inc/branding.php`, Super Admin / Administrator only), with a live preview:
+Appearance → **Branding** (theme `inc/branding.php`, Developer only), with a live preview:
 
 - **Logo**: main logo, logo for dark backgrounds, favicon, header logo height, footer copyright (`{year}`, `{site}`).
 - **Colours**: primary, secondary, page, cards, text, secondary text, borders, footer background and text. Button text contrast is automatic. Events and microsites can still set their own accent.

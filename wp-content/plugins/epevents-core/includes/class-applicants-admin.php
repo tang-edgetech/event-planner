@@ -379,7 +379,7 @@ class EPC_Applicants_Admin {
 		$log = array_reverse( array_filter( (array) get_post_meta( $id, '_epc_log', true ) ) );
 		$out = '<ol class="epc-log">';
 		foreach ( $log as $l ) {
-			$who  = ! empty( $l['u'] ) ? ( get_userdata( (int) $l['u'] )->display_name ?? 'User' ) : 'System';
+			$who  = ! empty( $l['u'] ) ? EPC_Roles::public_name( (int) $l['u'] ) : 'System';
 			$out .= '<li><span class="epc-log__when">' . esc_html( wp_date( 'j M Y, g:ia', (int) $l['t'] ) ) . ' · ' . esc_html( $who ) . '</span>' . esc_html( (string) $l['m'] ) . '</li>';
 		}
 		$post = get_post( $id );
