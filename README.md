@@ -38,7 +38,7 @@ Banner buttons can open an Event form, a URL (Zoom etc.), scroll to a section, o
 Banner styles: **Centred**, **Text + key visual** (image beside the text), **Card on background** (text in a white panel over a photo).
 Most sections also take a small label above the heading (e.g. "Day 1").
 
-Demo content: `tools/seed-showcase.php` creates a private "All sections showcase" microsite using every layout (`/e/all-sections/`).
+Demo content: `wp-content/plugins/epevents-core/dev/seed-showcase.php` creates a private "All sections showcase" microsite using every layout (`/e/all-sections/`).
 A private **Style guide** page (template *Style guide*) shows colours, type, buttons, badges, form fields and cards for client sign-off.
 
 ### Event registration page
