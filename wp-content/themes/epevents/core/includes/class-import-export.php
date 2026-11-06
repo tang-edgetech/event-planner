@@ -3,7 +3,7 @@
  * Import / Export.
  *
  * - JSON "package": full-fidelity copy of events, microsites, posts/pages, applicants and settings,
- *   portable between any WordPress sites running this plugin (media are re-downloaded, IDs remapped).
+ *   portable between any WordPress sites running this theme (media are re-downloaded, IDs remapped).
  * - CSV / Excel: flat sheets. Event & microsite sheets carry a `data_json` column so they round-trip too.
  * - Applicants can be imported from any CSV / Excel / JSON with a column-mapping step.
  */
@@ -347,7 +347,7 @@ class EPC_Import_Export {
 		$pkg = array(
 			'format'      => self::PKG,
 			'version'     => 1,
-			'plugin'      => EPC_VERSION,
+			'plugin'      => EPC_VERSION, // key name kept so older packages and sites stay compatible
 			'site'        => home_url(),
 			'exported_at' => gmdate( 'c' ),
 			'posts'       => array(),
@@ -631,7 +631,7 @@ class EPC_Import_Export {
 		$header = array_map( 'strval', $rows[0] ?? array() );
 		$djcol  = array_search( 'data_json', $header, true );
 
-		// Sheets exported by this plugin carry data_json → rebuild a package.
+		// Sheets exported by this site carry data_json → rebuild a package.
 		if ( 'auto' === $kind && false !== $djcol ) {
 			$pkg = array( 'format' => self::PKG, 'posts' => array(), 'media' => array(), 'applicants' => array(), 'settings' => array() );
 			foreach ( array_slice( $rows, 1 ) as $r ) {

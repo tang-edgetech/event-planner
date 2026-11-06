@@ -4,8 +4,7 @@
  * other public URL, while event forms (/event/…) and microsites (/e/…) stay reachable by their link.
  * Nothing lists them publicly: no homepage list, search, archives, feeds, sitemaps or public REST listing.
  *
- * Settings: Event Plus → Settings → Site access. The theme can supply `maintenance.php`;
- * otherwise the plugin's `templates/maintenance.php` is used.
+ * Settings: Event Plus → Settings → Site access. Page: the theme's `maintenance.php` (a child theme can override it).
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -86,8 +85,7 @@ class EPC_Site_Access {
 		if ( ! self::$maintenance ) {
 			return $template;
 		}
-		$theme = locate_template( 'maintenance.php' );
-		return $theme ?: EPC_DIR . 'templates/maintenance.php';
+		return locate_template( 'maintenance.php' ) ?: get_template_directory() . '/maintenance.php';
 	}
 
 	/** Texts for the maintenance page (Settings → Site access). */

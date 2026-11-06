@@ -1,21 +1,91 @@
 # Event Plus – WordPress rebuild
 
-Rebuild of https://epevents.com.my/ as a custom WordPress theme + functionality plugin, built on **ACF Pro** (no form plugins).
+Rebuild of https://epevents.com.my/ as **one custom WordPress theme** (`epevents`), built on **ACF Pro**.
+There is no custom plugin and no form plugin: every feature lives inside the theme.
+Only the theme folder (plus this README) is tracked in git; WordPress core, plugins, `wp-config.php` and uploads are not.
 
-| Part | Path | Responsibility |
+## Requirements
+
+| Requirement | Version | Notes |
 |---|---|---|
-| Plugin **EP Events Core** | `wp-content/plugins/epevents-core/` | Post types, ACF field groups, form builder & submissions, capacity, applicants, analytics, import/export, roles & permissions |
-| Theme **EP Events** (`epevents`) | `wp-content/themes/epevents/` | Front-end presentation: microsite sections, event registration page, news |
+| WordPress | 6.4 or later | |
+| PHP | 8.0 or later (local: 8.3) | |
+| MySQL / MariaDB | any version WordPress supports | Needs `GET_LOCK` (standard), used against overbooking |
+| **Advanced Custom Fields PRO** | 6.x (local: 6.8.11) | **The only plugin required.** Installed separately in `wp-content/plugins/advanced-custom-fields-pro/`, not bundled in the theme, so it keeps receiving its own updates. Licence key: ACF → Updates (or `define( 'ACF_PRO_LICENSE', '…' );` in `wp-config.php`). Without it the theme shows an admin warning and the editing screens are missing. |
+| Theme **EP Events** (`epevents`) | 2.0.0 | Must be the active theme. |
 
-Data lives in the plugin, so the theme can be renamed or replaced later without losing anything.
-Only these two folders (plus this README) are tracked in git; WordPress core, `wp-config.php` and uploads are not.
+Nothing else is needed: no form, SMTP, analytics, export or maintenance plugin.
+Optional `wp-config.php` constants are listed under [Deploying to staging](#deploying-to-staging-cpanel).
+
+## Folder structure – features vs presentation
+
+```
+wp-content/themes/epevents/
+├── functions.php          loads core/ first, then the presentation code below
+├── style.css              theme header (name, version, requirements)
+│
+├── core/                  ── FEATURES & DATA (what the site does) ──
+│   ├── bootstrap.php      constants, loads includes/, ACF check, one-time setup
+│   ├── includes/          one class per feature (table below)
+│   │   └── fields/        ACF field groups: settings.php, event.php, microsite.php
+│   ├── assets/            admin CSS, registration form CSS/JS, tracking beacon, Chart.js
+│   ├── tests/run.php      automated checks
+│   └── dev/               developer-only scripts (demo content seeder)
+│
+├── inc/                   ── PRESENTATION (how the site looks) ──
+│   ├── branding.php       Appearance → Branding (logo, colours, fonts, login, admin, emails)
+│   └── template-helpers.php
+├── template-parts/        site / microsite headers, cards, one file per microsite section
+├── *.php                  page templates (front page, event, microsite, maintenance, 404…)
+├── page-templates/        Style guide
+└── assets/                theme CSS / JS
+```
+
+**Rule of thumb:** if it stores, checks, sends or protects data, it goes in `core/`. If it only changes how a page looks, it goes in the presentation part.
+`core/` produces no public page layout except the registration form itself; the presentation part never writes to the database.
+Code prefixes: core uses `EPC_` / `epc_`, presentation uses `ept_` / `EPT_`. They stay as they are so saved settings, options and meta keep working.
+
+## Features and where they live
+
+| Feature | Admin location | Code |
+|---|---|---|
+| Events, microsites, applicants (post types, Duplicate) | Event Plus menu | `core/includes/class-post-types.php` |
+| Event / microsite / settings fields | edit screens, Event Plus → Settings | `core/includes/fields/*.php` |
+| Registration form: render, validation, spam guards, storage | event page, Form section | `core/includes/class-form.php`, `class-validator.php`, `assets/js/form.js` |
+| Capacity, status, waiting list | event edit screen | `core/includes/class-capacity.php` |
+| Optional features (alerts, seat freed, calendar, masking) | Settings → Features | `core/includes/class-features.php` |
+| Applicants list, edit, notes & activity, bulk actions | Event Plus → Applicants | `core/includes/class-applicants-admin.php`, `class-admin.php` |
+| Emails (notification, confirmation, waitlist, .ics) | Settings → Email | `core/includes/class-mailer.php` |
+| SMTP sending + test email | Settings → Email | `core/includes/class-smtp.php` |
+| Visitor analytics + reports | Event Plus → Reports | `core/includes/class-analytics.php`, `class-analytics-admin.php`, `assets/js/track.js` |
+| Import / export (JSON, Excel, CSV) | Event Plus → Import / Export | `core/includes/class-import-export.php`, `class-xlsx.php` |
+| Roles & permissions, ghost Developers | Event Plus → Permissions | `core/includes/class-roles.php` |
+| Site access (maintenance page) | Settings → Site access | `core/includes/class-site-access.php` + theme `maintenance.php` |
+| Overview dashboard | Event Plus → Overview | `core/includes/class-admin.php` |
+| Shared helpers (settings, lists, field definitions, client IP) | – | `core/includes/helpers.php` |
+| Microsite sections | microsite edit screen | `template-parts/sections/*.php` (fields in `core/includes/fields/microsite.php`) |
+| Event registration page layout | – | `single-ep_event.php` |
+| Branding / white label | Appearance → Branding | `inc/branding.php` |
+| Style guide | private page "Style guide" | `page-templates/style-guide.php` |
+
+## Developer guidelines
+
+- **Adding a feature**: new class in `core/includes/class-*.php` with a static `init()` that adds its hooks; `require_once` it and call `init()` in `core/bootstrap.php`. Put its fields in `core/includes/fields/`, its admin assets in `core/assets/`.
+- **Adding a microsite section**: add the layout to `core/includes/fields/microsite.php` and a template `template-parts/sections/{layout}.php`.
+- **Assets** in core use `EPC_URL` / `EPC_DIR`; presentation uses `get_template_directory_uri()`. Version query strings: `EPC_VERSION` (core) and `EPT_VERSION` (presentation) – bump them when CSS / JS changes.
+- **One-time setup** (table creation, default lists, rewrite rules) runs on theme activation and once after every `EPC_VERSION` change (`epc_setup()` in `core/bootstrap.php`). Roles update themselves when `EPC_Roles::VERSION` changes. There are no plugin activation hooks any more.
+- **Status changes** go through `EPC_Features::set_status()` only; emails through `EPC_Mailer`.
+- **Security**: check a capability *and* a nonce on every admin action; escape on output; new public REST routes must respect `EPC_Site_Access`; run the tests before every commit.
+- **Child theme**: possible – the core loads from the parent theme (`get_template_directory()`), and a child theme can override templates such as `maintenance.php` or a section.
+- Do not install the old **EP Events Core** plugin next to this theme. If it is still active somewhere, the theme does not load its core and shows a notice asking for the plugin to be removed.
 
 ## Local setup (XAMPP)
 
 - URL: http://localhost/event-planner/ · admin: http://localhost/event-planner/wp-admin/
 - Database: `epevents` (MariaDB, root, no password)
-- Plugins: Advanced Custom Fields PRO 6.8.10 (from the supplied zip) + EP Events Core
-- ACF Pro licence: add `define( 'ACF_PRO_LICENSE', 'your-key' );` to `wp-config.php` (or enter it under ACF → Updates) to enable updates.
+- Plugins: Advanced Custom Fields PRO only (licence entered under ACF → Updates)
+- Active theme: EP Events
+- WP-CLI: `php tools/wp-cli.phar --path=. …` (local test logins are in the git-ignored `.local-credentials.txt`)
 - Permalinks: `/%postname%/`; `.htaccess` uses `RewriteBase /event-planner/`.
 
 ## Content model
@@ -38,7 +108,7 @@ Banner buttons can open an Event form, a URL (Zoom etc.), scroll to a section, o
 Banner styles: **Centred**, **Text + key visual** (image beside the text), **Card on background** (text in a white panel over a photo).
 Most sections also take a small label above the heading (e.g. "Day 1").
 
-Demo content: `wp-content/plugins/epevents-core/dev/seed-showcase.php` creates a private "All sections showcase" microsite using every layout (`/e/all-sections/`).
+Demo content: `wp-content/themes/epevents/core/dev/seed-showcase.php` creates a private "All sections showcase" microsite using every layout (`/e/all-sections/`).
 A private **Style guide** page (template *Style guide*) shows colours, type, buttons, badges, form fields and cards for client sign-off.
 
 ### Event registration page
@@ -84,7 +154,7 @@ Seats are taken by Registered, Confirmed and Attended applicants; Waitlist and C
 | Hide personal data from Viewers | Users who cannot edit applicants see `j•••@mail.com`, `••••••-••-1234` in lists, the read-only view **and exports**. |
 
 Waiting-list and seat-offer email texts are editable in the same tab. People on the waiting list now get a waiting-list email instead of the normal confirmation.
-Emails are built in `includes/class-mailer.php`; features and status changes in `includes/class-features.php` (`EPC_Features::set_status()` is the only place a status should change).
+Emails are built in `core/includes/class-mailer.php`; features and status changes in `core/includes/class-features.php` (`EPC_Features::set_status()` is the only place a status should change).
 
 ## Email sending (SMTP)
 Event Plus → Settings → **Email**: From name / From email (used for every email the site sends), default notification recipients, and **SMTP**:
@@ -94,7 +164,7 @@ host, encryption (TLS 587 / SSL 465 / none), port, login, username and password.
 - Changing the host or username clears the saved password unless a new one is typed, so it can never be sent to a different server.
 - **Send test email** (same tab, after saving) reports the mail server's error message if sending fails.
 - `wp-config.php` can override: `EPC_SMTP_HOST`, `EPC_SMTP_PORT`, `EPC_SMTP_SECURE` (`tls` / `ssl` / `none`), `EPC_SMTP_USER`, `EPC_SMTP_PASSWORD`.
-- Code: `includes/class-smtp.php`.
+- Code: `core/includes/class-smtp.php`.
 
 ## Site access (maintenance page)
 Event Plus → Settings → **Site access**. Default: **Direct links only**.
@@ -110,11 +180,11 @@ Event Plus → Settings → **Site access**. Default: **Direct links only**.
 | `/?p=123`-style ID links and WordPress's "did you mean" redirects (`/a` → first slug starting with a) | Maintenance page, so nobody can walk through IDs or guess slugs. Staff previews still work. |
 
 Staff see a "Direct links only" marker in the admin bar. Switch to **Public website** for a normal homepage.
-Logic: `includes/class-site-access.php`; page: theme `maintenance.php` (fallback `templates/maintenance.php` in the plugin).
+Logic: `core/includes/class-site-access.php`; page: theme `maintenance.php` (a child theme can override it).
 
 ## Automated tests
 ```bash
-php tools/wp-cli.phar --path=. eval-file wp-content/plugins/epevents-core/tests/run.php
+php tools/wp-cli.phar --path=. eval-file wp-content/themes/epevents/core/tests/run.php
 ```
 49 checks: validators (NRIC, phone, email), the registration form end to end (spam guards incl. forged timestamps, rate limit, password-protected events, malformed input, required and conditional fields, normalised storage, duplicates, emails), capacity and waiting list, the optional features, masking, Custom HTML cleaning and the private-mode REST blocks.
 The test creates its own temporary event (copying the richest published form), captures emails instead of sending them, and removes everything afterwards. Exit code 1 on failure.
@@ -131,7 +201,7 @@ server-side with the visitor's original campaign attribution, giving a conversio
 
 ## Import / Export
 - **JSON package** – events (with forms), microsites, posts/pages, settings/lists and optionally applicants, with image URLs.
-  Importing on any WordPress site with this plugin recreates everything, downloads images, and remaps IDs (event links, images, categories). Existing items: skip / update / import as copy.
+  Importing on any WordPress site running this theme recreates everything, downloads images, and remaps IDs (event links, images, categories). Existing items: skip / update / import as copy.
 - **Excel (.xlsx) / CSV** – applicants (one column per form field), events/microsites (with a `data_json` column so sheets round-trip).
 - **Applicants from anywhere** (old site, Google Forms, Excel): upload CSV / XLSX / JSON → map columns → import, skipping duplicates.
 - WordPress's own Tools → Export (WXR) also includes Events and Microsites.
@@ -192,10 +262,11 @@ Appearance → **Branding** (theme `inc/branding.php`, Developer only), with a l
 Defaults (used until something is saved): primary `#6d1a45` (plum), secondary `#e0a23a` (amber), page `#f7f5f2`, text `#1c1a1f`, Plus Jakarta Sans for headings and body, 16 px text, soft corners, pill buttons. Change them in `ept_brand_defaults()`.
 
 ## Deploying to staging (cPanel)
-Git holds only the theme and plugin; the database and uploads travel separately.
+Git holds only the theme; ACF Pro, the database and uploads travel separately.
 
 1. **Files**: in cPanel install WordPress (or upload the core files), then upload
-   `wp-content/plugins/advanced-custom-fields-pro/`, `wp-content/plugins/epevents-core/`, `wp-content/themes/epevents/` and `wp-content/uploads/`.
+   `wp-content/plugins/advanced-custom-fields-pro/`, `wp-content/themes/epevents/` and `wp-content/uploads/`.
+   If the server already has the old `wp-content/plugins/epevents-core/` plugin, deactivate and delete it first (the theme warns while it is active).
 2. **Database** – export locally with the URLs already replaced (one line, run in the project folder):
    ```bash
    php tools/wp-cli.phar --path=. search-replace 'http://localhost/event-planner' 'https://STAGING-DOMAIN' --all-tables --export=epevents-staging.sql

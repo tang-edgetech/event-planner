@@ -3,7 +3,7 @@
  * EP Events Core – automated tests (no PHPUnit needed).
  *
  * Run from the WordPress root:
- *   php tools/wp-cli.phar --path=. eval-file wp-content/plugins/epevents-core/tests/run.php
+ *   php tools/wp-cli.phar --path=. eval-file wp-content/themes/epevents/core/tests/run.php
  *
  * Creates a temporary event (copying the form of the first published event), runs the checks,
  * then deletes everything it created and restores the settings it touched. Emails are captured,

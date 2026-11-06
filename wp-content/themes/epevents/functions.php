@@ -1,11 +1,29 @@
 <?php
 /**
  * EP Events theme bootstrap.
+ *
+ * The theme has two parts (see README → Folder structure):
+ *   core/  – features and data: post types, form builder, applicants, capacity, emails, SMTP,
+ *            reports, import/export, roles & permissions, site access. Loaded first.
+ *   the rest – presentation: templates, sections, branding, CSS/JS.
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EPT_VERSION', '1.3.0' );
+define( 'EPT_VERSION', '2.0.0' );
+
+// The core used to be the "EP Events Core" plugin. If that plugin is still active on a server,
+// loading both would declare every class twice, so ask for it to be removed instead.
+if ( class_exists( 'EPC_Roles', false ) ) {
+	add_action(
+		'admin_notices',
+		function () {
+			echo '<div class="notice notice-error"><p>The <strong>EP Events Core</strong> plugin is now part of the <strong>EP Events</strong> theme. Please deactivate and delete the plugin (Plugins screen).</p></div>';
+		}
+	);
+} else {
+	require_once get_template_directory() . '/core/bootstrap.php';
+}
 
 require_once get_template_directory() . '/inc/template-helpers.php';
 require_once get_template_directory() . '/inc/branding.php';
@@ -78,8 +96,8 @@ add_filter( 'body_class', function ( $classes ) {
 } );
 
 /**
- * HTML section code. The plugin cleans it when it is saved (scripts are kept only for editors with
- * "Custom HTML & embed codes"), so it is shown as stored. Without the plugin, fall back to safe HTML.
+ * HTML section code. The core cleans it when it is saved (scripts are kept only for editors with
+ * "Custom HTML & embed codes"), so it is shown as stored. Without the core, fall back to safe HTML.
  */
 function ept_html_section( string $code ): string {
 	return function_exists( 'epc_clean_embed_html' ) ? $code : wp_kses_post( $code );

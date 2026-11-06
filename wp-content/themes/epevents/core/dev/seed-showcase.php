@@ -1,7 +1,7 @@
 <?php
 /**
  * Seeds a private "All sections" microsite that uses every section layout.
- * Run: php tools/wp-cli.phar --path=. eval-file wp-content/plugins/epevents-core/dev/seed-showcase.php
+ * Run: php tools/wp-cli.phar --path=. eval-file wp-content/themes/epevents/core/dev/seed-showcase.php
  * Uses demo images by ID from the local seed; adjust the IDs on another site.
  */
 $existing = get_page_by_path( 'all-sections', OBJECT, 'ep_microsite' );

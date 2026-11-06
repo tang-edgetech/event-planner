@@ -1,6 +1,6 @@
 <?php
 /**
- * Maintenance page shown by EP Events Core in "Direct links only" mode (homepage and every
+ * Maintenance page shown by the core (core/includes/class-site-access.php) in "Direct links only" mode (homepage and every
  * other public URL except event forms and microsites). Styled by Appearance → Branding.
  */
 defined( 'ABSPATH' ) || exit;

@@ -1,4 +1,4 @@
-# WordPress core & environment are not versioned — only our theme + plugin.
+# WordPress core, plugins (ACF Pro) & environment are not versioned — only our theme.
 /*
 !/.gitignore
 !/README.md
@@ -7,6 +7,3 @@
 !/wp-content/themes/
 /wp-content/themes/*
 !/wp-content/themes/epevents/
-!/wp-content/plugins/
-/wp-content/plugins/*
-!/wp-content/plugins/epevents-core/
