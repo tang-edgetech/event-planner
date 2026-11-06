@@ -24,6 +24,14 @@ class EPC_Analytics_Admin {
 		$tz   = wp_timezone();
 		$to   = sanitize_text_field( $_GET['to'] ?? '' ) ?: wp_date( 'Y-m-d' ); // phpcs:ignore
 		$from = sanitize_text_field( $_GET['from'] ?? '' ) ?: wp_date( 'Y-m-d', time() - 29 * DAY_IN_SECONDS ); // phpcs:ignore
+		// Anything that is not a real Y-m-d date falls back to the default range.
+		$valid = fn( $d ) => ( $o = DateTime::createFromFormat( '!Y-m-d', $d ) ) && $o->format( 'Y-m-d' ) === $d;
+		if ( ! $valid( $to ) ) {
+			$to = wp_date( 'Y-m-d' );
+		}
+		if ( ! $valid( $from ) ) {
+			$from = wp_date( 'Y-m-d', time() - 29 * DAY_IN_SECONDS );
+		}
 		$pid  = absint( $_GET['post_id'] ?? 0 ); // phpcs:ignore
 		$with = ! isset( $_GET['solo'] ); // phpcs:ignore -- include linked event by default
 
@@ -251,7 +259,7 @@ class EPC_Analytics_Admin {
 	public static function export_csv(): void {
 		check_admin_referer( 'epc_analytics_csv' );
 		if ( ! current_user_can( 'epc_export_reports' ) ) {
-			wp_die( 'Not allowed.' );
+			wp_die( 'Not allowed.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 		}
 		global $wpdb;
 		$f    = self::filters();

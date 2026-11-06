@@ -187,9 +187,17 @@ function epc_replace_placeholders( string $text, array $data, int $event_id ): s
 	return (string) preg_replace( '/\{(?!registration_details\})[a-z0-9_\-]+\}/i', '', $text );
 }
 
-/** Best-effort visitor IP (respects Cloudflare / proxy headers). */
+/**
+ * Visitor IP. Uses REMOTE_ADDR, because proxy headers can be faked by anyone. Behind Cloudflare or
+ * another proxy, name the header it sets in wp-config.php, e.g.
+ * define( 'EPC_PROXY_IP_HEADER', 'HTTP_CF_CONNECTING_IP' );
+ */
 function epc_client_ip(): string {
-	foreach ( array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR' ) as $h ) {
+	$headers = array( 'REMOTE_ADDR' );
+	if ( defined( 'EPC_PROXY_IP_HEADER' ) && EPC_PROXY_IP_HEADER ) {
+		array_unshift( $headers, (string) EPC_PROXY_IP_HEADER );
+	}
+	foreach ( $headers as $h ) {
 		if ( ! empty( $_SERVER[ $h ] ) ) {
 			$ip = trim( explode( ',', wp_unslash( $_SERVER[ $h ] ) )[0] );
 			if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
@@ -230,3 +238,21 @@ function epc_seed_defaults(): void {
 function epc_countries(): array {
 	return array( 'Malaysia', 'Singapore', 'Brunei', 'Indonesia', 'Thailand', 'Philippines', 'Vietnam', 'Cambodia', 'Laos', 'Myanmar', 'Australia', 'New Zealand', 'China', 'Hong Kong', 'Macau', 'Taiwan', 'Japan', 'South Korea', 'India', 'Pakistan', 'Bangladesh', 'Sri Lanka', 'Nepal', 'Maldives', 'United Arab Emirates', 'Saudi Arabia', 'Qatar', 'Kuwait', 'Bahrain', 'Oman', 'Turkey', 'Egypt', 'South Africa', 'Nigeria', 'Kenya', 'United Kingdom', 'Ireland', 'France', 'Germany', 'Netherlands', 'Belgium', 'Switzerland', 'Austria', 'Italy', 'Spain', 'Portugal', 'Sweden', 'Norway', 'Denmark', 'Finland', 'Poland', 'Russia', 'United States', 'Canada', 'Mexico', 'Brazil', 'Argentina', 'Chile', 'Colombia', 'Peru' );
 }
+
+/**
+ * Custom HTML section code, cleaned when it is SAVED: editors without "Custom HTML & embed codes"
+ * (unfiltered_html) keep safe HTML and iframes only. The page then shows the code exactly as saved,
+ * so who views it never matters.
+ */
+function epc_clean_embed_html( string $code ): string {
+	$allowed           = wp_kses_allowed_html( 'post' );
+	$allowed['iframe'] = array( 'src' => true, 'width' => true, 'height' => true, 'style' => true, 'allow' => true, 'allowfullscreen' => true, 'loading' => true, 'frameborder' => true, 'title' => true, 'referrerpolicy' => true );
+	return wp_kses( $code, $allowed );
+}
+
+add_filter(
+	'acf/update_value/key=field_epc_html_code',
+	static function ( $value ) {
+		return current_user_can( 'unfiltered_html' ) ? $value : epc_clean_embed_html( (string) $value );
+	}
+);

@@ -133,7 +133,9 @@ class EPC_Features {
 		// Automatic: move the earliest waiting applicants into the free seats, one lock per event.
 		global $wpdb;
 		$lock = 'epc_event_' . $event_id;
-		$wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 10)', $lock ) );
+		if ( '1' !== (string) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 10)', $lock ) ) ) {
+			return; // Another registration is busy with this event; the waiting list moves on the next freed seat.
+		}
 		$state = EPC_Capacity::state( $event_id );
 		$free  = null === $state['remaining'] ? PHP_INT_MAX : (int) $state['remaining'];
 		$moved = array();

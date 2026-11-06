@@ -214,7 +214,7 @@ class EPC_Roles {
 	}
 
 	public static function ghost_rest_user( $result, $server, WP_REST_Request $request ) {
-		if ( null === $result && ! self::is_developer() && preg_match( '#^/wp/v2/users/(\d+)#', $request->get_route(), $m ) && self::is_developer( (int) $m[1] ) ) {
+		if ( null === $result && ! self::is_developer() && preg_match( '#^/+wp/v2/+users/+(\d+)#i', $request->get_route(), $m ) && self::is_developer( (int) $m[1] ) ) {
 			return new WP_Error( 'rest_user_invalid_id', 'Invalid user ID.', array( 'status' => 404 ) );
 		}
 		return $result;
@@ -478,7 +478,7 @@ class EPC_Roles {
 
 	public static function render(): void {
 		if ( ! current_user_can( 'epc_manage_permissions' ) ) {
-			wp_die( 'You are not allowed to manage permissions.' );
+			wp_die( 'You are not allowed to manage permissions.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 		}
 		$tab     = sanitize_key( $_GET['tab'] ?? 'roles' ); // phpcs:ignore
 		$matrix  = self::matrix();
@@ -534,7 +534,7 @@ class EPC_Roles {
 									<td><strong><?php echo esc_html( $p[1] ); ?></strong><br><span class="description"><?php echo esc_html( $p[2] ); ?></span></td>
 									<?php if ( $is_dev ) : ?><td class="c"><input type="checkbox" checked disabled title="Always allowed"></td><?php endif; ?>
 									<?php foreach ( array_keys( $cols ) as $rk ) : ?>
-										<td class="c"><input type="checkbox" data-role="<?php echo esc_attr( $rk ); ?>" name="perm[<?php echo esc_attr( $rk ); ?>][<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( ! empty( $matrix[ $rk ][ $key ] ) ); ?> <?php disabled( ! isset( $can[ $rk ] ) ); ?>></td>
+										<td class="c"><input type="checkbox" data-role="<?php echo esc_attr( $rk ); ?>" name="perm[<?php echo esc_attr( $rk ); ?>][<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( ! empty( $matrix[ $rk ][ $key ] ) ); ?> <?php disabled( ! isset( $can[ $rk ] ) || ! self::holds( $key ) ); ?> <?php echo self::holds( $key ) ? '' : 'title="You do not have this permission yourself"'; ?>></td>
 									<?php endforeach; ?>
 								</tr>
 							<?php endforeach; ?>
@@ -604,7 +604,7 @@ class EPC_Roles {
 										<td><strong><?php echo esc_html( $p[1] ); ?></strong></td>
 										<td class="c"><?php echo $from ? '<span class="epc-yes">✔</span>' : '<span class="epc-no">—</span>'; ?></td>
 										<td class="c">
-											<select name="ov[<?php echo esc_attr( $key ); ?>]">
+											<select name="ov[<?php echo esc_attr( $key ); ?>]" <?php disabled( ! self::holds( $key ) ); ?>>
 												<option value="inherit" <?php selected( $o, 'inherit' ); ?>>Use role</option>
 												<option value="allow" <?php selected( $o, 'allow' ); ?>>Allow</option>
 												<option value="deny" <?php selected( $o, 'deny' ); ?>>Deny</option>
@@ -656,16 +656,35 @@ class EPC_Roles {
 		<?php
 	}
 
+	/** Does the current user hold this permission? Nobody can hand out a permission they do not have. */
+	public static function holds( string $key ): bool {
+		if ( self::is_developer() ) {
+			return true;
+		}
+		$perm = self::permissions()[ $key ] ?? null;
+		if ( ! $perm ) {
+			return false;
+		}
+		foreach ( (array) $perm[3] as $cap ) {
+			if ( ! current_user_can( $cap ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public static function save_matrix(): void {
 		check_admin_referer( 'epc_permissions' );
 		if ( ! current_user_can( 'epc_manage_permissions' ) ) {
-			wp_die( 'You are not allowed to manage permissions.' );
+			wp_die( 'You are not allowed to manage permissions.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 		}
 		$in     = (array) ( $_POST['perm'] ?? array() );
 		$matrix = self::matrix();
 		foreach ( array_keys( self::manageable_roles() ) as $rk ) {
 			foreach ( array_keys( self::permissions() ) as $key ) {
-				$matrix[ $rk ][ $key ] = ! empty( $in[ $rk ][ $key ] );
+				if ( self::holds( $key ) ) { // Others stay as they are.
+					$matrix[ $rk ][ $key ] = ! empty( $in[ $rk ][ $key ] );
+				}
 			}
 		}
 		update_option( 'epc_permissions', $matrix );
@@ -678,7 +697,7 @@ class EPC_Roles {
 	public static function reset(): void {
 		check_admin_referer( 'epc_reset_permissions' );
 		if ( ! current_user_can( 'epc_manage_permissions' ) ) {
-			wp_die( 'Not allowed.' );
+			wp_die( 'Not allowed.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 		}
 		$matrix   = self::matrix();
 		$defaults = self::defaults();
@@ -695,18 +714,28 @@ class EPC_Roles {
 	public static function save_user(): void {
 		check_admin_referer( 'epc_user_overrides' );
 		if ( ! current_user_can( 'epc_manage_permissions' ) ) {
-			wp_die( 'Not allowed.' );
+			wp_die( 'Not allowed.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 		}
 		$uid  = absint( $_POST['user'] ?? 0 );
 		$user = get_userdata( $uid );
 		if ( ! $user || self::rank( $user ) < 1 || self::rank( $user ) >= self::rank() ) {
-			wp_die( 'You can only adjust users ranked below you.' );
+			wp_die( 'You can only adjust users ranked below you.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 		}
+		$old  = (array) get_user_meta( $uid, 'epc_overrides', true );
 		$over = array();
 		foreach ( (array) ( $_POST['ov'] ?? array() ) as $key => $v ) {
 			$key = sanitize_key( $key );
 			if ( isset( self::permissions()[ $key ] ) && in_array( $v, array( 'allow', 'deny' ), true ) ) {
 				$over[ $key ] = $v;
+			}
+		}
+		// Permissions the current user does not hold keep their previous override.
+		foreach ( array_keys( self::permissions() ) as $key ) {
+			if ( ! self::holds( $key ) ) {
+				unset( $over[ $key ] );
+				if ( isset( $old[ $key ] ) ) {
+					$over[ $key ] = $old[ $key ];
+				}
 			}
 		}
 		update_user_meta( $uid, 'epc_overrides', $over );

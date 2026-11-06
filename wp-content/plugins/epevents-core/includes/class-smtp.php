@@ -18,6 +18,8 @@ class EPC_SMTP {
 		add_action( 'phpmailer_init', array( __CLASS__, 'configure' ) );
 		add_filter( 'wp_mail_from', array( __CLASS__, 'from_email' ) );
 		add_filter( 'wp_mail_from_name', array( __CLASS__, 'from_name' ) );
+		add_filter( 'acf/update_value/key=field_epc_smtp_host', array( __CLASS__, 'watch_server' ), 10, 3 );
+		add_filter( 'acf/update_value/key=field_epc_smtp_user', array( __CLASS__, 'watch_server' ), 10, 3 );
 		add_filter( 'acf/update_value/key=' . self::PASS_FIELD, array( __CLASS__, 'save_password' ), 10, 3 );
 		add_filter( 'acf/load_value/key=' . self::PASS_FIELD, '__return_empty_string', 99 );
 		add_action( 'wp_ajax_epc_smtp_test', array( __CLASS__, 'test' ) );
@@ -64,8 +66,25 @@ class EPC_SMTP {
 		return (string) openssl_decrypt( substr( $raw, 16 ), 'aes-256-cbc', self::key(), OPENSSL_RAW_DATA, substr( $raw, 0, 16 ) );
 	}
 
-	/** Empty input keeps the saved password; anything else is stored encrypted. */
+	/** Set when the host or username changes in this save (both are saved before the password). */
+	private static $server_changed = false;
+
+	public static function watch_server( $value, $post_id, $field ) {
+		if ( trim( (string) $value ) !== trim( (string) get_option( 'options_' . $field['name'], '' ) ) ) {
+			self::$server_changed = true;
+		}
+		return $value;
+	}
+
+	/**
+	 * Empty input keeps the saved password; anything else is stored encrypted. When the host or
+	 * username changes, the old password is dropped unless a new one is typed, so the saved password
+	 * can never be sent to a different server.
+	 */
 	public static function save_password( $value, $post_id, $field ) {
+		if ( '' === (string) $value && self::$server_changed ) {
+			return '';
+		}
 		if ( '' === (string) $value ) {
 			return get_option( 'options_epc_smtp_pass', '' );
 		}

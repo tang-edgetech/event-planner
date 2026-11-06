@@ -222,6 +222,10 @@ class EPC_Applicants_Admin {
 			return $search;
 		}
 		$like = '%' . $wpdb->esc_like( $q->get( 's' ) ) . '%';
+		if ( EPC_Features::mask_personal_data() ) {
+			// Searching hidden answers would let someone rebuild a masked email / NRIC letter by letter.
+			return $wpdb->prepare( " AND {$wpdb->posts}.post_title LIKE %s ", $like );
+		}
 		return $wpdb->prepare(
 			" AND ( {$wpdb->posts}.post_title LIKE %s OR {$wpdb->posts}.ID IN ( SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key LIKE 'f\\_%%' AND meta_value LIKE %s ) ) ",
 			$like,
@@ -304,7 +308,7 @@ class EPC_Applicants_Admin {
 		$id = absint( $_GET['id'] ?? 0 ); // phpcs:ignore
 		check_admin_referer( 'epc_resend_' . $id );
 		if ( ! $id || ! current_user_can( 'edit_post', $id ) ) {
-			wp_die( 'Not allowed.' );
+			wp_die( 'Not allowed.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 		}
 		$ok   = self::send_again( $id );
 		$back = wp_get_referer() ?: admin_url( 'edit.php?post_type=' . EPC_Post_Types::APPLICANT );

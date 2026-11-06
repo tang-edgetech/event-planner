@@ -70,6 +70,14 @@ class EPC_Mailer {
 			self::send( self::admin_recipients( $event ), 'New registration: ' . get_the_title( $event ), $body, 'admin' );
 		}
 		if ( get_field( 'notify_applicant', $event ) ) {
+			// At most 5 automatic confirmations per address per hour, so the public form cannot be used to
+			// flood someone's inbox. Staff can still resend from the applicant screen.
+			$key  = 'epc_mail_' . md5( strtolower( (string) self::applicant_email( $data, $fields ) ) );
+			$sent = (int) get_transient( $key );
+			if ( $sent >= 5 ) {
+				return;
+			}
+			set_transient( $key, $sent + 1, HOUR_IN_SECONDS );
 			$status = get_post_meta( $applicant_id, '_epc_status', true );
 			self::confirmation( $applicant_id, 'waitlist' === $status ? 'waitlist' : 'registered' );
 		}

@@ -35,6 +35,9 @@ class EPC_Form {
 		if ( ! $event || EPC_Post_Types::EVENT !== $event->post_type ) {
 			return '';
 		}
+		if ( post_password_required( $event ) ) {
+			return '<div class="epc-form-wrap">' . get_the_password_form( $event ) . '</div>';
+		}
 		wp_enqueue_script( 'epc-form' );
 		wp_enqueue_style( 'epc-form' );
 
@@ -68,7 +71,7 @@ class EPC_Form {
 			<form class="epc-form" id="<?php echo esc_attr( $uid ); ?>" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" novalidate>
 				<input type="hidden" name="action" value="epc_register">
 				<input type="hidden" name="epc_event" value="<?php echo (int) $event_id; ?>">
-				<input type="hidden" name="epc_ts" value="<?php echo esc_attr( (string) time() ); ?>">
+				<input type="hidden" name="epc_ts" value="<?php echo esc_attr( self::token( $event_id ) ); ?>">
 				<input type="hidden" name="epc_visitor" value="">
 				<input type="hidden" name="epc_source" value="">
 				<div class="epc-hp" aria-hidden="true"><label>Leave empty<input type="text" name="epc_hp" tabindex="-1" autocomplete="off"></label></div>
@@ -199,6 +202,38 @@ class EPC_Form {
 	 * Submission
 	 * ------------------------------------------------------------------- */
 
+	/** Signed "form shown at" time: bots cannot fake an old enough timestamp. */
+	public static function token( int $event_id, ?int $time = null ): string {
+		$time = $time ?? time();
+		return $time . '.' . self::sign( $event_id, $time );
+	}
+
+	private static function sign( int $event_id, int $time ): string {
+		return substr( hash_hmac( 'sha256', $event_id . '|' . $time, wp_salt( 'nonce' ) ), 0, 20 );
+	}
+
+	/** Seconds since the form was shown, or null when the token is missing or forged. */
+	private static function token_age( int $event_id, $token ): ?int {
+		$parts = explode( '.', is_string( $token ) ? $token : '', 2 );
+		if ( 2 !== count( $parts ) || ! ctype_digit( $parts[0] ) || ! hash_equals( self::sign( $event_id, (int) $parts[0] ), $parts[1] ) ) {
+			return null;
+		}
+		return time() - (int) $parts[0];
+	}
+
+	/**
+	 * Successful registrations allowed per visitor IP, per event, per hour (default 20, so a whole
+	 * clinic on one network can still register). Change with EPC_RATE_LIMIT or the epc_rate_limit
+	 * filter; 0 turns it off.
+	 */
+	private static function rate_limit(): int {
+		return (int) apply_filters( 'epc_rate_limit', defined( 'EPC_RATE_LIMIT' ) ? (int) EPC_RATE_LIMIT : 20 );
+	}
+
+	private static function rate_key( int $event_id ): string {
+		return 'epc_rl_' . md5( epc_client_ip() . '|' . $event_id );
+	}
+
 	public static function handle(): void {
 		$event_id = absint( $_POST['epc_event'] ?? 0 );
 		$ajax     = ! empty( $_SERVER['HTTP_X_REQUESTED_WITH'] ) || ! empty( $_POST['epc_ajax'] );
@@ -209,7 +244,13 @@ class EPC_Form {
 			wp_send_json( $result, $result['ok'] ? 200 : 422 );
 		}
 		if ( $result['ok'] ) {
-			wp_safe_redirect( $result['redirect'] ?: add_query_arg( 'epc_done', $event_id, get_permalink( $event_id ) ) );
+			// The redirect URL is set by staff on the event (may be another site), so it is not limited to this host.
+			$to = esc_url_raw( (string) $result['redirect'], array( 'http', 'https' ) );
+			if ( $to ) {
+				wp_redirect( $to ); // phpcs:ignore WordPress.Security.SafeRedirect
+			} else {
+				wp_safe_redirect( add_query_arg( 'epc_done', $event_id, get_permalink( $event_id ) ) );
+			}
 			exit;
 		}
 		wp_die( wp_kses_post( implode( '<br>', array_merge( array( $result['message'] ), array_values( $result['errors'] ) ) ) ), 'Registration error', array( 'back_link' => true ) );
@@ -227,9 +268,17 @@ class EPC_Form {
 		if ( ! $event || EPC_Post_Types::EVENT !== $event->post_type || 'publish' !== $event->post_status ) {
 			return $fail( 'This event is not available.' );
 		}
-		// Basic spam protection: honeypot + minimum fill time.
-		if ( ! empty( $post['epc_hp'] ) || ( time() - (int) ( $post['epc_ts'] ?? 0 ) ) < 3 ) {
-			return $fail( 'Submission rejected. Please try again.' );
+		if ( post_password_required( $event ) ) {
+			return $fail( 'This event is password protected. Please enter the password on the event page first.' );
+		}
+		// Spam protection: honeypot + signed minimum fill time.
+		$age = self::token_age( $event_id, $post['epc_ts'] ?? '' );
+		if ( ! empty( $post['epc_hp'] ) || null === $age || $age < 3 ) {
+			return $fail( 'Submission rejected. Please reload the page and try again.' );
+		}
+		$limit = self::rate_limit();
+		if ( $limit > 0 && (int) get_transient( self::rate_key( $event_id ) ) >= $limit ) {
+			return $fail( 'Too many registrations have been sent from your network. Please try again in an hour.' );
 		}
 		if ( ! EPC_Capacity::is_accepting( $event_id ) ) {
 			return $fail( trim( wp_strip_all_tags( str_replace( '</h2>', '</h2> ', self::closed_message( $event_id, EPC_Capacity::state( $event_id )['state'] ) ) ) ) );
@@ -243,8 +292,11 @@ class EPC_Form {
 		$raw = array();
 		foreach ( $fields as $f ) {
 			$v = $post[ $f['name'] ] ?? '';
-			if ( is_array( $v ) ) {
-				$v = array_map( 'sanitize_text_field', $v );
+			if ( 'checkboxes' === $f['type'] ) {
+				// Always a list of strings, whatever was posted.
+				$v = array_values( array_map( fn( $x ) => sanitize_text_field( (string) $x ), array_filter( (array) $v, 'is_scalar' ) ) );
+			} elseif ( ! is_scalar( $v ) ) {
+				$v = ''; // A list where one value is expected: treat as empty.
 			} else {
 				$v = 'textarea' === $f['type'] ? sanitize_textarea_field( (string) $v ) : sanitize_text_field( (string) $v );
 			}
@@ -268,7 +320,7 @@ class EPC_Form {
 			}
 
 			// "Others – please specify".
-			$other_text = sanitize_text_field( (string) ( $post[ $name . '__other' ] ?? '' ) );
+			$other_text = is_scalar( $post[ $name . '__other' ] ?? '' ) ? sanitize_text_field( (string) ( $post[ $name . '__other' ] ?? '' ) ) : '';
 			if ( $f['allow_other'] ) {
 				if ( is_array( $v ) && in_array( self::OTHER, $v, true ) ) {
 					$v = array_map( fn( $x ) => self::OTHER === $x ? 'Others: ' . $other_text : $x, $v );
@@ -331,7 +383,18 @@ class EPC_Form {
 		// Serialise capacity check + insert to avoid overbooking on concurrent submissions.
 		global $wpdb;
 		$lock = 'epc_event_' . $event_id;
-		$wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 10)', $lock ) );
+		if ( '1' !== (string) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 10)', $lock ) ) ) {
+			return $fail( 'Registration is very busy right now. Please try again in a moment.' );
+		}
+		// Check unique fields again inside the lock, so two identical submissions at once cannot both pass.
+		foreach ( $fields as $f ) {
+			$v = $data[ $f['name'] ] ?? '';
+			$v = is_array( $v ) ? implode( ', ', $v ) : (string) $v;
+			if ( $f['unique'] && '' !== $v && self::exists( $event_id, $f['name'], $v ) ) {
+				$wpdb->get_var( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $lock ) );
+				return $fail( 'Please correct the highlighted fields.', array( $f['name'] => sprintf( 'This %s has already been registered for this event.', strtolower( wp_strip_all_tags( $f['label'] ) ) ?: 'value' ) ) );
+			}
+		}
 		$state = EPC_Capacity::state( $event_id );
 		if ( ! in_array( $state['state'], array( 'open', 'waitlist' ), true ) ) {
 			$wpdb->get_var( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $lock ) );
@@ -343,6 +406,9 @@ class EPC_Form {
 
 		if ( ! $applicant_id ) {
 			return $fail( 'Sorry, we could not save your registration. Please try again.' );
+		}
+		if ( $limit > 0 ) {
+			set_transient( self::rate_key( $event_id ), (int) get_transient( self::rate_key( $event_id ) ) + 1, HOUR_IN_SECONDS );
 		}
 
 		do_action( 'epc_applicant_registered', $applicant_id, $event_id, $data );
@@ -462,9 +528,6 @@ class EPC_Form {
 					break;
 				}
 			}
-		}
-		if ( ! $parts && ! empty( $data['email'] ) ) {
-			$parts[] = $data['email'];
 		}
 		return trim( (string) preg_replace( '/\bOthers: /', '', implode( ' ', $parts ) ) );
 	}

@@ -19,6 +19,8 @@ class EPC_Site_Access {
 		add_filter( 'rest_pre_dispatch', array( __CLASS__, 'rest' ), 10, 3 );
 		add_action( 'pre_get_posts', array( __CLASS__, 'exclude_from_search' ) );
 		add_action( 'admin_bar_menu', array( __CLASS__, 'admin_bar' ), 90 );
+		// WordPress's "did you mean" redirects (/a → first slug starting with a) would reveal hidden links.
+		add_filter( 'do_redirect_guess_404_permalink', fn( $guess ) => self::is_private() ? false : $guess );
 	}
 
 	public static function is_private(): bool {
@@ -31,7 +33,8 @@ class EPC_Site_Access {
 			return true;
 		}
 		if ( is_singular( array( EPC_Post_Types::EVENT, EPC_Post_Types::MICROSITE ) ) ) {
-			return true;
+			// Only by its real link: /?p=123 style lookups would let anyone walk through every ID.
+			return ! self::looked_up_by_id() || current_user_can( 'edit_post', get_queried_object_id() );
 		}
 		if ( is_singular( 'post' ) && epc_setting( 'epc_access_posts', true ) ) {
 			return true; // News articles linked from microsite "News" sections.
@@ -40,6 +43,17 @@ class EPC_Site_Access {
 			$privacy = (int) get_option( 'wp_page_for_privacy_policy' );
 			if ( ( $privacy && is_page( $privacy ) ) || epc_setting( 'epc_access_pages', false ) ) {
 				return ! is_front_page();
+			}
+		}
+		return false;
+	}
+
+	/** Was the post found by a numeric ID (?p=, ?page_id=, ?attachment_id=) rather than its link? */
+	private static function looked_up_by_id(): bool {
+		global $wp;
+		foreach ( array( 'p', 'page_id', 'attachment_id' ) as $var ) {
+			if ( ! empty( $wp->query_vars[ $var ] ) ) {
+				return true;
 			}
 		}
 		return false;
@@ -55,6 +69,7 @@ class EPC_Site_Access {
 			return;
 		}
 		self::$maintenance = true;
+		remove_action( 'template_redirect', 'redirect_canonical' ); // No redirects that reveal where an ID or slug leads.
 		if ( is_feed() ) {
 			wp_die( 'Not available.', 'Not available', array( 'response' => 404 ) );
 		}
@@ -90,13 +105,16 @@ class EPC_Site_Access {
 		return self::is_private() ? false : $enabled;
 	}
 
-	/** Visitors cannot list events, microsites or search them through the REST API. */
+	/**
+	 * Visitors cannot list or search content through the REST API (routes match case-insensitively,
+	 * like WordPress itself). Staff signed in to Event Plus keep it for the editors.
+	 */
 	public static function rest( $result, WP_REST_Server $server, WP_REST_Request $request ) {
 		if ( ! self::is_private() || null !== $result ) {
 			return $result;
 		}
 		$route = $request->get_route();
-		if ( preg_match( '#^/wp/v2/(ep_event|ep_microsite|search)(/|$)#', $route ) && ! current_user_can( 'edit_ep_events' ) && ! current_user_can( 'edit_ep_microsites' ) ) {
+		if ( preg_match( '#^/+wp/v2/+(ep_event|ep_microsite|search|media|users|posts|pages|comments|categories|tags|blocks|block-renderer)(/|$)#i', $route ) && ! current_user_can( 'epc_view_dashboard' ) ) {
 			return new WP_Error( 'rest_no_route', 'No route was found matching the URL and request method.', array( 'status' => 404 ) );
 		}
 		return $result;

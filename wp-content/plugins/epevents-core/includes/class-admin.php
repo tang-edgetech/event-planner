@@ -67,7 +67,7 @@ class EPC_Admin {
 		$id   = absint( $_GET['id'] ?? 0 ); // phpcs:ignore
 		$post = get_post( $id );
 		if ( ! $post || EPC_Post_Types::APPLICANT !== $post->post_type ) {
-			wp_die( 'Applicant not found.' );
+			wp_die( 'Applicant not found.', 'Not found', array( 'response' => 404, 'back_link' => true ) );
 		}
 		$data   = (array) get_post_meta( $id, '_epc_data', true );
 		$labels = (array) get_post_meta( $id, '_epc_labels', true );

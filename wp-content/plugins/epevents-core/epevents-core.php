@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       EP Events Core
  * Description:       Events, registration forms, microsites, applicants, capacity control, visitor analytics and import/export for Event Plus. Requires ACF Pro.
- * Version:           1.0.0
+ * Version:           1.5.0
  * Requires PHP:      8.0
  * Requires at least: 6.4
  * Author:            Event Plus
@@ -11,7 +11,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EPC_VERSION', '1.4.0' );
+define( 'EPC_VERSION', '1.5.0' );
 define( 'EPC_FILE', __FILE__ );
 define( 'EPC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'EPC_URL', plugin_dir_url( __FILE__ ) );

@@ -57,7 +57,9 @@ Consent, Hidden, Heading, Text block. Per field: width (full, 2/3, 1/2, 1/3, 1/4
   - Phone – Malaysia (saved as `+60…`), international (country code required), or any.
   - Email – validated and lower-cased.
 - After submit: thank-you message with placeholders (`{fullname}`, `{event_title}`…) or redirect; admin notification; applicant confirmation email with `{registration_details}`.
-- Spam: honeypot + minimum fill time. Overbooking prevented with a DB lock around the capacity check.
+- Spam and abuse: honeypot; a **signed** "form shown at" time (at least 3 seconds to fill, cannot be faked); at most **20 registrations per visitor network per event per hour** (`define( 'EPC_RATE_LIMIT', 50 );` to change, `0` = off); at most 5 automatic confirmation emails per address per hour.
+- Overbooking and double submissions prevented with a DB lock around the capacity and duplicate checks.
+- Password-protected events show WordPress's password form instead of the registration form until unlocked.
 
 ### Capacity & status
 Status: **Automatic** (opens/closes on dates; "Application Full" when max reached), **Force open**, **Application Full**, **Closed**.
@@ -66,7 +68,7 @@ Seats are taken by Registered, Confirmed and Attended applicants; Waitlist and C
 
 ### Applicants
 - Filter by event: a summary bar shows seats taken / max, progress, "minimum not reached" and a count per status. Status links show counts.
-- Search inside every answer (name, email, NRIC, phone…). Bulk: change status, resend confirmation email. Export Excel / CSV / JSON.
+- Search inside every answer (name, email, NRIC, phone…); users who see masked data search names only. Bulk: change status, resend confirmation email. Export Excel / CSV / JSON.
 - Edit screen: answers are checked and normalised like the public form (email, phone, NRIC); a warning lists anything that does not pass.
 - **Notes & activity**: staff notes plus an automatic log of status changes, edits, emails and moves between events (who and when).
 - **Resend confirmation email** from the row, the edit screen or in bulk (sends the waiting-list version to waiting applicants).
@@ -79,7 +81,7 @@ Seats are taken by Registered, Confirmed and Attended applicants; Waitlist and C
 | When a seat frees up | *Do nothing* (default) · *Email the team* · *Give the seat to the next person on the waiting list and email them*. A seat frees up when a seated applicant is cancelled or deleted, or the maximum is raised. Respects a manual "Application full" / "Closed". |
 | Calendar invite | Confirmation emails carry an `.ics` file (Outlook / Apple) and an "Add to Google Calendar" link; `{calendar_link}` placeholder. Needs the event start date. |
 | Countdown on new banners | New banners start with the countdown switched on. |
-| Hide personal data from Viewers | Users who cannot edit applicants see `j•••@mail.com`, `••••••-••-1234` in lists and the read-only view. |
+| Hide personal data from Viewers | Users who cannot edit applicants see `j•••@mail.com`, `••••••-••-1234` in lists, the read-only view **and exports**. |
 
 Waiting-list and seat-offer email texts are editable in the same tab. People on the waiting list now get a waiting-list email instead of the normal confirmation.
 Emails are built in `includes/class-mailer.php`; features and status changes in `includes/class-features.php` (`EPC_Features::set_status()` is the only place a status should change).
@@ -89,6 +91,7 @@ Event Plus → Settings → **Email**: From name / From email (used for every em
 host, encryption (TLS 587 / SSL 465 / none), port, login, username and password.
 
 - The password is stored encrypted with the site's secret keys and is never shown again; leave it empty to keep the saved one.
+- Changing the host or username clears the saved password unless a new one is typed, so it can never be sent to a different server.
 - **Send test email** (same tab, after saving) reports the mail server's error message if sending fails.
 - `wp-config.php` can override: `EPC_SMTP_HOST`, `EPC_SMTP_PORT`, `EPC_SMTP_SECURE` (`tls` / `ssl` / `none`), `EPC_SMTP_USER`, `EPC_SMTP_PASSWORD`.
 - Code: `includes/class-smtp.php`.
@@ -103,7 +106,8 @@ Event Plus → Settings → **Site access**. Default: **Direct links only**.
 | News articles | Open by direct link (switchable; microsite "News" sections link to them) |
 | Privacy policy page | Always open (consent checkboxes link to it) |
 | Other pages | Maintenance, unless "Pages open by direct link" is on |
-| Feeds, sitemaps, public REST listing / search of events and microsites | Not available, so links cannot be discovered |
+| Feeds, sitemaps, public REST listing / search (events, microsites, media, users, posts, pages) | Not available, so links cannot be discovered |
+| `/?p=123`-style ID links and WordPress's "did you mean" redirects (`/a` → first slug starting with a) | Maintenance page, so nobody can walk through IDs or guess slugs. Staff previews still work. |
 
 Staff see a "Direct links only" marker in the admin bar. Switch to **Public website** for a normal homepage.
 Logic: `includes/class-site-access.php`; page: theme `maintenance.php` (fallback `templates/maintenance.php` in the plugin).
@@ -112,7 +116,7 @@ Logic: `includes/class-site-access.php`; page: theme `maintenance.php` (fallback
 ```bash
 php tools/wp-cli.phar --path=. eval-file wp-content/plugins/epevents-core/tests/run.php
 ```
-38 checks: validators (NRIC, phone, email), the registration form end to end (spam guards, required and conditional fields, normalised storage, duplicates, emails), capacity and waiting list, the optional features, and masking.
+49 checks: validators (NRIC, phone, email), the registration form end to end (spam guards incl. forged timestamps, rate limit, password-protected events, malformed input, required and conditional fields, normalised storage, duplicates, emails), capacity and waiting list, the optional features, masking, Custom HTML cleaning and the private-mode REST blocks.
 The test creates its own temporary event (copying the richest published form), captures emails instead of sending them, and removes everything afterwards. Exit code 1 on failure.
 
 ## Reports (visitor analytics)
@@ -131,6 +135,7 @@ server-side with the visitor's original campaign attribution, giving a conversio
 - **Excel (.xlsx) / CSV** – applicants (one column per form field), events/microsites (with a `data_json` column so sheets round-trip).
 - **Applicants from anywhere** (old site, Google Forms, Excel): upload CSV / XLSX / JSON → map columns → import, skipping duplicates.
 - WordPress's own Tools → Export (WXR) also includes Events and Microsites.
+- Importing follows the importer's own rights: content types they cannot create or edit are skipped, items they cannot publish arrive as drafts, settings are imported only with *Settings* permission (never the SMTP server), and Custom HTML is cleaned unless they have *Custom HTML & embed codes*.
 
 ## Roles & permissions
 Roles, highest first: **Developer** → **Super Admin** → **Manager** → **Viewer**.
@@ -140,6 +145,8 @@ WordPress *Administrator* is treated as Developer.
 - Everyone else works only in **Event Plus**, **Media** (if allowed), **Users** (if allowed) and their **Profile**.
 - **Super Admin, Manager and Viewer** get exactly what the matrix grants, so each role only sees the sections it is allowed (menus are hidden *and* the screens are blocked). The WordPress dashboard is skipped: they land on Event Plus → Overview.
 - Event Plus → **Permissions** has the full matrix, per-user Allow/Deny overrides and a "who has which role" view. Anyone with *Manage permissions* can only change roles and users ranked **below** their own: a Developer edits Super Admin, Manager and Viewer; a Super Admin edits Manager and Viewer, and sees their own column locked.
+- Nobody can hand out a permission they do not hold themselves (those boxes are locked for them).
+- **Custom HTML & embed codes**: the code is cleaned when it is saved by someone without this permission (iframes and safe HTML stay, scripts go), so it is safe whoever views the page.
 - Enforcement uses real WordPress capabilities (custom capability types on each post type), not just hidden menus.
 
 | Permission | Super Admin (default) | Manager (default) | Viewer (default) |
@@ -183,6 +190,32 @@ Appearance → **Branding** (theme `inc/branding.php`, Developer only), with a l
 - **Emails**: wraps registration emails with the logo, primary colour and a footer (filter `epc_email_html`).
 
 Defaults (used until something is saved): primary `#6d1a45` (plum), secondary `#e0a23a` (amber), page `#f7f5f2`, text `#1c1a1f`, Plus Jakarta Sans for headings and body, 16 px text, soft corners, pill buttons. Change them in `ept_brand_defaults()`.
+
+## Deploying to staging (cPanel)
+Git holds only the theme and plugin; the database and uploads travel separately.
+
+1. **Files**: in cPanel install WordPress (or upload the core files), then upload
+   `wp-content/plugins/advanced-custom-fields-pro/`, `wp-content/plugins/epevents-core/`, `wp-content/themes/epevents/` and `wp-content/uploads/`.
+2. **Database** – export locally with the URLs already replaced (one line, run in the project folder):
+   ```bash
+   php tools/wp-cli.phar --path=. search-replace 'http://localhost/event-planner' 'https://STAGING-DOMAIN' --all-tables --export=epevents-staging.sql
+   ```
+   Import `epevents-staging.sql` in cPanel → phpMyAdmin, and put that database's name / user / password in the staging `wp-config.php`.
+3. **wp-config.php** on staging:
+   ```php
+   define( 'WP_DEBUG', false );
+   define( 'DISALLOW_FILE_EDIT', true );
+   define( 'FORCE_SSL_ADMIN', true );
+   define( 'ACF_PRO_LICENSE', '…' );
+   // Only behind Cloudflare / a proxy, so rate limits and reports see the real visitor:
+   // define( 'EPC_PROXY_IP_HEADER', 'HTTP_CF_CONNECTING_IP' );
+   // Optional: mail server here instead of Settings → Email:
+   // define( 'EPC_SMTP_HOST', '…' ); define( 'EPC_SMTP_USER', '…' ); define( 'EPC_SMTP_PASSWORD', '…' );
+   ```
+   Use **fresh** salts from https://api.wordpress.org/secret-key/1.1/salt/ – then re-enter the SMTP password in Settings → Email (it is encrypted with the salts).
+4. **Permalinks**: Settings → Permalinks → Save (writes `.htaccess` for the new folder).
+5. **Accounts**: the local test accounts come along with the database. Change every password (or delete the test users) before anyone else gets the link.
+6. **Check**: Settings → Email → *Send test email*; open an event link and register once; open the homepage signed out (maintenance page).
 
 ## Not in this phase
 - SEO fields (per agreement – later phase).

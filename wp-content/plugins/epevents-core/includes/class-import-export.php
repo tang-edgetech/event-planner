@@ -218,7 +218,7 @@ class EPC_Import_Export {
 
 		if ( 'applicants' === $type ) {
 			if ( ! current_user_can( 'epc_export_applicants' ) ) {
-				wp_die( 'Not allowed.' );
+				wp_die( 'Not allowed.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 			}
 			$event  = absint( $_GET['event'] ?? 0 );
 			$status = sanitize_key( $_GET['status'] ?? '' );
@@ -228,7 +228,7 @@ class EPC_Import_Export {
 
 		if ( 'package' === $type ) {
 			if ( ! current_user_can( 'epc_export' ) ) {
-				wp_die( 'Not allowed.' );
+				wp_die( 'Not allowed.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 			}
 			$pts      = array_intersect( (array) ( $_GET['pt'] ?? array() ), array( EPC_Post_Types::EVENT, EPC_Post_Types::MICROSITE, 'post', 'page' ) );
 			$with_app = ! empty( $_GET['applicants'] ) && current_user_can( 'epc_export_applicants' );
@@ -291,7 +291,9 @@ class EPC_Import_Export {
 				$cols[ $f['name'] ] = wp_strip_all_tags( $f['label'] ) ?: $f['name'];
 			}
 		}
-		$rows = array();
+		$rows       = array();
+		$mask       = EPC_Features::mask_personal_data();
+		$type_cache = array();
 		foreach ( $ids as $id ) {
 			$data   = (array) get_post_meta( $id, '_epc_data', true );
 			$labels = (array) get_post_meta( $id, '_epc_labels', true );
@@ -302,6 +304,15 @@ class EPC_Import_Export {
 			}
 			$src    = (array) get_post_meta( $id, '_epc_source', true );
 			$ev     = (int) get_post_meta( $id, '_epc_event_id', true );
+			if ( $mask ) {
+				// Same masking as on screen (email / phone / NRIC) for users who only see masked data.
+				$types = $type_cache[ $ev ] ??= EPC_Features::field_types( $ev );
+				foreach ( $data as $k => $v ) {
+					if ( is_string( $v ) && isset( $types[ $k ] ) ) {
+						$data[ $k ] = EPC_Features::mask( $v, $types[ $k ] );
+					}
+				}
+			}
 			$rows[] = array(
 				'_base' => array(
 					'Applicant ID' => $id,
@@ -593,7 +604,7 @@ class EPC_Import_Export {
 	public static function import_upload(): void {
 		check_admin_referer( 'epc_import' );
 		if ( ! current_user_can( 'epc_import' ) ) {
-			wp_die( 'Not allowed.' );
+			wp_die( 'Not allowed.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 		}
 		if ( empty( $_FILES['file']['tmp_name'] ) || ! is_uploaded_file( $_FILES['file']['tmp_name'] ) ) {
 			wp_die( 'No file uploaded.', '', array( 'back_link' => true ) );
@@ -648,12 +659,12 @@ class EPC_Import_Export {
 	public static function import_mapped(): void {
 		check_admin_referer( 'epc_import_map' );
 		if ( ! current_user_can( 'epc_import' ) ) {
-			wp_die( 'Not allowed.' );
+			wp_die( 'Not allowed.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 		}
 		$token = sanitize_key( $_POST['token'] ?? '' );
 		$job   = get_transient( 'epc_import_' . $token );
 		if ( ! $job || (int) $job['user'] !== get_current_user_id() ) {
-			wp_die( 'The upload has expired.' );
+			wp_die( 'The upload has expired. Please upload the file again.', 'Expired', array( 'response' => 410, 'back_link' => true ) );
 		}
 		@set_time_limit( 600 ); // phpcs:ignore
 		$map     = array_map( 'sanitize_key', (array) ( $_POST['map'] ?? array() ) );
@@ -727,8 +738,9 @@ class EPC_Import_Export {
 		$counts    = array( 'created' => 0, 'updated' => 0, 'skipped' => 0, 'media' => 0, 'applicants' => 0 );
 		$allowed   = array( EPC_Post_Types::EVENT, EPC_Post_Types::MICROSITE, 'post', 'page' );
 
-		// Settings.
-		if ( ! empty( $pkg['settings']['preset_lists'] ) && function_exists( 'update_field' ) ) {
+		// Settings: only for users who may change settings, and never the mail server (its password cannot travel).
+		$may_settings = current_user_can( 'epc_manage_settings' );
+		if ( $may_settings && ! empty( $pkg['settings']['preset_lists'] ) && function_exists( 'update_field' ) ) {
 			$current = array();
 			foreach ( epc_list( get_field( 'epc_preset_lists', 'option' ) ) as $row ) {
 				$current[ sanitize_title( $row['slug'] ?: $row['name'] ) ] = $row;
@@ -742,7 +754,7 @@ class EPC_Import_Export {
 			update_field( 'epc_preset_lists', array_values( $current ), 'option' );
 		}
 		foreach ( (array) ( $pkg['settings']['options'] ?? array() ) as $k => $v ) {
-			if ( str_starts_with( $k, 'epc_' ) && function_exists( 'update_field' ) ) {
+			if ( $may_settings && str_starts_with( (string) $k, 'epc_' ) && ! str_starts_with( (string) $k, 'epc_smtp_' ) && function_exists( 'update_field' ) ) {
 				update_field( $k, $v, 'option' );
 			}
 		}
@@ -755,7 +767,17 @@ class EPC_Import_Export {
 			if ( ! in_array( $p['type'] ?? '', $allowed, true ) ) {
 				continue;
 			}
+			// Same rights as on screen: create / edit / publish this content type.
+			$pto = get_post_type_object( $p['type'] );
+			if ( ! $pto || ! current_user_can( $pto->cap->create_posts ) ) {
+				++$counts['skipped'];
+				continue;
+			}
 			$existing = get_page_by_path( $p['slug'], OBJECT, $p['type'] );
+			if ( $existing && 'update' === $opts['existing'] && ! current_user_can( 'edit_post', $existing->ID ) ) {
+				++$counts['skipped'];
+				continue;
+			}
 			if ( $existing && 'skip' === $opts['existing'] ) {
 				$post_map[ (int) $p['id'] ] = $existing->ID;
 				++$counts['skipped'];
@@ -764,7 +786,7 @@ class EPC_Import_Export {
 			$args = array(
 				'post_type'    => $p['type'],
 				'post_title'   => $p['title'],
-				'post_status'  => in_array( $p['status'], array( 'publish', 'draft', 'pending', 'private', 'future' ), true ) ? $p['status'] : 'draft',
+				'post_status'  => in_array( $p['status'], array( 'publish', 'draft', 'pending', 'private', 'future' ), true ) && ( 'draft' === $p['status'] || current_user_can( $pto->cap->publish_posts ) ) ? $p['status'] : 'draft',
 				'post_content' => $p['content'] ?? '',
 				'post_excerpt' => $p['excerpt'] ?? '',
 				'menu_order'   => (int) ( $p['menu_order'] ?? 0 ),
@@ -789,6 +811,15 @@ class EPC_Import_Export {
 		// Pass 2: meta with remapped references.
 		foreach ( $todo as [ $new_id, $p ] ) {
 			foreach ( (array) $p['meta'] as $key => $value ) {
+				$key = (string) $key;
+				// Internal flags and WordPress bookkeeping are not imported.
+				if ( preg_match( '/^_(epc_|edit_|wp_old_|wp_trash_|encloseme|pingme)/', $key ) ) {
+					continue;
+				}
+				// Custom HTML sections: same cleaning as when saved on screen.
+				if ( is_string( $value ) && str_ends_with( $key, '_code' ) && ! current_user_can( 'unfiltered_html' ) ) {
+					$value = epc_clean_embed_html( $value );
+				}
 				$ref = $p['refs'][ $key ] ?? '';
 				if ( 'media' === $ref ) {
 					$value = self::remap_list( $value, fn( $old ) => self::import_media( (int) $old, $media, $media_map, $opts, $counts ) );
@@ -824,7 +855,7 @@ class EPC_Import_Export {
 			foreach ( (array) ( $a['labels'] ?? array() ) as $k => $l ) {
 				$labels[] = array( 'name' => $k, 'label' => $l );
 			}
-			$id = EPC_Form::store( $event, (array) $a['data'], $labels, sanitize_key( $a['status'] ?: 'registered' ), array(), (string) ( $a['date'] ?? '' ) );
+			$id = EPC_Form::store( $event, (array) $a['data'], $labels, ( isset( epc_applicant_statuses()[ sanitize_key( (string) ( $a['status'] ?? '' ) ) ] ) ? sanitize_key( (string) $a['status'] ) : 'registered' ), array(), (string) ( $a['date'] ?? '' ) );
 			if ( $id && ! empty( $a['source'] ) ) {
 				update_post_meta( $id, '_epc_source', $a['source'] );
 			}

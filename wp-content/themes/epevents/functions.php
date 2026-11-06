@@ -77,12 +77,10 @@ add_filter( 'body_class', function ( $classes ) {
 	return $classes;
 } );
 
-/** Allow editors to embed iframes in the HTML section; strip scripts for non-unfiltered users. */
+/**
+ * HTML section code. The plugin cleans it when it is saved (scripts are kept only for editors with
+ * "Custom HTML & embed codes"), so it is shown as stored. Without the plugin, fall back to safe HTML.
+ */
 function ept_html_section( string $code ): string {
-	if ( current_user_can( 'unfiltered_html' ) || user_can( (int) get_post_field( 'post_author', get_the_ID() ), 'unfiltered_html' ) ) {
-		return $code;
-	}
-	$allowed           = wp_kses_allowed_html( 'post' );
-	$allowed['iframe'] = array( 'src' => true, 'width' => true, 'height' => true, 'style' => true, 'allow' => true, 'allowfullscreen' => true, 'loading' => true, 'frameborder' => true, 'title' => true );
-	return wp_kses( $code, $allowed );
+	return function_exists( 'epc_clean_embed_html' ) ? $code : wp_kses_post( $code );
 }

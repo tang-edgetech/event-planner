@@ -108,7 +108,7 @@ class EPC_Post_Types {
 		check_admin_referer( 'epc_duplicate_' . $id );
 		$post = get_post( $id );
 		if ( ! $post || ! current_user_can( 'edit_post', $id ) || ! current_user_can( get_post_type_object( $post->post_type )->cap->create_posts ) ) {
-			wp_die( 'Not allowed.' );
+			wp_die( 'Not allowed.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 		}
 		$new_id = wp_insert_post(
 			array(
@@ -119,7 +119,8 @@ class EPC_Post_Types {
 			)
 		);
 		foreach ( get_post_meta( $id ) as $key => $values ) {
-			if ( in_array( $key, array( '_edit_lock', '_edit_last', '_wp_old_slug' ), true ) ) {
+			// Bookkeeping and per-event flags (e.g. capacity alerts already sent) start fresh on the copy.
+			if ( in_array( $key, array( '_edit_lock', '_edit_last', '_wp_old_slug' ), true ) || str_starts_with( $key, '_epc_' ) ) {
 				continue;
 			}
 			foreach ( $values as $v ) {

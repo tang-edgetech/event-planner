@@ -87,11 +87,12 @@ update_field( 'event_end', '2030-03-01 17:00:00', $event );
 update_field( 'venue', 'Test Hall', $event );
 
 $fields = epc_get_data_fields( $event );
+$GLOBALS['epc_t_event'] = $event;
 $types  = wp_list_pluck( $fields, 'type', 'name' );
 
 /** A valid submission built from the form's own field definitions. */
 function t_post( array $fields, int $n, array $over = array() ): array {
-	$p = array( 'epc_ts' => time() - 30, 'epc_hp' => '' );
+	$p = array( 'epc_ts' => EPC_Form::token( $GLOBALS['epc_t_event'], time() - 30 ), 'epc_hp' => '' );
 	foreach ( $fields as $f ) {
 		switch ( $f['type'] ) {
 			case 'email':
@@ -142,8 +143,18 @@ t_section( 'Registration form' );
 
 $r = EPC_Form::process( $event, t_post( $fields, 1, array( 'epc_hp' => 'bot' ) ) );
 t_ok( ! $r['ok'], 'Honeypot submission is rejected' );
-$r = EPC_Form::process( $event, t_post( $fields, 1, array( 'epc_ts' => time() ) ) );
+$r = EPC_Form::process( $event, t_post( $fields, 1, array( 'epc_ts' => EPC_Form::token( $event ) ) ) );
 t_ok( ! $r['ok'], 'Submission faster than 3 seconds is rejected' );
+$r = EPC_Form::process( $event, t_post( $fields, 1, array( 'epc_ts' => '0' ) ) );
+t_ok( ! $r['ok'], 'Unsigned (forged) timestamp is rejected' );
+$r = EPC_Form::process( $event, t_post( $fields, 1, array( 'epc_ts' => ( time() - 30 ) . '.forgedsignature000' ) ) );
+t_ok( ! $r['ok'], 'Wrongly signed timestamp is rejected' );
+$odd = t_post( $fields, 1 );
+foreach ( $fields as $f ) {
+	$odd[ $f['name'] ] = 'checkboxes' === $f['type'] ? 'not-a-list' : array( 'x' );
+}
+$r = EPC_Form::process( $event, $odd );
+t_ok( ! $r['ok'], 'Lists and plain values in the wrong fields give errors, not a crash' );
 
 $missing = t_post( $fields, 1 );
 unset( $missing[ $email_field ] );
@@ -173,6 +184,16 @@ if ( ! empty( wp_list_pluck( $fields, 'unique', 'name' )[ $email_field ] ) ) {
 	$r = EPC_Form::process( $event, t_post( $fields, 3, array( $email_field => 'tester2@example.com' ) ) );
 	t_ok( ! $r['ok'] && isset( $r['errors'][ $email_field ] ), 'Duplicate email is blocked (field is unique)' );
 }
+
+add_filter( 'epc_rate_limit', fn() => 1 );
+$r = EPC_Form::process( $event, t_post( $fields, 40 ) );
+remove_all_filters( 'epc_rate_limit' );
+t_ok( ! $r['ok'] && str_contains( $r['message'], 'Too many' ), 'Rate limit per network stops repeated registrations', $r['message'] );
+
+wp_update_post( array( 'ID' => $event, 'post_password' => 'secret' ) );
+$r = EPC_Form::process( $event, t_post( $fields, 41 ) );
+wp_update_post( array( 'ID' => $event, 'post_password' => '' ) );
+t_ok( ! $r['ok'] && str_contains( $r['message'], 'password' ), 'Password-protected event refuses registrations until unlocked' );
 
 /* ---------------------------------------------------------------------- */
 t_section( 'Capacity' );
@@ -255,7 +276,23 @@ t_ok( '••••••-••-5678' === EPC_Features::mask( '900101-14-5678',
 t_ok( 'Dr.' === EPC_Features::mask( 'Dr.', 'salutation' ), 'Other fields are not masked' );
 
 /* ---------------------------------------------------------------------- */
+t_section( 'Content safety and private mode' );
+
+wp_set_current_user( (int) ( get_users( array( 'role' => 'ep_manager', 'number' => 1, 'fields' => 'ID' ) )[0] ?? 0 ) );
+$clean = apply_filters( 'acf/update_value/key=field_epc_html_code', '<p>Map</p><script>alert(1)</script><iframe src="https://maps.google.com/x"></iframe>' );
+t_ok( ! str_contains( $clean, '<script' ) && str_contains( $clean, '<iframe' ), 'HTML section from a Manager keeps iframes but loses scripts when saved', $clean );
+wp_set_current_user( 0 );
+foreach ( array( '/wp/v2/EP_EVENT', '/wp/v2/ep_microsite', '/wp/v2/Search', '/wp/v2/media', '/wp/v2/users' ) as $route ) {
+	$res = rest_do_request( new WP_REST_Request( 'GET', $route ) );
+	t_ok( 404 === $res->get_status(), "Visitors cannot list $route", $res->get_status() );
+}
+
+/* ---------------------------------------------------------------------- */
 // Clean up.
+delete_transient( 'epc_rl_' . md5( epc_client_ip() . '|' . $event ) );
+foreach ( range( 1, 60 ) as $i ) {
+	delete_transient( 'epc_mail_' . md5( "tester{$i}@example.com" ) );
+}
 foreach ( $saved as $opt => $val ) {
 	if ( null === $val || false === $val || '' === $val ) {
 		delete_field( $opt, 'option' );
