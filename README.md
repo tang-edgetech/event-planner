@@ -84,6 +84,21 @@ Seats are taken by Registered, Confirmed and Attended applicants; Waitlist and C
 Waiting-list and seat-offer email texts are editable in the same tab. People on the waiting list now get a waiting-list email instead of the normal confirmation.
 Emails are built in `includes/class-mailer.php`; features and status changes in `includes/class-features.php` (`EPC_Features::set_status()` is the only place a status should change).
 
+## Site access (maintenance page)
+Event Plus → Settings → **Site access**. Default: **Direct links only**.
+
+| URL | Visitors see |
+|---|---|
+| Homepage, search, archives, other pages, 404s | Branded maintenance page (`noindex`), editable title, message, contact email, background image |
+| `/event/{slug}/` forms and `/e/{slug}/` microsites | The page, when opened from its link |
+| News articles | Open by direct link (switchable; microsite "News" sections link to them) |
+| Privacy policy page | Always open (consent checkboxes link to it) |
+| Other pages | Maintenance, unless "Pages open by direct link" is on |
+| Feeds, sitemaps, public REST listing / search of events and microsites | Not available, so links cannot be discovered |
+
+Staff see a "Direct links only" marker in the admin bar. Switch to **Public website** for a normal homepage.
+Logic: `includes/class-site-access.php`; page: theme `maintenance.php` (fallback `templates/maintenance.php` in the plugin).
+
 ## Automated tests
 ```bash
 php tools/wp-cli.phar --path=. eval-file wp-content/plugins/epevents-core/tests/run.php

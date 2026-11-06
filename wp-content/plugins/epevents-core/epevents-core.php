@@ -11,7 +11,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EPC_VERSION', '1.2.1' );
+define( 'EPC_VERSION', '1.3.0' );
 define( 'EPC_FILE', __FILE__ );
 define( 'EPC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'EPC_URL', plugin_dir_url( __FILE__ ) );
@@ -31,6 +31,7 @@ require_once EPC_DIR . 'includes/class-analytics-admin.php';
 require_once EPC_DIR . 'includes/class-xlsx.php';
 require_once EPC_DIR . 'includes/class-import-export.php';
 require_once EPC_DIR . 'includes/class-admin.php';
+require_once EPC_DIR . 'includes/class-site-access.php';
 
 /**
  * ACF Pro is required for all editing screens. Front-end degrades gracefully.
@@ -57,6 +58,7 @@ EPC_Analytics::init();
 EPC_Analytics_Admin::init();
 EPC_Import_Export::init();
 EPC_Admin::init();
+EPC_Site_Access::init();
 
 register_activation_hook( __FILE__, function () {
 	EPC_Post_Types::register();

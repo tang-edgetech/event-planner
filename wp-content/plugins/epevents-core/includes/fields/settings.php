@@ -72,6 +72,27 @@ add_action( 'acf/init', function () {
 				array( 'key' => 'field_epc_geo_token', 'label' => 'ipinfo.io token', 'name' => 'epc_geo_token', 'type' => 'text', 'wrapper' => array( 'width' => 50 ), 'conditional_logic' => array( array( array( 'field' => 'field_epc_geo_provider', 'operator' => '==', 'value' => 'ipinfo' ) ) ) ),
 				array( 'key' => 'field_epc_track_retention', 'label' => 'Keep raw visit data for (days)', 'name' => 'epc_track_retention', 'type' => 'number', 'default_value' => 730, 'min' => 0, 'instructions' => '0 = forever.', 'wrapper' => array( 'width' => 50 ) ),
 
+				/* Site access: maintenance page everywhere except direct links. */
+				array( 'key' => 'field_epc_tab_access', 'label' => 'Site access', 'type' => 'tab' ),
+				array(
+					'key'           => 'field_epc_access_mode',
+					'label'         => 'Who can see what',
+					'name'          => 'epc_access_mode',
+					'type'          => 'radio',
+					'choices'       => array(
+						'private' => 'Direct links only: the homepage and everything else show the maintenance page; event forms and microsites open only from their link',
+						'public'  => 'Public website: homepage and listings are visible',
+					),
+					'default_value' => 'private',
+					'instructions'  => 'In "Direct links only", events and microsites are also kept out of search, sitemaps and the public API, so their links cannot be discovered.',
+				),
+				array( 'key' => 'field_epc_access_posts', 'label' => 'News articles open by direct link', 'name' => 'epc_access_posts', 'type' => 'true_false', 'ui' => 1, 'default_value' => 1, 'instructions' => 'Needed when microsites show a "News" section that links to articles.', 'wrapper' => array( 'width' => 50 ), 'conditional_logic' => array( array( array( 'field' => 'field_epc_access_mode', 'operator' => '==', 'value' => 'private' ) ) ) ),
+				array( 'key' => 'field_epc_access_pages', 'label' => 'Pages open by direct link', 'name' => 'epc_access_pages', 'type' => 'true_false', 'ui' => 1, 'default_value' => 0, 'instructions' => 'The privacy policy page always opens (consent checkboxes link to it).', 'wrapper' => array( 'width' => 50 ), 'conditional_logic' => array( array( array( 'field' => 'field_epc_access_mode', 'operator' => '==', 'value' => 'private' ) ) ) ),
+				array( 'key' => 'field_epc_maint_title', 'label' => 'Maintenance page title', 'name' => 'epc_maint_title', 'type' => 'text', 'placeholder' => 'We will be back soon', 'wrapper' => array( 'width' => 50 ) ),
+				array( 'key' => 'field_epc_maint_email', 'label' => 'Contact email (optional)', 'name' => 'epc_maint_email', 'type' => 'email', 'wrapper' => array( 'width' => 50 ) ),
+				array( 'key' => 'field_epc_maint_message', 'label' => 'Maintenance page message', 'name' => 'epc_maint_message', 'type' => 'wysiwyg', 'toolbar' => 'basic', 'media_upload' => 0, 'delay' => 1, 'instructions' => 'Empty = standard text.', 'wrapper' => array( 'width' => 70 ) ),
+				array( 'key' => 'field_epc_maint_bg', 'label' => 'Background image (optional)', 'name' => 'epc_maint_bg', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'medium', 'instructions' => 'Empty = brand colour.', 'wrapper' => array( 'width' => 30 ) ),
+
 				/* Optional features: all off by default. */
 				array( 'key' => 'field_epc_tab_features', 'label' => 'Features', 'type' => 'tab' ),
 				array( 'key' => 'field_epc_features_intro', 'label' => '', 'type' => 'message', 'message' => 'Optional features. Each is off until you switch it on.' ),
