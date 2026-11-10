@@ -14,7 +14,7 @@ define( 'EPT_VERSION', '2.1.0' );
 
 // The core used to be the "EP Events Core" plugin. If that plugin is still active on a server,
 // loading both would declare every class twice, so ask for it to be removed instead.
-if ( class_exists( 'EPC_Roles', false ) ) {
+if ( class_exists( 'EPC_Form', false ) ) {
 	add_action(
 		'admin_notices',
 		function () {

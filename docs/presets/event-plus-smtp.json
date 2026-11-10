@@ -1,0 +1,31 @@
+{
+    "plugin": "tamago-smtp",
+    "version": "1.0.0",
+    "exported": "2026-11-10T07:25:23+00:00",
+    "settings": {
+        "enabled": false,
+        "provider": "other",
+        "host": "",
+        "port": 587,
+        "encryption": "tls",
+        "auto_tls": true,
+        "auth": true,
+        "username": "",
+        "timeout": 20,
+        "from_email": "",
+        "force_from_email": true,
+        "from_name": "",
+        "force_from_name": true,
+        "return_path": false,
+        "reply_to": "",
+        "bcc": "",
+        "log_enabled": true,
+        "log_bodies": true,
+        "log_transcript_success": false,
+        "log_retention_days": 30,
+        "log_max_body_kb": 512,
+        "alert_enabled": false,
+        "alert_email": "",
+        "delete_data": false
+    }
+}

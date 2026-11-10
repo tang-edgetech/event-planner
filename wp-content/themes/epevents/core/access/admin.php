@@ -53,14 +53,14 @@ class EPC_Admin {
 	}
 
 	public static function admin_bar( WP_Admin_Bar $bar ): void {
-		if ( is_admin() || ! is_singular( array( EPC_Post_Types::EVENT, EPC_Post_Types::MICROSITE ) ) || ! current_user_can( 'epc_view_reports' ) ) {
+		if ( is_admin() || ! is_singular( array( EPC_Post_Types::EVENT, EPC_Post_Types::MICROSITE ) ) || ! current_user_can( 'tmg_reports_view' ) ) {
 			return;
 		}
 		$bar->add_node(
 			array(
 				'id'    => 'epc-report',
 				'title' => 'Page report',
-				'href'  => admin_url( 'admin.php?page=epc-analytics&post_id=' . get_queried_object_id() ),
+				'href'  => admin_url( 'admin.php?page=tamago-reports&f%5Bpost%5D=' . get_queried_object_id() ),
 			)
 		);
 	}
@@ -128,9 +128,9 @@ class EPC_Admin {
 		if ( ! $events ) {
 			$events = get_posts( array( 'post_type' => EPC_Post_Types::EVENT, 'numberposts' => 12, 'post_status' => 'any' ) );
 		}
-		$t      = EPC_Analytics::table();
-		$since  = gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS );
-		$week   = $wpdb->get_row( $wpdb->prepare( "SELECT SUM(event_type='pageview') v, COUNT(DISTINCT CASE WHEN event_type='pageview' THEN visitor_id END) u, SUM(event_type='submit') s FROM {$t} WHERE created_at >= %s", $since ), ARRAY_A );
+		// Visits come from Tamago Reports; registrations are its "registration" goal.
+		$stats  = function_exists( 'tmg_reports_query' ) ? tmg_reports_query( array( 'range' => '7d', 'metrics' => array( 'views', 'visitors', 'conversions' ) ) ) : array();
+		$week   = array( 'v' => $stats['views'] ?? 0, 'u' => $stats['visitors'] ?? 0, 's' => $stats['conversions'] ?? 0 );
 		$recent = get_posts( array( 'post_type' => EPC_Post_Types::APPLICANT, 'numberposts' => 8 ) );
 		?>
 		<div class="wrap epc-dashboard">
@@ -159,7 +159,7 @@ class EPC_Admin {
 										<?php if ( current_user_can( 'edit_post', $e->ID ) ) : ?><a href="<?php echo esc_url( get_edit_post_link( $e->ID ) ); ?>">Edit</a> | <?php endif; ?>
 										<a href="<?php echo esc_url( get_permalink( $e->ID ) ); ?>" target="_blank">View</a>
 										<?php if ( current_user_can( 'epc_view_applicants' ) ) : ?> | <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=' . EPC_Post_Types::APPLICANT . '&epc_event=' . $e->ID ) ); ?>">Applicants</a><?php endif; ?>
-										<?php if ( current_user_can( 'epc_view_reports' ) ) : ?> | <a href="<?php echo esc_url( admin_url( 'admin.php?page=epc-analytics&post_id=' . $e->ID ) ); ?>">Report</a><?php endif; ?>
+										<?php if ( current_user_can( 'tmg_reports_view' ) ) : ?> | <a href="<?php echo esc_url( admin_url( 'admin.php?page=tamago-reports&f%5Bpost%5D=' . $e->ID ) ); ?>">Report</a><?php endif; ?>
 									</div>
 								</td>
 								<td><?php echo esc_html( (string) get_field( 'event_date_text', $e->ID ) ); ?></td>
@@ -220,13 +220,13 @@ class EPC_Post_Types {
 		}
 		if ( self::EVENT === $post->post_type && current_user_can( 'epc_view_applicants' ) ) {
 			$actions['epc_applicants'] = '<a href="' . esc_url( admin_url( 'edit.php?post_type=' . self::APPLICANT . '&epc_event=' . $post->ID ) ) . '">Applicants</a>';
-			$actions['epc_report']     = '<a href="' . esc_url( admin_url( 'admin.php?page=epc-analytics&post_id=' . $post->ID ) ) . '">Report</a>';
-			if ( ! current_user_can( 'epc_view_reports' ) ) {
+			$actions['epc_report']     = '<a href="' . esc_url( admin_url( 'admin.php?page=tamago-reports&f%5Bpost%5D=' . $post->ID ) ) . '">Report</a>';
+			if ( ! current_user_can( 'tmg_reports_view' ) ) {
 				unset( $actions['epc_report'] );
 			}
 		}
-		if ( self::MICROSITE === $post->post_type && current_user_can( 'epc_view_reports' ) ) {
-			$actions['epc_report'] = '<a href="' . esc_url( admin_url( 'admin.php?page=epc-analytics&post_id=' . $post->ID ) ) . '">Report</a>';
+		if ( self::MICROSITE === $post->post_type && current_user_can( 'tmg_reports_view' ) ) {
+			$actions['epc_report'] = '<a href="' . esc_url( admin_url( 'admin.php?page=tamago-reports&f%5Bpost%5D=' . $post->ID ) ) . '">Report</a>';
 		}
 		return $actions;
 	}

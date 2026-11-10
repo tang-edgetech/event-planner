@@ -102,7 +102,7 @@
 
 		// Attribution from the tracker (visitor id + UTM/referrer of the session).
 		try {
-			form.querySelector('[name=epc_visitor]').value = localStorage.getItem('epc_vid') || '';
+			form.querySelector('[name=epc_visitor]').value = localStorage.getItem('tmg_vid') || '';
 			form.querySelector('[name=epc_source]').value = sessionStorage.getItem('epc_src') || '';
 		} catch (e) { /* storage blocked */ }
 

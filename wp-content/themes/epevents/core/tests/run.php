@@ -305,7 +305,7 @@ foreach ( get_posts( array( 'post_type' => EPC_Post_Types::APPLICANT, 'post_stat
 }
 wp_delete_post( $event, true );
 global $wpdb;
-$wpdb->delete( EPC_Analytics::table(), array( 'post_id' => $event ) ); // Conversions recorded by the test registrations.
+$wpdb->delete( $wpdb->prefix . 'tmg_reports_hits', array( 'post_id' => $event ) ); // Conversions recorded by the test registrations.
 
 $t = $GLOBALS['epc_t'];
 echo "\n{$t['pass']} passed, {$t['fail']} failed\n";

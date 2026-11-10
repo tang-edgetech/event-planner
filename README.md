@@ -1,8 +1,16 @@
 # Event Plus – WordPress rebuild
 
-Rebuild of https://epevents.com.my/ as **one custom WordPress theme** (`epevents`), built on **ACF Pro**.
-There is no custom plugin and no form plugin: every feature lives inside the theme.
-Only the theme folder (plus this README) is tracked in git; WordPress core, plugins, `wp-config.php` and uploads are not.
+Rebuild of https://epevents.com.my/ as **one custom WordPress theme** (`epevents`), built on **ACF Pro**, plus four
+in-house, reusable plugins (**Tamago**) for email sending, visitor reports, import / export and roles & permissions.
+There is no third-party plugin apart from ACF Pro.
+Git tracks the theme, the four Tamago plugins, `docs/` and this README; WordPress core, ACF Pro, `wp-config.php` and uploads are not.
+
+| Document | For |
+|---|---|
+| This README | the Event Plus theme: features, folders, ACF, deployment |
+| [docs/event-plus-settings.md](docs/event-plus-settings.md) | setting up the Tamago plugins like Event Plus (this site or another project), presets in `docs/presets/` |
+| [docs/tamago-conventions.md](docs/tamago-conventions.md) | rules shared by the four plugins (prefixes, folders, permissions, menus, settings JSON, security) |
+| `wp-content/plugins/tamago-*/README.md` | each plugin's developer guide: screens, settings keys, hooks, WP-CLI, data stored |
 
 ## Requirements
 
@@ -11,10 +19,14 @@ Only the theme folder (plus this README) is tracked in git; WordPress core, plug
 | WordPress | 6.4 or later | |
 | PHP | 8.0 or later (local: 8.3) | |
 | MySQL / MariaDB | any version WordPress supports | Needs `GET_LOCK` (standard), used against overbooking |
-| **Advanced Custom Fields PRO** | 6.x (local: 6.8.11) | **The only plugin required.** Installed separately in `wp-content/plugins/advanced-custom-fields-pro/`, not bundled in the theme, so it keeps receiving its own updates. Licence key: ACF → Updates (or `define( 'ACF_PRO_LICENSE', '…' );` in `wp-config.php`). It registers the post types, options pages and field groups, so without it events and microsites do not exist (the theme shows an admin warning). |
-| Theme **EP Events** (`epevents`) | 2.0.0 | Must be the active theme. |
+| **Advanced Custom Fields PRO** | 6.x (local: 6.8.11) | **The only third-party plugin.** Installed separately in `wp-content/plugins/advanced-custom-fields-pro/`, not bundled in the theme, so it keeps receiving its own updates. Licence key: ACF → Updates (or `define( 'ACF_PRO_LICENSE', '…' );` in `wp-config.php`). It registers the post types, options pages and field groups, so without it events and microsites do not exist (the theme shows an admin warning). |
+| **Tamago SMTP** (`tamago-smtp`) | 1.0.0 | Mail server, sender, test email, email log. In this repository. |
+| **Tamago Reports** (`tamago-reports`) | 1.0.0 | Visitor analytics, goals (registrations), real-time. In this repository. |
+| **Tamago Import & Export** (`tamago-io`) | 1.0.0 | Any content, ACF values and structure, applicants sheet. In this repository. |
+| **Tamago Roles** (`tamago-roles`) | 1.0.0 | Roles, ranks, permission matrix, admin menus, content access. In this repository. |
+| Theme **EP Events** (`epevents`) | 3.0.0 | Must be the active theme. Warns when a Tamago plugin is not active. |
 
-Nothing else is needed: no form, SMTP, analytics, export or maintenance plugin.
+Nothing else is needed: no form, SMTP, analytics, export, roles or maintenance plugin from outside.
 Optional `wp-config.php` constants are listed under [Deploying to staging](#deploying-to-staging-cpanel).
 
 ## Folder structure – features vs presentation
@@ -31,14 +43,14 @@ wp-content/themes/epevents/
 │   ├── acf.php            ACF glue: JSON folders, "add new" permission, HTML cleaning, choices from code
 │   ├── helpers.php        shared functions used by every feature
 │   ├── registration/      form.php · validator.php · capacity.php
-│   ├── applicants/        applicants-admin.php · features.php (alerts, waiting list, masking)
-│   ├── email/             mailer.php · smtp.php
-│   ├── reports/           analytics.php (visit tracking) · reports-screen.php
-│   ├── import-export/     import-export.php (incl. Excel reader / writer)
-│   ├── access/            roles.php · site-access.php · admin.php (menu, overview, list links)
-│   ├── assets/            admin CSS, registration form CSS/JS, tracking beacon, Chart.js
+│   ├── applicants/        applicants-admin.php · features.php (alerts, waiting list, masking) ·
+│   │                      applicants-io.php ("Applicants" sheet for Tamago Import & Export)
+│   ├── email/             mailer.php (event emails; sending itself is Tamago SMTP)
+│   ├── access/            site-access.php · admin.php (menu, overview, list links)
+│   ├── tamago.php         link to the Tamago plugins: permissions, menu, registration goal, warnings
+│   ├── assets/            admin CSS, registration form CSS/JS
 │   ├── tests/run.php      automated checks
-│   └── dev/               developer-only scripts (demo content seeder)
+│   └── dev/               developer-only scripts (demo content seeder, migrate-to-tamago.php)
 │
 │                          ── PRESENTATION (how the site looks) ──
 ├── acf-json/             ACF (JSON): Branding options page and field group
@@ -65,11 +77,11 @@ Code prefixes: core uses `EPC_` / `epc_`, presentation uses `ept_` / `EPT_`. The
 | Capacity, status, waiting list | event edit screen | `core/registration/capacity.php` |
 | Optional features (alerts, seat freed, calendar, masking) | Settings → Features | `core/applicants/features.php` |
 | Applicants list, edit, notes & activity, bulk actions | Event Plus → Applicants | `core/applicants/applicants-admin.php`, `core/access/admin.php` (read-only view) |
-| Emails (notification, confirmation, waitlist, .ics) | Settings → Email | `core/email/mailer.php` |
-| SMTP sending + test email | Settings → Email | `core/email/smtp.php` |
-| Visitor analytics + reports | Event Plus → Reports | `core/reports/analytics.php`, `reports-screen.php`, `core/assets/js/track.js` |
-| Import / export (JSON, Excel, CSV) | Event Plus → Import / Export | `core/import-export/import-export.php` |
-| Roles & permissions, ghost Developers | Event Plus → Permissions | `core/access/roles.php` |
+| Emails (notification, confirmation, waitlist, .ics) | event edit screen, Settings → Email (recipients) | `core/email/mailer.php` |
+| SMTP sending, test email, email log | Event Plus → SMTP | plugin **Tamago SMTP** |
+| Visitor analytics + reports, registration goal | Event Plus → Reports | plugin **Tamago Reports** + `core/tamago.php` (goal, consent) |
+| Import / export (JSON, ZIP, Excel, CSV, ACF) | Event Plus → Import & Export | plugin **Tamago Import & Export** + `core/applicants/applicants-io.php` (Applicants sheet) |
+| Roles & permissions, hidden Developers | Event Plus → Roles & Permissions | plugin **Tamago Roles** + `core/tamago.php` (`epc_permissions()`) |
 | Site access (maintenance page) | Settings → Site access | `core/access/site-access.php` + theme `maintenance.php` |
 | Overview dashboard | Event Plus → Overview | `core/access/admin.php` |
 | Shared helpers (settings, lists, field definitions, client IP) | – | `core/helpers.php` |
@@ -96,8 +108,8 @@ Post types, options pages and field groups are all set up in **ACF Pro**, not in
 
 - **Editing**: change the item in ACF and save. ACF rewrites its JSON file; commit that file. Items whose key contains `_ept_` are saved to `acf-json/` (presentation), all others to `core/acf-json/` (features). Folder setup: `core/acf.php`.
 - **Other sites (staging, a teammate)**: after deploying or pulling, the ACF screens show **Sync available** for changed items. Click *Sync* to load them. Until then the site already uses the JSON version.
-- **Never change**: a post type key (`ep_event`, `ep_microsite`, `ep_applicant`), an options page menu slug, or the key / name of a field that holds data. Content is stored under them and code refers to them (e.g. `field_epc_html_code`, `field_epc_smtp_*`, `field_epc_ev_reg_status`). Labels, icons and menu positions are safe to change.
-- **Post type permissions**: the post types use their own capabilities (*Rename Capabilities*: `ep_event` / `ep_events` etc.), granted in Event Plus → Permissions. Keep those names. ACF has no setting for the "create" capability, so a filter in `core/acf.php` adds it (`create_ep_events`, `create_ep_microsites`; Applicants can never be added by hand).
+- **Never change**: a post type key (`ep_event`, `ep_microsite`, `ep_applicant`), an options page menu slug, or the key / name of a field that holds data. Content is stored under them and code refers to them (e.g. `field_epc_html_code`, `field_epc_ev_reg_status`). Labels, icons and menu positions are safe to change.
+- **Post type permissions**: the post types use their own capabilities (*Rename Capabilities*: `ep_event` / `ep_events` etc.), granted in Event Plus → Roles & Permissions. Keep those names. ACF has no setting for the "create" capability, so a filter in `core/acf.php` adds it (`create_ep_events`, `create_ep_microsites`; Applicants can never be added by hand).
 - **Changing a URL slug** (Post Types → *Permalink Rewrite*): save, then Settings → Permalinks → Save. Existing links stop working.
 - **Choices filled by code** (overwritten when the field loads, so edit them in code, not in ACF): form builder *Type* (`epc_field_types()`), *Saved list* (Settings → Option lists), Branding fonts (`ept_font_catalogue()`). The banner countdown default also comes from code (`core/applicants/features.php`).
 - **Backups**: ACF → Tools → Export gives one JSON file with everything above; the files in git are a backup too. On a site that already has this theme, use *Sync*, not Import, or the items are created twice.
@@ -105,12 +117,13 @@ Post types, options pages and field groups are all set up in **ACF Pro**, not in
 
 ## Developer guidelines
 
-- **Where code goes**: each folder in `core/` is one feature area named after what it does (registration, applicants, email, reports, import-export, access). Every file starts with a comment saying what it does and which *Screen* it serves – read that first.
+- **Where code goes**: each folder in `core/` is one feature area named after what it does (registration, applicants, email, access). Email sending, reports, import / export and roles are **not** theme code: they are the Tamago plugins, configured on their screens (see `docs/event-plus-settings.md`). The theme only connects to them in `core/tamago.php`.
+- **A new permission**: add it to `epc_permissions()` in `core/tamago.php` (it appears in Roles & Permissions at once), and check its capability with `current_user_can()`. Every file starts with a comment saying what it does and which *Screen* it serves – read that first.
 - **Adding a feature**: put it in the folder it belongs to (or a new plain-named folder) as a class with a static `init()` that adds its hooks; `require_once` it and call `init()` in `core/bootstrap.php`. Class names keep the `EPC_` prefix (e.g. `EPC_Form` in `registration/form.php`). Create its fields in ACF → Field Groups (they save to `core/acf-json/`), its admin assets go in `core/assets/`.
 - **Adding a microsite section**: add a layout to the *Sections* field in ACF → Field Groups → Microsite, then a template `template-parts/sections/{layout}.php` (file name = layout name).
 - **Assets** in core use `EPC_URL` / `EPC_DIR`; presentation uses `get_template_directory_uri()`. Version query strings: `EPC_VERSION` (core) and `EPT_VERSION` (presentation) – bump them when CSS / JS changes.
 - **New post type or options page**: create it in ACF (it saves to `core/acf-json/`). Give a presentation-only item a key containing `_ept_` so it is saved to `acf-json/`.
-- **One-time setup** (table creation, default lists, rewrite rules) runs on theme activation and once after every `EPC_VERSION` change (`epc_setup()` in `core/bootstrap.php`). Roles update themselves when `EPC_Roles::VERSION` changes. There are no plugin activation hooks any more.
+- **One-time setup** (default lists, Event Plus capabilities for Administrator and Developer, rewrite rules) runs on theme activation and once after every `EPC_VERSION` change (`epc_setup()` in `core/bootstrap.php`). Roles themselves live in Tamago Roles.
 - **Status changes** go through `EPC_Features::set_status()` only; emails through `EPC_Mailer`.
 - **Security**: check a capability *and* a nonce on every admin action; escape on output; new public REST routes must respect `EPC_Site_Access`; run the tests before every commit.
 - **Child theme**: possible – the core loads from the parent theme (`get_template_directory()`), and a child theme can override templates such as `maintenance.php` or a section.
@@ -120,7 +133,8 @@ Post types, options pages and field groups are all set up in **ACF Pro**, not in
 
 - URL: http://localhost/event-planner/ · admin: http://localhost/event-planner/wp-admin/
 - Database: `epevents` (MariaDB, root, no password)
-- Plugins: Advanced Custom Fields PRO only (licence entered under ACF → Updates)
+- Plugins: Advanced Custom Fields PRO (licence entered under ACF → Updates) and the four Tamago plugins
+- Plugin test sites (clean WordPress, one per plugin): `http://localhost/tamago-lab-smtp|reports|io|roles/` (+ `tamago-lab-io2` for imports); each plugin folder is linked into them, logins in `.local-credentials.txt`. Self-tests: `php tools/wp-cli.phar --path=../tamago-lab-io eval-file wp-content/plugins/tamago-io/tests/run.php --user=1` (same pattern for each plugin; SMTP needs its test mail server `php ../tamago-lab-smtp/smtp-sink/sink.php`).
 - Active theme: EP Events
 - WP-CLI: `php tools/wp-cli.phar --path=. …` (local test logins are in the git-ignored `.local-credentials.txt`)
 - Permalinks: `/%postname%/`; `.htaccess` uses `RewriteBase /event-planner/`.
@@ -193,15 +207,15 @@ Seats are taken by Registered, Confirmed and Attended applicants; Waitlist and C
 Waiting-list and seat-offer email texts are editable in the same tab. People on the waiting list now get a waiting-list email instead of the normal confirmation.
 Emails are built in `core/email/mailer.php`; features and status changes in `core/applicants/features.php` (`EPC_Features::set_status()` is the only place a status should change).
 
-## Email sending (SMTP)
-Event Plus → Settings → **Email**: From name / From email (used for every email the site sends), default notification recipients, and **SMTP**:
-host, encryption (TLS 587 / SSL 465 / none), port, login, username and password.
+## Email sending (SMTP) – Tamago SMTP
+Event Plus → **SMTP** (Settings · Test · Logs · Tools). Settings → Email keeps only the default notification recipients.
 
-- The password is stored encrypted with the site's secret keys and is never shown again; leave it empty to keep the saved one.
-- Changing the host or username clears the saved password unless a new one is typed, so it can never be sent to a different server.
-- **Send test email** (same tab, after saving) reports the mail server's error message if sending fails.
-- `wp-config.php` can override: `EPC_SMTP_HOST`, `EPC_SMTP_PORT`, `EPC_SMTP_SECURE` (`tls` / `ssl` / `none`), `EPC_SMTP_USER`, `EPC_SMTP_PASSWORD`.
-- Code: `core/email/smtp.php`.
+- Server, encryption, login and password (encrypted, never shown again; dropped when the host or username changes). Provider presets.
+- From name / From email, forced for every email the site sends.
+- **Test**: send a test email or only check the connection; shows the SMTP conversation (passwords masked) and a plain-language hint.
+- **Logs**: every email with status, recipients, content, headers, attachments, error, source and timing; resend, CSV, 30-day retention, failure alert.
+- `wp-config.php` can lock any setting: `TMG_SMTP_HOST`, `TMG_SMTP_PORT`, `TMG_SMTP_ENCRYPTION`, `TMG_SMTP_USERNAME`, `TMG_SMTP_PASSWORD` …
+- Details: `wp-content/plugins/tamago-smtp/README.md`; Event Plus values: `docs/event-plus-settings.md`.
 
 ## Site access (maintenance page)
 Event Plus → Settings → **Site access**. Default: **Direct links only**.
@@ -226,32 +240,37 @@ php tools/wp-cli.phar --path=. eval-file wp-content/themes/epevents/core/tests/r
 49 checks: validators (NRIC, phone, email), the registration form end to end (spam guards incl. forged timestamps, rate limit, password-protected events, malformed input, required and conditional fields, normalised storage, duplicates, emails), capacity and waiting list, the optional features, masking, Custom HTML cleaning and the private-mode REST blocks.
 The test creates its own temporary event (copying the richest published form), captures emails instead of sending them, and removes everything afterwards. Exit code 1 on failure.
 
-## Reports (visitor analytics)
-First-party, cookie-less beacon (cache-friendly REST endpoint) recording per page view: device, browser, OS, screen,
+## Reports (visitor analytics) – Tamago Reports
+Event Plus → **Reports** (Overview · Real-time · Settings). First-party beacon (cache-friendly REST endpoint) recording per page view: device, browser, OS, screen,
 language, **timezone**, **country / region / city**, referrer, channel (direct / search / social / email / paid / QR / campaign),
 UTM source / medium / campaign, time on page, scroll depth, button clicks and outbound links. Registrations are recorded
-server-side with the visitor's original campaign attribution, giving a conversion rate per microsite + linked event.
+server-side as the **Registration** goal (`core/tamago.php`) with the visitor's campaign attribution, giving a conversion rate per event.
 
-- Location source (Settings → Tracking): Cloudflare/proxy headers (default, no external calls), ipapi.co, or ipinfo.io.
-- No raw IPs stored (salted monthly hash only); configurable retention; editors excluded by default; optional Do-Not-Track.
-- Event Plus → Reports: date range, per page, charts, breakdown tables, raw CSV export.
+- Location source (Reports → Settings): Cloudflare/proxy headers (default, no external calls), ipapi.co, or ipinfo.io.
+- No raw IPs stored (salted hash only); 730-day retention; staff roles excluded; optional Do-Not-Track.
+- Reports: date ranges with comparison, filters, KPI tiles, chart, pages / sources / campaigns / devices / locations / events / goals, hour × weekday heatmap, real-time, per-page report (also from the Report link on events), CSV exports.
+- Details: `wp-content/plugins/tamago-reports/README.md`.
 
-## Import / Export
-- **JSON package** – events (with forms), microsites, posts/pages, settings/lists and optionally applicants, with image URLs.
-  Importing on any WordPress site running this theme recreates everything, downloads images, and remaps IDs (event links, images, categories). Existing items: skip / update / import as copy.
-- **Excel (.xlsx) / CSV** – applicants (one column per form field), events/microsites (with a `data_json` column so sheets round-trip).
-- **Applicants from anywhere** (old site, Google Forms, Excel): upload CSV / XLSX / JSON → map columns → import, skipping duplicates.
-- WordPress's own Tools → Export (WXR) also includes Events and Microsites.
-- Importing follows the importer's own rights: content types they cannot create or edit are skipped, items they cannot publish arrive as drafts, settings are imported only with *Settings* permission (never the SMTP server), and Custom HTML is cleaned unless they have *Custom HTML & embed codes*.
+## Import / Export – Tamago Import & Export
+Event Plus → **Import & Export** (Export · Import · History · Settings).
 
-## Roles & permissions
+- **Any content**: events (with forms), microsites, posts, pages, media, terms, users, menus, options and ACF options pages, with all custom fields and **ACF values** (repeaters, flexible content, relationships – IDs are remapped on import).
+- **ACF structure**: post types, taxonomies, field groups, options pages (ACF's own format).
+- Formats: JSON, ZIP (with media files), Excel, CSV. Presets, dry run, batched imports with progress, history and reports.
+- **Applicants** (source added by the theme): one column per form field; import lists from anywhere (old site, Google Forms, Excel) into an event with column mapping, skipping duplicates. The Export buttons above the Applicants list still download the filtered list.
+- Importing follows the importer's own rights (post-type capabilities, publish, Custom HTML, options and ACF structure only for managers).
+- Details: `wp-content/plugins/tamago-io/README.md`.
+
+## Roles & permissions – Tamago Roles
+Event Plus → **Roles & Permissions** (Roles · Permissions · Users · Admin menus · Content access · Settings · Log). The Event Plus permissions are registered by `epc_permissions()` in `core/tamago.php`; the plugins add theirs (Reports, Import & Export, SMTP, Roles). Recovery: `define( 'TMG_ROLES_SAFE_MODE', true );`.
+
 Roles, highest first: **Developer** → **Super Admin** → **Manager** → **Viewer**.
 WordPress *Administrator* is treated as Developer.
 
-- **Developer** always has everything, and is the only role that sees WordPress's own areas: Dashboard, Posts, Pages, Comments, Appearance (incl. Branding and Menus), Plugins, Tools, Settings and ACF. These are never in the matrix: menus are removed, screens are blocked by direct URL, and the matching capabilities are stripped from every other role and user.
+- **Developer** always has everything, and is the only role that sees WordPress's own areas: Dashboard, Posts, Pages, Comments, Appearance (incl. Branding and Menus), Plugins, Tools, Settings and ACF. These are *protected capabilities* (minimum rank 4): menus are removed, screens opened by direct URL go back to Event Plus → Overview, and the matching capabilities are stripped from every other role and user.
 - Everyone else works only in **Event Plus**, **Media** (if allowed), **Users** (if allowed) and their **Profile**.
 - **Super Admin, Manager and Viewer** get exactly what the matrix grants, so each role only sees the sections it is allowed (menus are hidden *and* the screens are blocked). The WordPress dashboard is skipped: they land on Event Plus → Overview.
-- Event Plus → **Permissions** has the full matrix, per-user Allow/Deny overrides and a "who has which role" view. Anyone with *Manage permissions* can only change roles and users ranked **below** their own: a Developer edits Super Admin, Manager and Viewer; a Super Admin edits Manager and Viewer, and sees their own column locked.
+- Event Plus → **Roles & Permissions** has the full matrix, per-user Allow/Deny overrides, admin-menu rules per role and a change log. Anyone with *Manage permissions* can only change roles and users ranked **below** their own: a Developer edits Super Admin, Manager and Viewer; a Super Admin edits Manager and Viewer, and sees their own column locked.
 - Nobody can hand out a permission they do not hold themselves (those boxes are locked for them).
 - **Custom HTML & embed codes**: the code is cleaned when it is saved by someone without this permission (iframes and safe HTML stay, scripts go), so it is safe whoever views the page.
 - Enforcement uses real WordPress capabilities (custom capability types on each post type), not just hidden menus.
@@ -274,14 +293,14 @@ WordPress *Administrator* is treated as Developer.
 | Import content | ✔ | – | – |
 | Media uploads | ✔ | ✔ | – |
 | Custom HTML & embed codes (scripts) | ✔ | – | – |
-| Settings (lists, email, tracking) | ✔ | – | – |
+| Settings (lists, site access, features) · Email (SMTP) · Report settings | ✔ | – | – |
 | Manage users | ✔ | – | – |
 | Manage permissions | ✔ | – | – |
 
 User management rules:
 - Nobody can edit, delete or promote a user ranked above them.
 - Roles can only be assigned up to your own level (a Super Admin can add another Super Admin, never a Developer).
-- Developer (and Administrator) accounts are **ghosts** to everyone else: not in the user list, user counts, role filters or "Who has which role"; shown as "System" in activity logs; their author name shows as the site name; their author pages and REST user entries return "not found".
+- Developer (and Administrator) accounts are **ghosts** to everyone else: not in the user list, user counts, role filters or "Who has which role"; shown under the site name in activity logs and as author; their author pages and REST user entries return "not found".
 
 News articles (Posts) are written by a Developer; microsite "News" sections pick them up as before.
 
@@ -302,8 +321,9 @@ Defaults (used until something is saved): primary `#6d1a45` (plum), secondary `#
 Git holds only the theme; ACF Pro, the database and uploads travel separately.
 
 1. **Files**: in cPanel install WordPress (or upload the core files), then upload
-   `wp-content/plugins/advanced-custom-fields-pro/`, `wp-content/themes/epevents/` and `wp-content/uploads/`.
+   `wp-content/plugins/advanced-custom-fields-pro/`, the four `wp-content/plugins/tamago-*/` folders, `wp-content/themes/epevents/` and `wp-content/uploads/`.
    If the server already has the old `wp-content/plugins/epevents-core/` plugin, deactivate and delete it first (the theme warns while it is active).
+   A server that ran theme 2.x keeps its data: activate the Tamago plugins and run `core/dev/migrate-to-tamago.php` once (see `docs/event-plus-settings.md`).
 2. **Database** – export locally with the URLs already replaced (one line, run in the project folder):
    ```bash
    php tools/wp-cli.phar --path=. search-replace 'http://localhost/event-planner' 'https://STAGING-DOMAIN' --all-tables --export=epevents-staging.sql
@@ -315,16 +335,16 @@ Git holds only the theme; ACF Pro, the database and uploads travel separately.
    define( 'DISALLOW_FILE_EDIT', true );
    define( 'FORCE_SSL_ADMIN', true );
    define( 'ACF_PRO_LICENSE', '…' );
-   // Only behind Cloudflare / a proxy, so rate limits and reports see the real visitor:
+   // Only behind Cloudflare / a proxy, so form rate limits see the real visitor (Reports: Settings → real visitor IP header):
    // define( 'EPC_PROXY_IP_HEADER', 'HTTP_CF_CONNECTING_IP' );
-   // Optional: mail server here instead of Settings → Email:
-   // define( 'EPC_SMTP_HOST', '…' ); define( 'EPC_SMTP_USER', '…' ); define( 'EPC_SMTP_PASSWORD', '…' );
+   // Optional: mail server here instead of Event Plus → SMTP:
+   // define( 'TMG_SMTP_HOST', '…' ); define( 'TMG_SMTP_USERNAME', '…' ); define( 'TMG_SMTP_PASSWORD', '…' );
    ```
-   Use **fresh** salts from https://api.wordpress.org/secret-key/1.1/salt/ – then re-enter the SMTP password in Settings → Email (it is encrypted with the salts).
+   Use **fresh** salts from https://api.wordpress.org/secret-key/1.1/salt/ – then re-enter the SMTP password in Event Plus → SMTP (it is encrypted with the salts).
 4. **Permalinks**: Settings → Permalinks → Save (writes `.htaccess` for the new folder).
 5. **Accounts**: the local test accounts come along with the database. Change every password (or delete the test users) before anyone else gets the link.
 6. **ACF**: Post Types, Options Pages and Field Groups – if any shows *Sync available*, click *Sync*. Then Settings → Permalinks → Save once more.
-7. **Check**: Settings → Email → *Send test email*; open an event link and register once; open the homepage signed out (maintenance page).
+7. **Check**: Event Plus → SMTP → Test → *Send test email*; open an event link and register once; open the homepage signed out (maintenance page).
 
 ## Not in this phase
 - SEO fields (per agreement – later phase).

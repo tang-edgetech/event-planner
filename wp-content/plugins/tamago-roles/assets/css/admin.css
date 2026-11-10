@@ -1,0 +1,37 @@
+/* Tamago Roles admin screens. Used by: Roles & Permissions screen, user profile, editor box. */
+.tmg-roles .c, .tmg-roles-matrix .c { text-align: center; }
+.tmg-roles-body { margin-top: 16px; }
+.tmg-toolbar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 12px 0; }
+.tmg-inline { display: inline-block; margin: 0 4px 0 0; }
+.tmg-badge { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 10px; background: #2271b1; color: #fff; font-size: 11px; line-height: 18px; vertical-align: middle; }
+.tmg-badge--muted { background: #dcdcde; color: #2c3338; }
+.tmg-badge--warn { background: #dba617; color: #1d2327; }
+.tmg-yes { color: #00a32a; font-weight: 600; }
+.tmg-no { color: #8c8f94; }
+.tmg-locked { color: #b32d2e; }
+
+.tmg-matrix-wrap { overflow-x: auto; max-width: 100%; }
+.tmg-roles-matrix th, .tmg-roles-matrix td { vertical-align: middle; }
+.tmg-roles-matrix thead th { position: sticky; top: 32px; background: #fff; z-index: 1; }
+.tmg-roles-matrix tr.tmg-roles-group > * { background: #f0f0f1; font-weight: 600; }
+.tmg-roles-matrix td.is-protected { background: #fcf9e8; }
+.tmg-roles-matrix .tmg-roles-caps { display: none; margin-top: 4px; }
+.tmg-roles-matrix.show-caps .tmg-roles-caps,
+#tmg-roles-overrides .tmg-roles-caps { display: block; }
+#tmg-roles-overrides .tmg-roles-caps { display: inline; font-size: 11px; color: #646970; }
+
+.tmg-roles-columns { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; align-items: start; }
+.tmg-card { background: #fff; border: 1px solid #c3c4c7; padding: 4px 16px 12px; box-shadow: 0 1px 1px rgba(0,0,0,.04); }
+.tmg-card--wide { grid-column: span 2; }
+@media (max-width: 900px) { .tmg-card--wide { grid-column: auto; } }
+
+.tmg-caps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 2px 12px; max-height: 480px; overflow: auto; background: #fff; border: 1px solid #c3c4c7; padding: 8px; }
+.tmg-caps-grid label { display: block; padding: 2px 0; }
+.tmg-caps-grid label.is-on code { background: #e7f5ea; }
+
+.tmg-menu-tree, .tmg-menu-tree ul { list-style: none; margin: 0; }
+.tmg-menu-tree > li { margin: 6px 0; }
+.tmg-menu-tree ul { margin-left: 24px; }
+.tmg-menu-tree code { font-size: 11px; color: #646970; }
+.tmg-log pre { white-space: pre-wrap; max-width: 520px; margin: 4px 0; font-size: 11px; }
+.tmg-roles-rule fieldset { margin: 4px 0 8px; }

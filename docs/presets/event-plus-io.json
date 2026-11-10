@@ -1,0 +1,18 @@
+{
+    "plugin": "tamago-io",
+    "version": "1.0.0",
+    "exported": "2026-11-10T07:25:25+00:00",
+    "settings": {
+        "max_upload_mb": 64,
+        "batch_size": 25,
+        "step_seconds": 15,
+        "remote_media": 1,
+        "media_max_mb": 32,
+        "history_days": 90,
+        "skip_meta_keys": "",
+        "protected_options": "",
+        "delete_data": 0,
+        "presets": [],
+        "mapping_templates": []
+    }
+}

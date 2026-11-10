@@ -1,9 +1,13 @@
-# WordPress core, plugins (ACF Pro) & environment are not versioned — only our theme.
+# WordPress core, ACF Pro & environment are not versioned — only our theme and the Tamago plugins.
 /*
 !/.gitignore
 !/README.md
+!/docs/
 !/wp-content/
 /wp-content/*
 !/wp-content/themes/
 /wp-content/themes/*
 !/wp-content/themes/epevents/
+!/wp-content/plugins/
+/wp-content/plugins/*
+!/wp-content/plugins/tamago-*/

@@ -1,0 +1,70 @@
+/* Tamago SMTP admin screen (Settings → SMTP). Native WordPress look; only small additions. */
+
+.tmg-smtp .tmg-smtp-locked { color: #8c5e00; }
+.tmg-smtp .tmg-smtp-locked .dashicons { font-size: 16px; width: 16px; height: 16px; vertical-align: text-bottom; }
+.tmg-smtp tr[hidden] { display: none; }
+
+.tmg-smtp-result { max-width: 900px; }
+.tmg-smtp-result .notice { margin: 12px 0; }
+.tmg-smtp-steps { margin: 8px 0 12px; }
+.tmg-smtp-steps li { display: flex; gap: 6px; align-items: baseline; }
+.tmg-smtp-steps .is-ok .dashicons { color: #00a32a; }
+.tmg-smtp-steps .is-fail .dashicons { color: #d63638; }
+.tmg-smtp-steps .dashicons { flex: none; align-self: center; }
+
+.tmg-smtp-pre {
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	padding: 10px 12px;
+	max-height: 420px;
+	overflow: auto;
+	font-size: 12px;
+	line-height: 1.5;
+	white-space: pre;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+.tmg-smtp-wrap, .tmg-smtp-transcript { white-space: pre-wrap; word-break: break-word; }
+.tmg-smtp-transcript-box summary { cursor: pointer; font-weight: 600; margin: 4px 0; }
+
+.tmg-smtp-badge {
+	display: inline-block;
+	padding: 1px 8px;
+	border-radius: 10px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.6;
+	vertical-align: middle;
+}
+.tmg-smtp-badge-sent { background: #edfaef; color: #00701a; }
+.tmg-smtp-badge-failed { background: #fcf0f1; color: #b32d2e; }
+.tmg-smtp-muted { color: #646970; font-size: 12px; }
+.tmg-smtp-error-line { color: #b32d2e; font-size: 12px; margin-top: 2px; }
+
+.tmg-smtp-logs-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-top: 12px; }
+.tmg-smtp-logs-head p { margin: 0; }
+.tmg-smtp-logs-buttons { display: flex; gap: 8px; align-items: center; }
+.tmg-smtp-logs-buttons form { margin: 0; }
+.tmg-smtp-filters input[type="date"] { vertical-align: middle; }
+.tmg-smtp-filters label { vertical-align: middle; }
+.wp-list-table .column-status { width: 90px; }
+.wp-list-table .column-created_at { width: 150px; }
+.wp-list-table .column-duration_ms { width: 70px; }
+
+.tmg-smtp-detail-title { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.tmg-smtp-detail-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+.tmg-smtp-detail-actions form { margin: 0; display: flex; gap: 8px; align-items: center; }
+.tmg-smtp-detail { max-width: 1100px; }
+.tmg-smtp-detail th { width: 160px; font-weight: 600; }
+.tmg-smtp-detail td { word-break: break-word; }
+.tmg-smtp-plain-list { margin: 0; }
+
+.tmg-smtp-view-tabs { margin-bottom: 8px; }
+.tmg-smtp-preview { width: 100%; max-width: 1100px; height: 520px; border: 1px solid #dcdcde; background: #fff; display: block; }
+.tmg-smtp-info { max-width: 900px; }
+.tmg-smtp-info th { width: 220px; font-weight: 600; }
+
+@media (max-width: 782px) {
+	.tmg-smtp-detail th { width: auto; }
+	.tmg-smtp-preview { height: 420px; }
+}

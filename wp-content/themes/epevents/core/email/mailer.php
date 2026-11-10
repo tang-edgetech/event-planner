@@ -3,6 +3,7 @@
  * All outgoing emails: admin notification, applicant confirmation (registered / waiting list /
  * seat offered), capacity alerts, and the optional calendar (.ics) attachment.
  * Every body passes through the `epc_email_html` filter, which the theme uses for branding.
+ * Sending itself (server, sender, log) is Tamago SMTP's job.
  *
  * Screens: Event edit → After Submit (notification and confirmation emails); Event Plus → Settings → Features (waiting-list and seat-offer texts).
  */
@@ -11,14 +12,9 @@ defined( 'ABSPATH' ) || exit;
 
 class EPC_Mailer {
 
+	/** The sender (From) and the mail server are set in Tamago SMTP for every email the site sends. */
 	public static function headers(): array {
-		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
-		$from    = epc_setting( 'epc_mail_from_name', get_bloginfo( 'name' ) );
-		$from_em = epc_setting( 'epc_mail_from_email', '' );
-		if ( $from_em ) {
-			$headers[] = 'From: ' . $from . ' <' . $from_em . '>';
-		}
-		return $headers;
+		return array( 'Content-Type: text/html; charset=UTF-8' );
 	}
 
 	/** Event notification recipients (event override, else Settings default, else site admin). */
