@@ -1,6 +1,8 @@
 <?php
 /**
  * Capacity & registration status (auto / manual "Application Full").
+ *
+ * Screens: Event edit → Capacity & Status; the status badge on the event page; Events list counts.
  */
 
 defined( 'ABSPATH' ) || exit;

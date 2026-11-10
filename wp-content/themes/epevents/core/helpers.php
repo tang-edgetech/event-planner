@@ -1,6 +1,8 @@
 <?php
 /**
  * Shared helpers.
+ *
+ * Used everywhere: settings lookup, saved lists, form field definitions, placeholders, client IP, statuses, HTML cleaning.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -250,10 +252,3 @@ function epc_clean_embed_html( string $code ): string {
 	$allowed['iframe'] = array( 'src' => true, 'width' => true, 'height' => true, 'style' => true, 'allow' => true, 'allowfullscreen' => true, 'loading' => true, 'frameborder' => true, 'title' => true, 'referrerpolicy' => true );
 	return wp_kses( $code, $allowed );
 }
-
-add_filter(
-	'acf/update_value/key=field_epc_html_code',
-	static function ( $value ) {
-		return current_user_can( 'unfiltered_html' ) ? $value : epc_clean_embed_html( (string) $value );
-	}
-);

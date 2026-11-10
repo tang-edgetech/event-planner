@@ -6,6 +6,8 @@
  *   into the settings page; leaving the field empty keeps the saved one.
  * - wp-config.php can override: EPC_SMTP_HOST, EPC_SMTP_PORT, EPC_SMTP_SECURE, EPC_SMTP_USER, EPC_SMTP_PASSWORD.
  * - "Send test email" reports the mail server's error message when sending fails.
+ *
+ * Screens: Event Plus → Settings → Email.
  */
 
 defined( 'ABSPATH' ) || exit;

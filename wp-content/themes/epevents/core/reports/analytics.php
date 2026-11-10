@@ -4,6 +4,8 @@
  * device / browser / OS, country / region / city, timezone, language, referrer & UTM.
  *
  * Collected through a cache-friendly JS beacon → REST endpoint. No raw IPs are stored.
+ *
+ * Screens: none of its own (records visits); results appear in Event Plus → Reports. Settings → Tracking.
  */
 
 defined( 'ABSPATH' ) || exit;

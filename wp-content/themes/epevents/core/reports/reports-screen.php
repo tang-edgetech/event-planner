@@ -1,6 +1,8 @@
 <?php
 /**
  * Analytics report screen (Event Plus → Reports).
+ *
+ * Screens: Event Plus → Reports.
  */
 
 defined( 'ABSPATH' ) || exit;

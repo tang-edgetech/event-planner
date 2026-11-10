@@ -1,6 +1,8 @@
 <?php
 /**
- * Admin menu, dashboard overview, read-only applicant view, assets.
+ * Event Plus admin: the Event Plus menu and Overview screen, the read-only applicant view, admin styles,
+ * and the Duplicate / Applicants / Report links on the Events and Microsites lists.
+ * Screens: Event Plus → Overview, Events, Microsites.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -192,5 +194,68 @@ class EPC_Admin {
 			</div>
 		</div>
 		<?php
+	}
+}
+
+/* -------------------------------------------------------------------------
+ * Events, Microsites, Applicants (post types registered by ACF → Post Types)
+ * ---------------------------------------------------------------------- */
+
+class EPC_Post_Types {
+
+	const EVENT     = 'ep_event';
+	const MICROSITE = 'ep_microsite';
+	const APPLICANT = 'ep_applicant';
+
+	public static function init(): void {
+		add_filter( 'post_row_actions', array( __CLASS__, 'row_actions' ), 10, 2 );
+		add_action( 'admin_action_epc_duplicate', array( __CLASS__, 'duplicate' ) );
+	}
+
+	/** "Duplicate" row action for events and microsites — reuse a form or layout quickly. */
+	public static function row_actions( array $actions, WP_Post $post ): array {
+		if ( in_array( $post->post_type, array( self::EVENT, self::MICROSITE ), true ) && current_user_can( get_post_type_object( $post->post_type )->cap->create_posts ) ) {
+			$url                      = wp_nonce_url( admin_url( 'admin.php?action=epc_duplicate&post=' . $post->ID ), 'epc_duplicate_' . $post->ID );
+			$actions['epc_duplicate'] = '<a href="' . esc_url( $url ) . '">Duplicate</a>';
+		}
+		if ( self::EVENT === $post->post_type && current_user_can( 'epc_view_applicants' ) ) {
+			$actions['epc_applicants'] = '<a href="' . esc_url( admin_url( 'edit.php?post_type=' . self::APPLICANT . '&epc_event=' . $post->ID ) ) . '">Applicants</a>';
+			$actions['epc_report']     = '<a href="' . esc_url( admin_url( 'admin.php?page=epc-analytics&post_id=' . $post->ID ) ) . '">Report</a>';
+			if ( ! current_user_can( 'epc_view_reports' ) ) {
+				unset( $actions['epc_report'] );
+			}
+		}
+		if ( self::MICROSITE === $post->post_type && current_user_can( 'epc_view_reports' ) ) {
+			$actions['epc_report'] = '<a href="' . esc_url( admin_url( 'admin.php?page=epc-analytics&post_id=' . $post->ID ) ) . '">Report</a>';
+		}
+		return $actions;
+	}
+
+	public static function duplicate(): void {
+		$id = absint( $_GET['post'] ?? 0 );
+		check_admin_referer( 'epc_duplicate_' . $id );
+		$post = get_post( $id );
+		if ( ! $post || ! current_user_can( 'edit_post', $id ) || ! current_user_can( get_post_type_object( $post->post_type )->cap->create_posts ) ) {
+			wp_die( 'Not allowed.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
+		}
+		$new_id = wp_insert_post(
+			array(
+				'post_type'   => $post->post_type,
+				'post_title'  => $post->post_title . ' (Copy)',
+				'post_status' => 'draft',
+				'post_author' => get_current_user_id(),
+			)
+		);
+		foreach ( get_post_meta( $id ) as $key => $values ) {
+			// Bookkeeping and per-event flags (e.g. capacity alerts already sent) start fresh on the copy.
+			if ( in_array( $key, array( '_edit_lock', '_edit_last', '_wp_old_slug' ), true ) || str_starts_with( $key, '_epc_' ) ) {
+				continue;
+			}
+			foreach ( $values as $v ) {
+				add_post_meta( $new_id, $key, maybe_unserialize( $v ) );
+			}
+		}
+		wp_safe_redirect( admin_url( 'post.php?action=edit&post=' . $new_id ) );
+		exit;
 	}
 }

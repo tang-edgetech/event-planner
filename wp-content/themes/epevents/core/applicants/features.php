@@ -8,6 +8,8 @@
  * - Hide personal data (email, phone, NRIC) from users who cannot edit applicants (e.g. Viewers).
  *
  * Also the single place where an applicant's status changes, so every change is logged.
+ *
+ * Screens: Event Plus → Settings → Features; applicant status changes everywhere.
  */
 
 defined( 'ABSPATH' ) || exit;

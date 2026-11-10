@@ -2,6 +2,8 @@
 /**
  * Applicants list & edit screen: event filter with summary bar, status counts, search in answers,
  * bulk status, export, notes + activity log, resend confirmation, validated edits.
+ *
+ * Screens: Event Plus → Applicants (list and edit).
  */
 
 defined( 'ABSPATH' ) || exit;

@@ -5,6 +5,8 @@
  * Nothing lists them publicly: no homepage list, search, archives, feeds, sitemaps or public REST listing.
  *
  * Settings: Event Plus → Settings → Site access. Page: the theme's `maintenance.php` (a child theme can override it).
+ *
+ * Screens: Event Plus → Settings → Site access; the public maintenance page.
  */
 
 defined( 'ABSPATH' ) || exit;

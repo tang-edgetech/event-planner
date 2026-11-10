@@ -17,22 +17,21 @@ define( 'EPC_DIR', trailingslashit( get_template_directory() ) . 'core/' );
 define( 'EPC_URL', trailingslashit( get_template_directory_uri() ) . 'core/' );
 define( 'EPC_DB_VERSION', '1.0' );
 
-require_once EPC_DIR . 'includes/helpers.php';
-require_once EPC_DIR . 'includes/class-roles.php';
-require_once EPC_DIR . 'includes/class-post-types.php';
-require_once EPC_DIR . 'includes/class-validator.php';
-require_once EPC_DIR . 'includes/class-capacity.php';
-require_once EPC_DIR . 'includes/class-mailer.php';
-require_once EPC_DIR . 'includes/class-smtp.php';
-require_once EPC_DIR . 'includes/class-features.php';
-require_once EPC_DIR . 'includes/class-form.php';
-require_once EPC_DIR . 'includes/class-applicants-admin.php';
-require_once EPC_DIR . 'includes/class-analytics.php';
-require_once EPC_DIR . 'includes/class-analytics-admin.php';
-require_once EPC_DIR . 'includes/class-xlsx.php';
-require_once EPC_DIR . 'includes/class-import-export.php';
-require_once EPC_DIR . 'includes/class-admin.php';
-require_once EPC_DIR . 'includes/class-site-access.php';
+// Each folder is one feature area; the file names say which screen or job they serve.
+require_once EPC_DIR . 'helpers.php';
+require_once EPC_DIR . 'access/roles.php';
+require_once EPC_DIR . 'registration/validator.php';
+require_once EPC_DIR . 'registration/capacity.php';
+require_once EPC_DIR . 'email/mailer.php';
+require_once EPC_DIR . 'email/smtp.php';
+require_once EPC_DIR . 'applicants/features.php';
+require_once EPC_DIR . 'registration/form.php';
+require_once EPC_DIR . 'applicants/applicants-admin.php';
+require_once EPC_DIR . 'reports/analytics.php';
+require_once EPC_DIR . 'reports/reports-screen.php';
+require_once EPC_DIR . 'import-export/import-export.php';
+require_once EPC_DIR . 'access/admin.php'; // also the Events / Microsites / Applicants list links
+require_once EPC_DIR . 'access/site-access.php';
 
 /**
  * Requirement: ACF Pro. Plugins load before the theme, so it can be checked right away.
@@ -42,8 +41,7 @@ require_once EPC_DIR . 'includes/class-site-access.php';
 if ( class_exists( 'ACF' ) && function_exists( 'acf_add_local_field_group' ) ) {
 	// Post types, options pages and field groups are ACF Local JSON files (core/acf-json/, acf-json/).
 	// These files only set the JSON folders and fill in a few choices from code.
-	require_once EPC_DIR . 'includes/fields/acf-json.php';
-	require_once EPC_DIR . 'includes/fields/event.php';
+	require_once EPC_DIR . 'acf.php';
 } else {
 	add_action(
 		'admin_notices',

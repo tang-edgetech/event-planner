@@ -25,11 +25,17 @@ wp-content/themes/epevents/
 ├── style.css              theme header (name, version, requirements)
 │
 ├── core/                  ── FEATURES & DATA (what the site does) ──
-│   ├── bootstrap.php      constants, loads includes/, ACF check, one-time setup
+│   ├── bootstrap.php      constants, loads every file below, ACF check, one-time setup
 │   ├── acf-json/          ACF (JSON): Events / Microsites / Applicants post types, Settings options page,
 │   │                      Event / Microsite / Settings field groups
-│   ├── includes/          one class per feature (table below)
-│   │   └── fields/        ACF glue: JSON folders, choices filled by code
+│   ├── acf.php            ACF glue: JSON folders, "add new" permission, HTML cleaning, choices from code
+│   ├── helpers.php        shared functions used by every feature
+│   ├── registration/      form.php · validator.php · capacity.php
+│   ├── applicants/        applicants-admin.php · features.php (alerts, waiting list, masking)
+│   ├── email/             mailer.php · smtp.php
+│   ├── reports/           analytics.php (visit tracking) · reports-screen.php
+│   ├── import-export/     import-export.php (incl. Excel reader / writer)
+│   ├── access/            roles.php · site-access.php · admin.php (menu, overview, list links)
 │   ├── assets/            admin CSS, registration form CSS/JS, tracking beacon, Chart.js
 │   ├── tests/run.php      automated checks
 │   └── dev/               developer-only scripts (demo content seeder)
@@ -53,20 +59,20 @@ Code prefixes: core uses `EPC_` / `epc_`, presentation uses `ept_` / `EPT_`. The
 
 | Feature | Admin location | Code |
 |---|---|---|
-| Events, microsites, applicants (post types) | Event Plus menu; defined in ACF → Post Types | `core/acf-json/post_type_epc_*.json` + `core/includes/class-post-types.php` (create capability, Duplicate / Applicants / Report row links) |
-| Event / microsite / settings fields, Settings page | edit screens, Event Plus → Settings; defined in ACF → Field Groups / Options Pages | `core/acf-json/*.json` (+ `core/includes/fields/*.php` for code-filled choices) |
-| Registration form: render, validation, spam guards, storage | event page, Form section | `core/includes/class-form.php`, `class-validator.php`, `assets/js/form.js` |
-| Capacity, status, waiting list | event edit screen | `core/includes/class-capacity.php` |
-| Optional features (alerts, seat freed, calendar, masking) | Settings → Features | `core/includes/class-features.php` |
-| Applicants list, edit, notes & activity, bulk actions | Event Plus → Applicants | `core/includes/class-applicants-admin.php`, `class-admin.php` |
-| Emails (notification, confirmation, waitlist, .ics) | Settings → Email | `core/includes/class-mailer.php` |
-| SMTP sending + test email | Settings → Email | `core/includes/class-smtp.php` |
-| Visitor analytics + reports | Event Plus → Reports | `core/includes/class-analytics.php`, `class-analytics-admin.php`, `assets/js/track.js` |
-| Import / export (JSON, Excel, CSV) | Event Plus → Import / Export | `core/includes/class-import-export.php`, `class-xlsx.php` |
-| Roles & permissions, ghost Developers | Event Plus → Permissions | `core/includes/class-roles.php` |
-| Site access (maintenance page) | Settings → Site access | `core/includes/class-site-access.php` + theme `maintenance.php` |
-| Overview dashboard | Event Plus → Overview | `core/includes/class-admin.php` |
-| Shared helpers (settings, lists, field definitions, client IP) | – | `core/includes/helpers.php` |
+| Events, microsites, applicants (post types) | Event Plus menu; defined in ACF → Post Types | `core/acf-json/post_type_epc_*.json` + `core/access/admin.php` (Duplicate / Applicants / Report row links) + `core/acf.php` ("add new" permission) |
+| Event / microsite / settings fields, Settings page | edit screens, Event Plus → Settings; defined in ACF → Field Groups / Options Pages | `core/acf-json/*.json` (+ `core/acf.php` for code-filled choices) |
+| Registration form: render, validation, spam guards, storage | event page, Form section | `core/registration/form.php`, `validator.php`, `core/assets/js/form.js` |
+| Capacity, status, waiting list | event edit screen | `core/registration/capacity.php` |
+| Optional features (alerts, seat freed, calendar, masking) | Settings → Features | `core/applicants/features.php` |
+| Applicants list, edit, notes & activity, bulk actions | Event Plus → Applicants | `core/applicants/applicants-admin.php`, `core/access/admin.php` (read-only view) |
+| Emails (notification, confirmation, waitlist, .ics) | Settings → Email | `core/email/mailer.php` |
+| SMTP sending + test email | Settings → Email | `core/email/smtp.php` |
+| Visitor analytics + reports | Event Plus → Reports | `core/reports/analytics.php`, `reports-screen.php`, `core/assets/js/track.js` |
+| Import / export (JSON, Excel, CSV) | Event Plus → Import / Export | `core/import-export/import-export.php` |
+| Roles & permissions, ghost Developers | Event Plus → Permissions | `core/access/roles.php` |
+| Site access (maintenance page) | Settings → Site access | `core/access/site-access.php` + theme `maintenance.php` |
+| Overview dashboard | Event Plus → Overview | `core/access/admin.php` |
+| Shared helpers (settings, lists, field definitions, client IP) | – | `core/helpers.php` |
 | Microsite sections | microsite edit screen | `template-parts/sections/*.php` (fields: ACF → Field Groups → Microsite, `core/acf-json/group_epc_microsite.json`) |
 | Event registration page layout | – | `single-ep_event.php` |
 | Branding / white label | Appearance → Branding | `inc/branding.php` (page and fields: `acf-json/*_ept_branding.json`) |
@@ -88,18 +94,19 @@ Post types, options pages and field groups are all set up in **ACF Pro**, not in
 | Field Groups | Event Plus Settings | `group_epc_settings` | `core/acf-json/group_epc_settings.json` |
 | Field Groups | Branding | `group_ept_branding` | `acf-json/group_ept_branding.json` |
 
-- **Editing**: change the item in ACF and save. ACF rewrites its JSON file; commit that file. Items whose key contains `_ept_` are saved to `acf-json/` (presentation), all others to `core/acf-json/` (features). Folder setup: `core/includes/fields/acf-json.php`.
+- **Editing**: change the item in ACF and save. ACF rewrites its JSON file; commit that file. Items whose key contains `_ept_` are saved to `acf-json/` (presentation), all others to `core/acf-json/` (features). Folder setup: `core/acf.php`.
 - **Other sites (staging, a teammate)**: after deploying or pulling, the ACF screens show **Sync available** for changed items. Click *Sync* to load them. Until then the site already uses the JSON version.
 - **Never change**: a post type key (`ep_event`, `ep_microsite`, `ep_applicant`), an options page menu slug, or the key / name of a field that holds data. Content is stored under them and code refers to them (e.g. `field_epc_html_code`, `field_epc_smtp_*`, `field_epc_ev_reg_status`). Labels, icons and menu positions are safe to change.
-- **Post type permissions**: the post types use their own capabilities (*Rename Capabilities*: `ep_event` / `ep_events` etc.), granted in Event Plus → Permissions. Keep those names. ACF has no setting for the "create" capability, so `EPC_Post_Types::create_cap()` adds it (`create_ep_events`, `create_ep_microsites`; Applicants can never be added by hand).
+- **Post type permissions**: the post types use their own capabilities (*Rename Capabilities*: `ep_event` / `ep_events` etc.), granted in Event Plus → Permissions. Keep those names. ACF has no setting for the "create" capability, so a filter in `core/acf.php` adds it (`create_ep_events`, `create_ep_microsites`; Applicants can never be added by hand).
 - **Changing a URL slug** (Post Types → *Permalink Rewrite*): save, then Settings → Permalinks → Save. Existing links stop working.
-- **Choices filled by code** (overwritten when the field loads, so edit them in code, not in ACF): form builder *Type* (`epc_field_types()`), *Saved list* (Settings → Option lists), Branding fonts (`ept_font_catalogue()`). The banner countdown default also comes from code (`class-features.php`).
+- **Choices filled by code** (overwritten when the field loads, so edit them in code, not in ACF): form builder *Type* (`epc_field_types()`), *Saved list* (Settings → Option lists), Branding fonts (`ept_font_catalogue()`). The banner countdown default also comes from code (`core/applicants/features.php`).
 - **Backups**: ACF → Tools → Export gives one JSON file with everything above; the files in git are a backup too. On a site that already has this theme, use *Sync*, not Import, or the items are created twice.
 - The server needs write access to the `acf-json` folders only if someone edits ACF there; normally edit locally and deploy.
 
 ## Developer guidelines
 
-- **Adding a feature**: new class in `core/includes/class-*.php` with a static `init()` that adds its hooks; `require_once` it and call `init()` in `core/bootstrap.php`. Create its fields in ACF → Field Groups (they save to `core/acf-json/`), its admin assets go in `core/assets/`.
+- **Where code goes**: each folder in `core/` is one feature area named after what it does (registration, applicants, email, reports, import-export, access). Every file starts with a comment saying what it does and which *Screen* it serves – read that first.
+- **Adding a feature**: put it in the folder it belongs to (or a new plain-named folder) as a class with a static `init()` that adds its hooks; `require_once` it and call `init()` in `core/bootstrap.php`. Class names keep the `EPC_` prefix (e.g. `EPC_Form` in `registration/form.php`). Create its fields in ACF → Field Groups (they save to `core/acf-json/`), its admin assets go in `core/assets/`.
 - **Adding a microsite section**: add a layout to the *Sections* field in ACF → Field Groups → Microsite, then a template `template-parts/sections/{layout}.php` (file name = layout name).
 - **Assets** in core use `EPC_URL` / `EPC_DIR`; presentation uses `get_template_directory_uri()`. Version query strings: `EPC_VERSION` (core) and `EPT_VERSION` (presentation) – bump them when CSS / JS changes.
 - **New post type or options page**: create it in ACF (it saves to `core/acf-json/`). Give a presentation-only item a key containing `_ept_` so it is saved to `acf-json/`.
@@ -184,7 +191,7 @@ Seats are taken by Registered, Confirmed and Attended applicants; Waitlist and C
 | Hide personal data from Viewers | Users who cannot edit applicants see `j•••@mail.com`, `••••••-••-1234` in lists, the read-only view **and exports**. |
 
 Waiting-list and seat-offer email texts are editable in the same tab. People on the waiting list now get a waiting-list email instead of the normal confirmation.
-Emails are built in `core/includes/class-mailer.php`; features and status changes in `core/includes/class-features.php` (`EPC_Features::set_status()` is the only place a status should change).
+Emails are built in `core/email/mailer.php`; features and status changes in `core/applicants/features.php` (`EPC_Features::set_status()` is the only place a status should change).
 
 ## Email sending (SMTP)
 Event Plus → Settings → **Email**: From name / From email (used for every email the site sends), default notification recipients, and **SMTP**:
@@ -194,7 +201,7 @@ host, encryption (TLS 587 / SSL 465 / none), port, login, username and password.
 - Changing the host or username clears the saved password unless a new one is typed, so it can never be sent to a different server.
 - **Send test email** (same tab, after saving) reports the mail server's error message if sending fails.
 - `wp-config.php` can override: `EPC_SMTP_HOST`, `EPC_SMTP_PORT`, `EPC_SMTP_SECURE` (`tls` / `ssl` / `none`), `EPC_SMTP_USER`, `EPC_SMTP_PASSWORD`.
-- Code: `core/includes/class-smtp.php`.
+- Code: `core/email/smtp.php`.
 
 ## Site access (maintenance page)
 Event Plus → Settings → **Site access**. Default: **Direct links only**.
@@ -210,7 +217,7 @@ Event Plus → Settings → **Site access**. Default: **Direct links only**.
 | `/?p=123`-style ID links and WordPress's "did you mean" redirects (`/a` → first slug starting with a) | Maintenance page, so nobody can walk through IDs or guess slugs. Staff previews still work. |
 
 Staff see a "Direct links only" marker in the admin bar. Switch to **Public website** for a normal homepage.
-Logic: `core/includes/class-site-access.php`; page: theme `maintenance.php` (a child theme can override it).
+Logic: `core/access/site-access.php`; page: theme `maintenance.php` (a child theme can override it).
 
 ## Automated tests
 ```bash

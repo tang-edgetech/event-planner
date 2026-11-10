@@ -3,6 +3,8 @@
  * All outgoing emails: admin notification, applicant confirmation (registered / waiting list /
  * seat offered), capacity alerts, and the optional calendar (.ics) attachment.
  * Every body passes through the `epc_email_html` filter, which the theme uses for branding.
+ *
+ * Screens: Event edit → After Submit (notification and confirmation emails); Event Plus → Settings → Features (waiting-list and seat-offer texts).
  */
 
 defined( 'ABSPATH' ) || exit;

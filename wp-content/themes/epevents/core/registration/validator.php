@@ -2,6 +2,8 @@
 /**
  * Field format validation + normalisation (NRIC, phone, email ...).
  * Each validator returns [ bool $ok, string $normalised, string $error ].
+ *
+ * Used by: the registration form and the applicant edit screen.
  */
 
 defined( 'ABSPATH' ) || exit;

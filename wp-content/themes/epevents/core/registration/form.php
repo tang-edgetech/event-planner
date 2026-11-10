@@ -1,6 +1,8 @@
 <?php
 /**
  * Registration form: rendering, validation and submission (no third-party form plugin).
+ *
+ * Screens: the public event page (/event/…) and the Registration form section on microsites.
  */
 
 defined( 'ABSPATH' ) || exit;

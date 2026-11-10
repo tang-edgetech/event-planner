@@ -7,6 +7,8 @@
  * that are never in the matrix: plugins, themes, ACF field groups, WordPress settings, tools and updates.
  * Every other role only gets what the matrix grants, so it only sees those sections of the admin.
  * A user may only change permissions, overrides and accounts of roles ranked below their own.
+ *
+ * Screens: Event Plus → Permissions, Users. Also hides WordPress areas from everyone but Developers.
  */
 
 defined( 'ABSPATH' ) || exit;
