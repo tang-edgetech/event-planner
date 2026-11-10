@@ -85,6 +85,7 @@ function epc_layout_types(): array {
  * Normalised form-field definitions for an event.
  *
  * @return array<int, array> each with keys: name,type,label,placeholder,help,required,width,options,allow_other,format,unique,default,content,conditions
+ * Dropdown answers that were never chosen can come back as false (ACF select default), so they fall back with ?: .
  */
 function epc_get_form_fields( int $event_id ): array {
 	$rows   = function_exists( 'get_field' ) ? get_field( 'form_fields', $event_id ) : array();
@@ -92,7 +93,7 @@ function epc_get_form_fields( int $event_id ): array {
 	$used   = array();
 
 	foreach ( epc_list( $rows ) as $i => $row ) {
-		$type  = $row['type'] ?? 'text';
+		$type  = ( $row['type'] ?? '' ) ?: 'text';
 		$label = trim( (string) ( $row['label'] ?? '' ) );
 		$name  = sanitize_key( str_replace( ' ', '-', strtolower( (string) ( $row['name'] ?? '' ) ) ) );
 
@@ -112,9 +113,9 @@ function epc_get_form_fields( int $event_id ): array {
 
 		$options = array();
 		if ( in_array( $type, array( 'select', 'radio', 'checkboxes' ), true ) ) {
-			if ( 'preset' === ( $row['options_source'] ?? 'custom' ) ) {
+			if ( 'preset' === ( ( $row['options_source'] ?? '' ) ?: 'custom' ) ) {
 				$lists   = epc_preset_lists();
-				$options = $lists[ $row['preset'] ?? '' ]['options'] ?? array();
+				$options = $lists[ (string) ( $row['preset'] ?? '' ) ]['options'] ?? array();
 			} else {
 				$options = epc_lines( $row['options'] ?? '' );
 			}
@@ -129,16 +130,16 @@ function epc_get_form_fields( int $event_id ): array {
 		if ( ! empty( $row['conditional'] ) ) {
 			$conditions = array(
 				'field'    => sanitize_key( (string) ( $row['cond_field'] ?? '' ) ),
-				'operator' => $row['cond_operator'] ?? 'is',
+				'operator' => ( $row['cond_operator'] ?? '' ) ?: 'is',
 				'value'    => (string) ( $row['cond_value'] ?? '' ),
 			);
 		}
 
 		$format = '';
 		if ( 'phone' === $type ) {
-			$format = $row['phone_format'] ?? 'my';
+			$format = ( $row['phone_format'] ?? '' ) ?: 'my';
 		} elseif ( 'nric' === $type ) {
-			$format = $row['nric_format'] ?? 'my';
+			$format = ( $row['nric_format'] ?? '' ) ?: 'my';
 		}
 
 		$fields[] = array(
@@ -148,7 +149,7 @@ function epc_get_form_fields( int $event_id ): array {
 			'placeholder' => (string) ( $row['placeholder'] ?? '' ),
 			'help'        => (string) ( $row['help'] ?? '' ),
 			'required'    => ! empty( $row['required'] ),
-			'width'       => (string) ( $row['width'] ?? '100' ),
+			'width'       => (string) ( ( $row['width'] ?? '' ) ?: '100' ),
 			'options'     => $options,
 			'allow_other' => ! empty( $row['allow_other'] ) && in_array( $type, array( 'select', 'radio', 'checkboxes', 'salutation' ), true ),
 			'format'      => $format,

@@ -26,13 +26,16 @@ wp-content/themes/epevents/
 │
 ├── core/                  ── FEATURES & DATA (what the site does) ──
 │   ├── bootstrap.php      constants, loads includes/, ACF check, one-time setup
+│   ├── acf-json/          ACF field groups (JSON): Event, Microsite, Event Plus Settings
 │   ├── includes/          one class per feature (table below)
-│   │   └── fields/        ACF field groups: settings.php, event.php, microsite.php
+│   │   └── fields/        ACF glue: JSON folders, Settings options page, fields filled by code
 │   ├── assets/            admin CSS, registration form CSS/JS, tracking beacon, Chart.js
 │   ├── tests/run.php      automated checks
 │   └── dev/               developer-only scripts (demo content seeder)
 │
-├── inc/                   ── PRESENTATION (how the site looks) ──
+│                          ── PRESENTATION (how the site looks) ──
+├── acf-json/             ACF field group (JSON): Branding
+├── inc/
 │   ├── branding.php       Appearance → Branding (logo, colours, fonts, login, admin, emails)
 │   └── template-helpers.php
 ├── template-parts/        site / microsite headers, cards, one file per microsite section
@@ -50,7 +53,7 @@ Code prefixes: core uses `EPC_` / `epc_`, presentation uses `ept_` / `EPT_`. The
 | Feature | Admin location | Code |
 |---|---|---|
 | Events, microsites, applicants (post types, Duplicate) | Event Plus menu | `core/includes/class-post-types.php` |
-| Event / microsite / settings fields | edit screens, Event Plus → Settings | `core/includes/fields/*.php` |
+| Event / microsite / settings fields | edit screens, Event Plus → Settings; defined in ACF → Field Groups | `core/acf-json/*.json` (+ `core/includes/fields/*.php` for code-filled choices) |
 | Registration form: render, validation, spam guards, storage | event page, Form section | `core/includes/class-form.php`, `class-validator.php`, `assets/js/form.js` |
 | Capacity, status, waiting list | event edit screen | `core/includes/class-capacity.php` |
 | Optional features (alerts, seat freed, calendar, masking) | Settings → Features | `core/includes/class-features.php` |
@@ -63,15 +66,33 @@ Code prefixes: core uses `EPC_` / `epc_`, presentation uses `ept_` / `EPT_`. The
 | Site access (maintenance page) | Settings → Site access | `core/includes/class-site-access.php` + theme `maintenance.php` |
 | Overview dashboard | Event Plus → Overview | `core/includes/class-admin.php` |
 | Shared helpers (settings, lists, field definitions, client IP) | – | `core/includes/helpers.php` |
-| Microsite sections | microsite edit screen | `template-parts/sections/*.php` (fields in `core/includes/fields/microsite.php`) |
+| Microsite sections | microsite edit screen | `template-parts/sections/*.php` (fields: ACF → Field Groups → Microsite, `core/acf-json/group_epc_microsite.json`) |
 | Event registration page layout | – | `single-ep_event.php` |
-| Branding / white label | Appearance → Branding | `inc/branding.php` |
+| Branding / white label | Appearance → Branding | `inc/branding.php` (fields: `acf-json/group_ept_branding.json`) |
 | Style guide | private page "Style guide" | `page-templates/style-guide.php` |
+
+## Field groups (ACF Local JSON)
+
+All fields are normal ACF Pro field groups, visible and editable in **ACF → Field Groups** (Developers only), and stored as JSON files inside the theme so they are versioned in git:
+
+| Group | Key | File |
+|---|---|---|
+| Event | `group_epc_event` | `core/acf-json/group_epc_event.json` |
+| Microsite (sections) | `group_epc_microsite` | `core/acf-json/group_epc_microsite.json` |
+| Event Plus Settings | `group_epc_settings` | `core/acf-json/group_epc_settings.json` |
+| Branding | `group_ept_branding` | `acf-json/group_ept_branding.json` |
+
+- **Editing**: change the group in ACF and click *Update*. ACF rewrites its JSON file; commit that file. Groups with a `group_ept_` key are saved to `acf-json/` (presentation), all others to `core/acf-json/` (features). The folder setup is in `core/includes/fields/acf-json.php`.
+- **Other sites (staging, a teammate)**: after deploying or pulling, ACF → Field Groups shows **Sync available** for changed groups. Click *Sync* to load them. Until then the site already uses the JSON version.
+- **Never change a field key or name** of a field that holds data: content is stored by name and code refers to some keys (e.g. `field_epc_html_code`, `field_epc_smtp_*`, `field_epc_ev_reg_status`). Renaming a label is safe.
+- **Choices filled by code** (they are overwritten when the field loads, so edit them in code, not in ACF): form builder *Type* (`epc_field_types()`), *Saved list* (Settings → Option lists), Branding fonts (`ept_font_catalogue()`). Defaults like the banner countdown also come from code (`class-features.php`).
+- **Options pages** (Event Plus → Settings, Appearance → Branding) are registered in code (`core/includes/fields/settings.php`, `inc/branding.php`), not in ACF.
+- The server needs write access to both `acf-json` folders only if someone edits field groups there; normally edit locally and deploy.
 
 ## Developer guidelines
 
-- **Adding a feature**: new class in `core/includes/class-*.php` with a static `init()` that adds its hooks; `require_once` it and call `init()` in `core/bootstrap.php`. Put its fields in `core/includes/fields/`, its admin assets in `core/assets/`.
-- **Adding a microsite section**: add the layout to `core/includes/fields/microsite.php` and a template `template-parts/sections/{layout}.php`.
+- **Adding a feature**: new class in `core/includes/class-*.php` with a static `init()` that adds its hooks; `require_once` it and call `init()` in `core/bootstrap.php`. Create its fields in ACF → Field Groups (they save to `core/acf-json/`), its admin assets go in `core/assets/`.
+- **Adding a microsite section**: add a layout to the *Sections* field in ACF → Field Groups → Microsite, then a template `template-parts/sections/{layout}.php` (file name = layout name).
 - **Assets** in core use `EPC_URL` / `EPC_DIR`; presentation uses `get_template_directory_uri()`. Version query strings: `EPC_VERSION` (core) and `EPT_VERSION` (presentation) – bump them when CSS / JS changes.
 - **One-time setup** (table creation, default lists, rewrite rules) runs on theme activation and once after every `EPC_VERSION` change (`epc_setup()` in `core/bootstrap.php`). Roles update themselves when `EPC_Roles::VERSION` changes. There are no plugin activation hooks any more.
 - **Status changes** go through `EPC_Features::set_status()` only; emails through `EPC_Mailer`.
@@ -286,7 +307,8 @@ Git holds only the theme; ACF Pro, the database and uploads travel separately.
    Use **fresh** salts from https://api.wordpress.org/secret-key/1.1/salt/ – then re-enter the SMTP password in Settings → Email (it is encrypted with the salts).
 4. **Permalinks**: Settings → Permalinks → Save (writes `.htaccess` for the new folder).
 5. **Accounts**: the local test accounts come along with the database. Change every password (or delete the test users) before anyone else gets the link.
-6. **Check**: Settings → Email → *Send test email*; open an event link and register once; open the homepage signed out (maintenance page).
+6. **Field groups**: ACF → Field Groups – if any group shows *Sync available*, click *Sync*.
+7. **Check**: Settings → Email → *Send test email*; open an event link and register once; open the homepage signed out (maintenance page).
 
 ## Not in this phase
 - SEO fields (per agreement – later phase).

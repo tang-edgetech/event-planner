@@ -1,0 +1,1776 @@
+{
+    "key": "group_epc_event",
+    "title": "Event",
+    "fields": [
+        {
+            "key": "field_epc_ev_tab_details",
+            "label": "Details",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_epc_ev_date",
+            "label": "Event start",
+            "name": "event_start",
+            "aria-label": "",
+            "type": "date_time_picker",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "display_format": "j F Y g:i a",
+            "return_format": "Y-m-d H:i:s",
+            "first_day": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_epc_ev_end",
+            "label": "Event end",
+            "name": "event_end",
+            "aria-label": "",
+            "type": "date_time_picker",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "display_format": "j F Y g:i a",
+            "return_format": "Y-m-d H:i:s",
+            "first_day": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_epc_ev_venue",
+            "label": "Venue",
+            "name": "venue",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 34,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_ev_date_text",
+            "label": "Date (display text)",
+            "name": "event_date_text",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Leave blank to generate from Event start.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "13th September 2026",
+            "default_value": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_ev_time_text",
+            "label": "Time (display text)",
+            "name": "event_time_text",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "8:30am – 5:00pm",
+            "default_value": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_ev_map",
+            "label": "Venue map link",
+            "name": "venue_map",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 34,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_epc_ev_banner",
+            "label": "Banner (desktop)",
+            "name": "banner_desktop",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Recommended 1920×600.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": 0,
+            "min_height": 0,
+            "min_size": 0,
+            "max_width": 0,
+            "max_height": 0,
+            "max_size": 0,
+            "mime_types": ""
+        },
+        {
+            "key": "field_epc_ev_banner_m",
+            "label": "Banner (mobile)",
+            "name": "banner_mobile",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Optional. Recommended 800×1000.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": 0,
+            "min_height": 0,
+            "min_size": 0,
+            "max_width": 0,
+            "max_height": 0,
+            "max_size": 0,
+            "mime_types": ""
+        },
+        {
+            "key": "field_epc_ev_accent",
+            "label": "Accent colour",
+            "name": "accent_color",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "enable_opacity": false,
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true,
+            "return_format": "string"
+        },
+        {
+            "key": "field_epc_ev_page_bg",
+            "label": "Page background",
+            "name": "page_bg",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "enable_opacity": false,
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true,
+            "return_format": "string"
+        },
+        {
+            "key": "field_epc_ev_show_title",
+            "label": "Show title above form",
+            "name": "show_title",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 34,
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 1,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_ev_layout",
+            "label": "Page layout",
+            "name": "page_layout",
+            "aria-label": "",
+            "type": "button_group",
+            "instructions": "On phones the details always sit above the form.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "split": "Details beside form",
+                "single": "Form only"
+            },
+            "default_value": "split",
+            "allow_null": 0,
+            "return_format": "value",
+            "layout": "horizontal"
+        },
+        {
+            "key": "field_epc_ev_summary",
+            "label": "About this event",
+            "name": "summary",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "Short description shown beside the form (optional).",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 67,
+                "class": "",
+                "id": ""
+            },
+            "toolbar": "basic",
+            "media_upload": 0,
+            "delay": 1,
+            "tabs": "all",
+            "default_value": ""
+        },
+        {
+            "key": "field_epc_ev_tab_form",
+            "label": "Form",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_epc_ev_form_intro",
+            "label": "Text above form",
+            "name": "form_intro",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "tabs": "all",
+            "toolbar": "basic",
+            "media_upload": 0,
+            "default_value": "",
+            "delay": 0
+        },
+        {
+            "key": "field_epc_form_fields",
+            "label": "Form fields",
+            "name": "form_fields",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "Drag to reorder. Use the width setting to place fields side-by-side.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "collapsed": "field_epc_ff_label",
+            "button_label": "Add field",
+            "min": 0,
+            "max": 0,
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_epc_ff_type",
+                    "label": "Type",
+                    "name": "type",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": false,
+                    "wrapper": {
+                        "width": 25,
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "salutation": "Salutation (uses Settings list)",
+                        "text": "Text",
+                        "textarea": "Paragraph text",
+                        "email": "Email address",
+                        "phone": "Phone number",
+                        "nric": "NRIC \/ ID number",
+                        "number": "Number",
+                        "date": "Date",
+                        "select": "Dropdown",
+                        "radio": "Radio buttons",
+                        "checkboxes": "Checkboxes (multiple)",
+                        "country": "Country",
+                        "consent": "Consent \/ agreement checkbox",
+                        "hidden": "Hidden value",
+                        "heading": "Section heading (layout only)",
+                        "html": "Text \/ HTML block (layout only)"
+                    },
+                    "default_value": "text",
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": "",
+                    "return_format": "value",
+                    "create_options": 0,
+                    "save_options": 0,
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_label",
+                    "label": "Label",
+                    "name": "label",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": false,
+                    "wrapper": {
+                        "width": 35,
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_name",
+                    "label": "Field key",
+                    "name": "name",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Auto from label. Used in exports, emails ({key}) and conditions.",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "!=",
+                                "value": "heading"
+                            },
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "!=",
+                                "value": "html"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 20,
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_width",
+                    "label": "Width",
+                    "name": "width",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": false,
+                    "wrapper": {
+                        "width": 10,
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "100": "Full",
+                        "66": "2\/3",
+                        "50": "1\/2",
+                        "33": "1\/3",
+                        "25": "1\/4"
+                    },
+                    "default_value": 50,
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": "",
+                    "return_format": "value",
+                    "create_options": 0,
+                    "save_options": 0,
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_required",
+                    "label": "Required",
+                    "name": "required",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "!=",
+                                "value": "heading"
+                            },
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "!=",
+                                "value": "html"
+                            },
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "!=",
+                                "value": "hidden"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 10,
+                        "class": "",
+                        "id": ""
+                    },
+                    "ui": 1,
+                    "default_value": 0,
+                    "message": "",
+                    "ui_on_text": "",
+                    "ui_off_text": "",
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_placeholder",
+                    "label": "Placeholder",
+                    "name": "placeholder",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "text"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "textarea"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "email"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "phone"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "nric"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "number"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "select"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "salutation"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "country"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 35,
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_help",
+                    "label": "Help text",
+                    "name": "help",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "!=",
+                                "value": "heading"
+                            },
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "!=",
+                                "value": "html"
+                            },
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "!=",
+                                "value": "hidden"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 35,
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_default",
+                    "label": "Default value",
+                    "name": "default",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "!=",
+                                "value": "heading"
+                            },
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "!=",
+                                "value": "html"
+                            },
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "!=",
+                                "value": "consent"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 30,
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_phone_format",
+                    "label": "Phone format",
+                    "name": "phone_format",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "phone"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 35,
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "my": "Malaysia (saved as +60…)",
+                        "intl": "International – country code required",
+                        "any": "Any phone number"
+                    },
+                    "default_value": "my",
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": "",
+                    "return_format": "value",
+                    "create_options": 0,
+                    "save_options": 0,
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_nric_format",
+                    "label": "ID format",
+                    "name": "nric_format",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "nric"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 35,
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "my": "Malaysian NRIC only (YYMMDD-PB-####)",
+                        "my_or_passport": "Malaysian NRIC or Passport",
+                        "any": "Any ID number"
+                    },
+                    "default_value": "my",
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": "",
+                    "return_format": "value",
+                    "create_options": 0,
+                    "save_options": 0,
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_source",
+                    "label": "Options from",
+                    "name": "options_source",
+                    "aria-label": "",
+                    "type": "button_group",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "select"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "radio"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "checkboxes"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 25,
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "custom": "Type options",
+                        "preset": "Saved list"
+                    },
+                    "default_value": "custom",
+                    "allow_null": 0,
+                    "return_format": "value",
+                    "layout": "horizontal",
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_options",
+                    "label": "Options",
+                    "name": "options",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "One per line.",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "select"
+                            },
+                            {
+                                "field": "field_epc_ff_source",
+                                "operator": "!=",
+                                "value": "preset"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "radio"
+                            },
+                            {
+                                "field": "field_epc_ff_source",
+                                "operator": "!=",
+                                "value": "preset"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "checkboxes"
+                            },
+                            {
+                                "field": "field_epc_ff_source",
+                                "operator": "!=",
+                                "value": "preset"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 50,
+                        "class": "",
+                        "id": ""
+                    },
+                    "rows": 4,
+                    "default_value": "",
+                    "new_lines": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_preset",
+                    "label": "Saved list",
+                    "name": "preset",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "Manage lists in Event Plus → Settings.",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "select"
+                            },
+                            {
+                                "field": "field_epc_ff_source",
+                                "operator": "==",
+                                "value": "preset"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "radio"
+                            },
+                            {
+                                "field": "field_epc_ff_source",
+                                "operator": "==",
+                                "value": "preset"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "checkboxes"
+                            },
+                            {
+                                "field": "field_epc_ff_source",
+                                "operator": "==",
+                                "value": "preset"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 50,
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": [],
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "default_value": false,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": "",
+                    "return_format": "value",
+                    "create_options": 0,
+                    "save_options": 0,
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_other",
+                    "label": "Add \"Others – please specify\"",
+                    "name": "allow_other",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "select"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "radio"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "checkboxes"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "salutation"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 25,
+                        "class": "",
+                        "id": ""
+                    },
+                    "ui": 1,
+                    "default_value": 0,
+                    "message": "",
+                    "ui_on_text": "",
+                    "ui_off_text": "",
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_unique",
+                    "label": "Must be unique per event",
+                    "name": "unique",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "Blocks duplicate registrations (e.g. same email or NRIC).",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "email"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "phone"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "nric"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "text"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "number"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 30,
+                        "class": "",
+                        "id": ""
+                    },
+                    "ui": 1,
+                    "default_value": 0,
+                    "message": "",
+                    "ui_on_text": "",
+                    "ui_off_text": "",
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_content",
+                    "label": "Content",
+                    "name": "content",
+                    "aria-label": "",
+                    "type": "wysiwyg",
+                    "instructions": "For consent fields this is the agreement text (links allowed).",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "html"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "consent"
+                            }
+                        ],
+                        [
+                            {
+                                "field": "field_epc_ff_type",
+                                "operator": "==",
+                                "value": "heading"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "toolbar": "basic",
+                    "media_upload": 0,
+                    "tabs": "all",
+                    "default_value": "",
+                    "delay": 0,
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_cond",
+                    "label": "Show only when…",
+                    "name": "conditional",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": false,
+                    "wrapper": {
+                        "width": 16,
+                        "class": "",
+                        "id": ""
+                    },
+                    "ui": 1,
+                    "default_value": 0,
+                    "message": "",
+                    "ui_on_text": "",
+                    "ui_off_text": "",
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_cond_field",
+                    "label": "Field key",
+                    "name": "cond_field",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_cond",
+                                "operator": "==",
+                                "value": 1
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 28,
+                        "class": "",
+                        "id": ""
+                    },
+                    "placeholder": "country",
+                    "default_value": "",
+                    "maxlength": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_cond_op",
+                    "label": "Operator",
+                    "name": "cond_operator",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_cond",
+                                "operator": "==",
+                                "value": 1
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 20,
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "is": "is",
+                        "is_not": "is not",
+                        "contains": "contains",
+                        "not_empty": "has any value",
+                        "empty": "is empty"
+                    },
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "default_value": false,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": "",
+                    "return_format": "value",
+                    "create_options": 0,
+                    "save_options": 0,
+                    "parent_repeater": "field_epc_form_fields"
+                },
+                {
+                    "key": "field_epc_ff_cond_value",
+                    "label": "Value",
+                    "name": "cond_value",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": false,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_epc_ff_cond",
+                                "operator": "==",
+                                "value": 1
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": 36,
+                        "class": "",
+                        "id": ""
+                    },
+                    "placeholder": "Malaysia",
+                    "default_value": "",
+                    "maxlength": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_epc_form_fields"
+                }
+            ]
+        },
+        {
+            "key": "field_epc_ev_submit",
+            "label": "Submit button label",
+            "name": "submit_label",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "Submit",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_ev_tab_cap",
+            "label": "Capacity & Status",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_epc_ev_reg_status",
+            "label": "Registration status",
+            "name": "reg_status",
+            "aria-label": "",
+            "type": "button_group",
+            "instructions": "<strong>Automatic<\/strong> opens\/closes by the dates below and shows \"Application Full\" once maximum capacity is reached. The other options override it manually.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "auto": "Automatic",
+                "open": "Force open",
+                "full": "Application Full",
+                "closed": "Closed"
+            },
+            "default_value": "auto",
+            "allow_null": 0,
+            "return_format": "value",
+            "layout": "horizontal"
+        },
+        {
+            "key": "field_epc_ev_cap_min",
+            "label": "Minimum capacity",
+            "name": "capacity_min",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Target needed for the event to run (shown in admin).",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 25,
+                "class": "",
+                "id": ""
+            },
+            "min": 0,
+            "default_value": "",
+            "max": "",
+            "step": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_ev_cap_max",
+            "label": "Maximum capacity",
+            "name": "capacity_max",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "0 or empty = unlimited.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 25,
+                "class": "",
+                "id": ""
+            },
+            "min": 0,
+            "default_value": "",
+            "max": "",
+            "step": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_ev_open_at",
+            "label": "Registration opens",
+            "name": "reg_open_at",
+            "aria-label": "",
+            "type": "date_time_picker",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 25,
+                "class": "",
+                "id": ""
+            },
+            "return_format": "Y-m-d H:i:s",
+            "display_format": "j M Y g:i a",
+            "first_day": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_epc_ev_close_at",
+            "label": "Registration closes",
+            "name": "reg_close_at",
+            "aria-label": "",
+            "type": "date_time_picker",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 25,
+                "class": "",
+                "id": ""
+            },
+            "return_format": "Y-m-d H:i:s",
+            "display_format": "j M Y g:i a",
+            "first_day": 1,
+            "default_to_current_date": 0
+        },
+        {
+            "key": "field_epc_ev_waitlist",
+            "label": "Waiting list when full",
+            "name": "enable_waitlist",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Keep accepting registrations as \"Waitlist\" after capacity is reached (Automatic mode).",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 0,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_ev_default_status",
+            "label": "Status for new applicants",
+            "name": "default_status",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "registered": "Registered",
+                "confirmed": "Confirmed"
+            },
+            "default_value": "registered",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "return_format": "value",
+            "create_options": 0,
+            "save_options": 0
+        },
+        {
+            "key": "field_epc_ev_full_title",
+            "label": "\"Application Full\" heading",
+            "name": "full_title",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "Thank you for your interest in {event_title}",
+            "default_value": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_ev_closed_title",
+            "label": "\"Closed\" heading",
+            "name": "closed_title",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "Registration Closed",
+            "default_value": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_ev_full_msg",
+            "label": "\"Application Full\" message",
+            "name": "full_message",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "toolbar": "basic",
+            "media_upload": 0,
+            "tabs": "all",
+            "default_value": "",
+            "delay": 0
+        },
+        {
+            "key": "field_epc_ev_closed_msg",
+            "label": "\"Closed\" message",
+            "name": "closed_message",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "toolbar": "basic",
+            "media_upload": 0,
+            "tabs": "all",
+            "default_value": "",
+            "delay": 0
+        },
+        {
+            "key": "field_epc_ev_wl_msg",
+            "label": "Waitlist notice (above form)",
+            "name": "waitlist_message",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_ev_waitlist",
+                        "operator": "==",
+                        "value": 1
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "rows": 2,
+            "default_value": "",
+            "new_lines": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_epc_ev_wl_conf",
+            "label": "Waitlist confirmation",
+            "name": "waitlist_confirmation",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_ev_waitlist",
+                        "operator": "==",
+                        "value": 1
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "toolbar": "basic",
+            "media_upload": 0,
+            "tabs": "all",
+            "default_value": "",
+            "delay": 0
+        },
+        {
+            "key": "field_epc_ev_tab_after",
+            "label": "After Submit",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_epc_ev_conf_type",
+            "label": "On success",
+            "name": "confirmation_type",
+            "aria-label": "",
+            "type": "button_group",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "message": "Show message",
+                "redirect": "Redirect to URL"
+            },
+            "default_value": "message",
+            "allow_null": 0,
+            "return_format": "value",
+            "layout": "horizontal"
+        },
+        {
+            "key": "field_epc_ev_conf_msg",
+            "label": "Thank-you message",
+            "name": "confirmation_message",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "Placeholders: {event_title}, {event_date}, {event_time}, {event_venue} and any field key, e.g. {fullname}.",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_ev_conf_type",
+                        "operator": "==",
+                        "value": "message"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "toolbar": "basic",
+            "tabs": "all",
+            "media_upload": 1,
+            "default_value": "",
+            "delay": 0
+        },
+        {
+            "key": "field_epc_ev_redirect",
+            "label": "Redirect URL",
+            "name": "redirect_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_ev_conf_type",
+                        "operator": "==",
+                        "value": "redirect"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_epc_ev_notify_admin",
+            "label": "Email admin on each registration",
+            "name": "notify_admin",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 30,
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 1,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_ev_admin_emails",
+            "label": "Recipients",
+            "name": "admin_emails",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "One per line. Empty = Settings default.",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_ev_notify_admin",
+                        "operator": "==",
+                        "value": 1
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 70,
+                "class": "",
+                "id": ""
+            },
+            "rows": 2,
+            "default_value": "",
+            "new_lines": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_epc_ev_notify_app",
+            "label": "Send confirmation email to applicant",
+            "name": "notify_applicant",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Sent to the first Email field.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 0,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_ev_email_subject",
+            "label": "Email subject",
+            "name": "email_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_ev_notify_app",
+                        "operator": "==",
+                        "value": 1
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "Registration received: {event_title}",
+            "default_value": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_ev_email_body",
+            "label": "Email body",
+            "name": "email_body",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "Same placeholders as above, plus {registration_details} for a table of all answers.",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_ev_notify_app",
+                        "operator": "==",
+                        "value": 1
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "toolbar": "full",
+            "tabs": "all",
+            "media_upload": 1,
+            "default_value": "",
+            "delay": 0
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "ep_event"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "acf_after_title",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "the_content",
+        "excerpt",
+        "discussion",
+        "comments",
+        "author",
+        "format",
+        "send-trackbacks"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": false,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1794278591
+}

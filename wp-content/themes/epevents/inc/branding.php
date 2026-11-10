@@ -190,7 +190,7 @@ function ept_logo_url(): string {
 }
 
 /* -------------------------------------------------------------------------
- * Options page + fields
+ * Options page. Its fields are in ACF (Field Groups → "Branding"), saved as acf-json/group_ept_branding.json.
  * ---------------------------------------------------------------------- */
 
 add_action( 'acf/init', function () {
@@ -207,87 +207,18 @@ add_action( 'acf/init', function () {
 			'position'    => 1,
 		)
 	);
-
-	$d     = ept_brand_defaults();
-	$color = fn( $key, $label, $help = '', $w = 33 ) => array( 'key' => 'field_ept_' . $key, 'label' => $label, 'name' => $key, 'type' => 'color_picker', 'default_value' => $d[ $key ], 'instructions' => $help, 'wrapper' => array( 'width' => $w ) );
-	$image = fn( $key, $label, $help = '', $w = 33 ) => array( 'key' => 'field_ept_' . $key, 'label' => $label, 'name' => $key, 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'medium', 'library' => 'all', 'instructions' => $help, 'wrapper' => array( 'width' => $w ) );
-
-	acf_add_local_field_group(
-		array(
-			'key'      => 'group_ept_branding',
-			'title'    => 'Branding',
-			'location' => array( array( array( 'param' => 'options_page', 'operator' => '==', 'value' => 'ept-branding' ) ) ),
-			'style'    => 'seamless',
-			'fields'   => array(
-				array( 'key' => 'field_ept_preview', 'label' => '', 'type' => 'message', 'message' => '<div id="ept-brand-preview"></div>', 'esc_html' => 0 ),
-
-				array( 'key' => 'field_ept_tab_identity', 'label' => 'Logo', 'type' => 'tab' ),
-				$image( 'brand_logo', 'Logo', 'SVG or PNG with a transparent background, at least 400 px wide. Empty = site name in text.' ),
-				$image( 'brand_logo_light', 'Logo for dark backgrounds', 'Optional white version, used in the footer.' ),
-				$image( 'brand_favicon', 'Browser icon (favicon)', 'Square, at least 512 × 512 px. Used when no Site Icon is set in Settings.' ),
-				array( 'key' => 'field_ept_brand_logo_height', 'label' => 'Logo height in the header', 'name' => 'brand_logo_height', 'type' => 'range', 'min' => 20, 'max' => 120, 'step' => 2, 'default_value' => $d['brand_logo_height'], 'append' => 'px', 'wrapper' => array( 'width' => 50 ) ),
-				array( 'key' => 'field_ept_brand_copyright', 'label' => 'Footer copyright', 'name' => 'brand_copyright', 'type' => 'text', 'default_value' => $d['brand_copyright'], 'instructions' => '{year} and {site} are filled in automatically. Microsites can override this.', 'wrapper' => array( 'width' => 50 ) ),
-
-				array( 'key' => 'field_ept_tab_colours', 'label' => 'Colours', 'type' => 'tab' ),
-				array( 'key' => 'field_ept_colours_msg', 'type' => 'message', 'message' => 'Events and microsites can still set their own accent colour; these are the defaults for everything else.' ),
-				$color( 'brand_primary', 'Primary', 'Buttons, links, highlights. Button text turns white or black automatically.' ),
-				$color( 'brand_secondary', 'Secondary', 'Small highlights and badges.' ),
-				$color( 'brand_page', 'Page background' ),
-				$color( 'brand_surface', 'Cards and forms' ),
-				$color( 'brand_text', 'Text' ),
-				$color( 'brand_muted', 'Secondary text' ),
-				$color( 'brand_border', 'Lines and borders' ),
-				$color( 'brand_footer_bg', 'Footer background' ),
-				$color( 'brand_footer_text', 'Footer text' ),
-
-				array( 'key' => 'field_ept_tab_type', 'label' => 'Fonts', 'type' => 'tab' ),
-				array( 'key' => 'field_ept_brand_font_heading', 'label' => 'Headings', 'name' => 'brand_font_heading', 'type' => 'select', 'choices' => ept_font_choices(), 'default_value' => $d['brand_font_heading'], 'ui' => 1, 'wrapper' => array( 'width' => 50 ) ),
-				array( 'key' => 'field_ept_brand_font_body', 'label' => 'Body text', 'name' => 'brand_font_body', 'type' => 'select', 'choices' => ept_font_choices(), 'default_value' => $d['brand_font_body'], 'ui' => 1, 'wrapper' => array( 'width' => 50 ) ),
-				array(
-					'key'               => 'field_ept_brand_font_custom',
-					'label'             => 'Custom font name',
-					'name'              => 'brand_font_custom',
-					'type'              => 'text',
-					'placeholder'       => 'Brand Sans',
-					'instructions'      => 'Exactly as written in the font\'s CSS (font-family).',
-					'wrapper'           => array( 'width' => 50 ),
-					'conditional_logic' => array( array( array( 'field' => 'field_ept_brand_font_heading', 'operator' => '==', 'value' => 'custom' ) ), array( array( 'field' => 'field_ept_brand_font_body', 'operator' => '==', 'value' => 'custom' ) ) ),
-				),
-				array(
-					'key'               => 'field_ept_brand_font_custom_url',
-					'label'             => 'Custom font stylesheet URL',
-					'name'              => 'brand_font_custom_url',
-					'type'              => 'url',
-					'placeholder'       => 'https://use.typekit.net/xxxxxxx.css',
-					'instructions'      => 'A CSS file that loads the font (Adobe Fonts, Google Fonts, or your own host).',
-					'wrapper'           => array( 'width' => 50 ),
-					'conditional_logic' => array( array( array( 'field' => 'field_ept_brand_font_heading', 'operator' => '==', 'value' => 'custom' ) ), array( array( 'field' => 'field_ept_brand_font_body', 'operator' => '==', 'value' => 'custom' ) ) ),
-				),
-				array( 'key' => 'field_ept_brand_font_size', 'label' => 'Text size', 'name' => 'brand_font_size', 'type' => 'button_group', 'choices' => array( '15' => 'Small', '16' => 'Normal', '17' => 'Large', '18' => 'Extra large' ), 'default_value' => $d['brand_font_size'], 'wrapper' => array( 'width' => 50 ) ),
-				array( 'key' => 'field_ept_brand_heading_weight', 'label' => 'Heading weight', 'name' => 'brand_heading_weight', 'type' => 'button_group', 'choices' => array( '600' => 'Semibold', '700' => 'Bold', '800' => 'Extra bold' ), 'default_value' => $d['brand_heading_weight'], 'wrapper' => array( 'width' => 50 ) ),
-
-				array( 'key' => 'field_ept_tab_shape', 'label' => 'Shapes', 'type' => 'tab' ),
-				array( 'key' => 'field_ept_brand_corners', 'label' => 'Corners on cards, images and fields', 'name' => 'brand_corners', 'type' => 'button_group', 'choices' => array( 'square' => 'Square', 'soft' => 'Soft', 'round' => 'Round' ), 'default_value' => $d['brand_corners'], 'wrapper' => array( 'width' => 50 ) ),
-				array( 'key' => 'field_ept_brand_buttons', 'label' => 'Buttons', 'name' => 'brand_buttons', 'type' => 'button_group', 'choices' => array( 'pill' => 'Pill', 'rounded' => 'Rounded', 'square' => 'Square' ), 'default_value' => $d['brand_buttons'], 'wrapper' => array( 'width' => 50 ) ),
-
-				array( 'key' => 'field_ept_tab_login', 'label' => 'Login page', 'type' => 'tab' ),
-				$image( 'login_logo', 'Login logo', 'Empty = main logo.' ),
-				$image( 'login_bg_image', 'Background image', 'Optional. Covers the whole login page.' ),
-				$color( 'login_bg_color', 'Background colour', 'Empty = page background.' ),
-				array( 'key' => 'field_ept_login_message', 'label' => 'Message above the form', 'name' => 'login_message', 'type' => 'textarea', 'rows' => 2, 'placeholder' => 'Event Plus staff only. Contact your Super Admin for access.' ),
-
-				array( 'key' => 'field_ept_tab_admin', 'label' => 'Admin', 'type' => 'tab' ),
-				array( 'key' => 'field_ept_wl_enable', 'label' => 'Hide WordPress branding in the admin', 'name' => 'wl_enable', 'type' => 'true_false', 'ui' => 1, 'default_value' => $d['wl_enable'], 'instructions' => 'Replaces the WordPress logo in the top bar with your logo, removes WordPress news and the welcome panel, hides the version number.' ),
-				array( 'key' => 'field_ept_wl_footer', 'label' => 'Admin footer text', 'name' => 'wl_footer', 'type' => 'text', 'default_value' => $d['wl_footer'], 'conditional_logic' => array( array( array( 'field' => 'field_ept_wl_enable', 'operator' => '==', 'value' => '1' ) ) ) ),
-				array( 'key' => 'field_ept_wl_welcome', 'label' => 'Dashboard welcome note', 'name' => 'wl_welcome', 'type' => 'wysiwyg', 'toolbar' => 'basic', 'media_upload' => 0, 'instructions' => 'Optional. Shown at the top of the dashboard for every user (e.g. support contact).', 'conditional_logic' => array( array( array( 'field' => 'field_ept_wl_enable', 'operator' => '==', 'value' => '1' ) ) ) ),
-
-				array( 'key' => 'field_ept_tab_email', 'label' => 'Emails', 'type' => 'tab' ),
-				array( 'key' => 'field_ept_email_branding', 'label' => 'Brand registration emails', 'name' => 'email_branding', 'type' => 'true_false', 'ui' => 1, 'default_value' => $d['email_branding'], 'instructions' => 'Adds your logo, primary colour and a footer to confirmation and notification emails.' ),
-				array( 'key' => 'field_ept_email_footer', 'label' => 'Email footer', 'name' => 'email_footer', 'type' => 'text', 'default_value' => $d['email_footer'], 'conditional_logic' => array( array( array( 'field' => 'field_ept_email_branding', 'operator' => '==', 'value' => '1' ) ) ) ),
-			),
-		)
-	);
 } );
+
+/** Font choices come from ept_font_catalogue(), so adding a font in code updates both selects. */
+foreach ( array( 'field_ept_brand_font_heading', 'field_ept_brand_font_body' ) as $ept_font_field ) {
+	add_filter(
+		'acf/load_field/key=' . $ept_font_field,
+		function ( $field ) {
+			$field['choices'] = ept_font_choices();
+			return $field;
+		}
+	);
+}
 
 /** Live preview on the Branding page. */
 add_action( 'admin_enqueue_scripts', function ( $hook ) {

@@ -1,0 +1,966 @@
+{
+    "key": "group_ept_branding",
+    "title": "Branding",
+    "fields": [
+        {
+            "key": "field_ept_preview",
+            "label": "",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "<div id=\"ept-brand-preview\"><\/div>",
+            "esc_html": 0,
+            "new_lines": "wpautop"
+        },
+        {
+            "key": "field_ept_tab_identity",
+            "label": "Logo",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_ept_brand_logo",
+            "label": "Logo",
+            "name": "brand_logo",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "SVG or PNG with a transparent background, at least 400 px wide. Empty = site name in text.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": 0,
+            "min_height": 0,
+            "min_size": 0,
+            "max_width": 0,
+            "max_height": 0,
+            "max_size": 0,
+            "mime_types": ""
+        },
+        {
+            "key": "field_ept_brand_logo_light",
+            "label": "Logo for dark backgrounds",
+            "name": "brand_logo_light",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Optional white version, used in the footer.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": 0,
+            "min_height": 0,
+            "min_size": 0,
+            "max_width": 0,
+            "max_height": 0,
+            "max_size": 0,
+            "mime_types": ""
+        },
+        {
+            "key": "field_ept_brand_favicon",
+            "label": "Browser icon (favicon)",
+            "name": "brand_favicon",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Square, at least 512 × 512 px. Used when no Site Icon is set in Settings.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": 0,
+            "min_height": 0,
+            "min_size": 0,
+            "max_width": 0,
+            "max_height": 0,
+            "max_size": 0,
+            "mime_types": ""
+        },
+        {
+            "key": "field_ept_brand_logo_height",
+            "label": "Logo height in the header",
+            "name": "brand_logo_height",
+            "aria-label": "",
+            "type": "range",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "min": 20,
+            "max": 120,
+            "step": 2,
+            "default_value": 40,
+            "append": "px",
+            "prepend": ""
+        },
+        {
+            "key": "field_ept_brand_copyright",
+            "label": "Footer copyright",
+            "name": "brand_copyright",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "{year} and {site} are filled in automatically. Microsites can override this.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "© {year} {site}. All rights reserved.",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_ept_tab_colours",
+            "label": "Colours",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_ept_colours_msg",
+            "label": "",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "Events and microsites can still set their own accent colour; these are the defaults for everything else.",
+            "esc_html": 0,
+            "new_lines": "wpautop"
+        },
+        {
+            "key": "field_ept_brand_primary",
+            "label": "Primary",
+            "name": "brand_primary",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "Buttons, links, highlights. Button text turns white or black automatically.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "#6d1a45",
+            "enable_opacity": false,
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true,
+            "return_format": "string"
+        },
+        {
+            "key": "field_ept_brand_secondary",
+            "label": "Secondary",
+            "name": "brand_secondary",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "Small highlights and badges.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "#e0a23a",
+            "enable_opacity": false,
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true,
+            "return_format": "string"
+        },
+        {
+            "key": "field_ept_brand_page",
+            "label": "Page background",
+            "name": "brand_page",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "#f7f5f2",
+            "enable_opacity": false,
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true,
+            "return_format": "string"
+        },
+        {
+            "key": "field_ept_brand_surface",
+            "label": "Cards and forms",
+            "name": "brand_surface",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "#ffffff",
+            "enable_opacity": false,
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true,
+            "return_format": "string"
+        },
+        {
+            "key": "field_ept_brand_text",
+            "label": "Text",
+            "name": "brand_text",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "#1c1a1f",
+            "enable_opacity": false,
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true,
+            "return_format": "string"
+        },
+        {
+            "key": "field_ept_brand_muted",
+            "label": "Secondary text",
+            "name": "brand_muted",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "#6b6570",
+            "enable_opacity": false,
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true,
+            "return_format": "string"
+        },
+        {
+            "key": "field_ept_brand_border",
+            "label": "Lines and borders",
+            "name": "brand_border",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "#e4dfe3",
+            "enable_opacity": false,
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true,
+            "return_format": "string"
+        },
+        {
+            "key": "field_ept_brand_footer_bg",
+            "label": "Footer background",
+            "name": "brand_footer_bg",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "#1c1a1f",
+            "enable_opacity": false,
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true,
+            "return_format": "string"
+        },
+        {
+            "key": "field_ept_brand_footer_text",
+            "label": "Footer text",
+            "name": "brand_footer_text",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "#d9d4da",
+            "enable_opacity": false,
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true,
+            "return_format": "string"
+        },
+        {
+            "key": "field_ept_tab_type",
+            "label": "Fonts",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_ept_brand_font_heading",
+            "label": "Headings",
+            "name": "brand_font_heading",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "Plus Jakarta Sans": "Plus Jakarta Sans",
+                "Manrope": "Manrope",
+                "DM Sans": "DM Sans",
+                "Outfit": "Outfit",
+                "Lexend": "Lexend",
+                "Poppins": "Poppins",
+                "Montserrat": "Montserrat",
+                "Work Sans": "Work Sans",
+                "Nunito Sans": "Nunito Sans",
+                "Source Sans 3": "Source Sans 3",
+                "IBM Plex Sans": "IBM Plex Sans",
+                "Noto Sans": "Noto Sans",
+                "Open Sans": "Open Sans",
+                "Roboto": "Roboto",
+                "Lato": "Lato",
+                "Playfair Display": "Playfair Display",
+                "Lora": "Lora",
+                "Merriweather": "Merriweather",
+                "system": "System font (fastest, no download)",
+                "custom": "Custom font (enter below)"
+            },
+            "default_value": "Plus Jakarta Sans",
+            "ui": 1,
+            "multiple": 0,
+            "allow_null": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "return_format": "value",
+            "create_options": 0,
+            "save_options": 0
+        },
+        {
+            "key": "field_ept_brand_font_body",
+            "label": "Body text",
+            "name": "brand_font_body",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "Plus Jakarta Sans": "Plus Jakarta Sans",
+                "Manrope": "Manrope",
+                "DM Sans": "DM Sans",
+                "Outfit": "Outfit",
+                "Lexend": "Lexend",
+                "Poppins": "Poppins",
+                "Montserrat": "Montserrat",
+                "Work Sans": "Work Sans",
+                "Nunito Sans": "Nunito Sans",
+                "Source Sans 3": "Source Sans 3",
+                "IBM Plex Sans": "IBM Plex Sans",
+                "Noto Sans": "Noto Sans",
+                "Open Sans": "Open Sans",
+                "Roboto": "Roboto",
+                "Lato": "Lato",
+                "Playfair Display": "Playfair Display",
+                "Lora": "Lora",
+                "Merriweather": "Merriweather",
+                "system": "System font (fastest, no download)",
+                "custom": "Custom font (enter below)"
+            },
+            "default_value": "Plus Jakarta Sans",
+            "ui": 1,
+            "multiple": 0,
+            "allow_null": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "return_format": "value",
+            "create_options": 0,
+            "save_options": 0
+        },
+        {
+            "key": "field_ept_brand_font_custom",
+            "label": "Custom font name",
+            "name": "brand_font_custom",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Exactly as written in the font's CSS (font-family).",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_ept_brand_font_heading",
+                        "operator": "==",
+                        "value": "custom"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_ept_brand_font_body",
+                        "operator": "==",
+                        "value": "custom"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "Brand Sans",
+            "default_value": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_ept_brand_font_custom_url",
+            "label": "Custom font stylesheet URL",
+            "name": "brand_font_custom_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "A CSS file that loads the font (Adobe Fonts, Google Fonts, or your own host).",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_ept_brand_font_heading",
+                        "operator": "==",
+                        "value": "custom"
+                    }
+                ],
+                [
+                    {
+                        "field": "field_ept_brand_font_body",
+                        "operator": "==",
+                        "value": "custom"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "https:\/\/use.typekit.net\/xxxxxxx.css",
+            "default_value": ""
+        },
+        {
+            "key": "field_ept_brand_font_size",
+            "label": "Text size",
+            "name": "brand_font_size",
+            "aria-label": "",
+            "type": "button_group",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "15": "Small",
+                "16": "Normal",
+                "17": "Large",
+                "18": "Extra large"
+            },
+            "default_value": 16,
+            "allow_null": 0,
+            "return_format": "value",
+            "layout": "horizontal"
+        },
+        {
+            "key": "field_ept_brand_heading_weight",
+            "label": "Heading weight",
+            "name": "brand_heading_weight",
+            "aria-label": "",
+            "type": "button_group",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "600": "Semibold",
+                "700": "Bold",
+                "800": "Extra bold"
+            },
+            "default_value": 700,
+            "allow_null": 0,
+            "return_format": "value",
+            "layout": "horizontal"
+        },
+        {
+            "key": "field_ept_tab_shape",
+            "label": "Shapes",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_ept_brand_corners",
+            "label": "Corners on cards, images and fields",
+            "name": "brand_corners",
+            "aria-label": "",
+            "type": "button_group",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "square": "Square",
+                "soft": "Soft",
+                "round": "Round"
+            },
+            "default_value": "soft",
+            "allow_null": 0,
+            "return_format": "value",
+            "layout": "horizontal"
+        },
+        {
+            "key": "field_ept_brand_buttons",
+            "label": "Buttons",
+            "name": "brand_buttons",
+            "aria-label": "",
+            "type": "button_group",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "pill": "Pill",
+                "rounded": "Rounded",
+                "square": "Square"
+            },
+            "default_value": "pill",
+            "allow_null": 0,
+            "return_format": "value",
+            "layout": "horizontal"
+        },
+        {
+            "key": "field_ept_tab_login",
+            "label": "Login page",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_ept_login_logo",
+            "label": "Login logo",
+            "name": "login_logo",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Empty = main logo.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": 0,
+            "min_height": 0,
+            "min_size": 0,
+            "max_width": 0,
+            "max_height": 0,
+            "max_size": 0,
+            "mime_types": ""
+        },
+        {
+            "key": "field_ept_login_bg_image",
+            "label": "Background image",
+            "name": "login_bg_image",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Optional. Covers the whole login page.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": 0,
+            "min_height": 0,
+            "min_size": 0,
+            "max_width": 0,
+            "max_height": 0,
+            "max_size": 0,
+            "mime_types": ""
+        },
+        {
+            "key": "field_ept_login_bg_color",
+            "label": "Background colour",
+            "name": "login_bg_color",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "Empty = page background.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "enable_opacity": false,
+            "custom_palette_source": "",
+            "palette_colors": "",
+            "show_color_wheel": true,
+            "return_format": "string"
+        },
+        {
+            "key": "field_ept_login_message",
+            "label": "Message above the form",
+            "name": "login_message",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 2,
+            "placeholder": "Event Plus staff only. Contact your Super Admin for access.",
+            "default_value": "",
+            "new_lines": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_ept_tab_admin",
+            "label": "Admin",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_ept_wl_enable",
+            "label": "Hide WordPress branding in the admin",
+            "name": "wl_enable",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Replaces the WordPress logo in the top bar with your logo, removes WordPress news and the welcome panel, hides the version number.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 1,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_ept_wl_footer",
+            "label": "Admin footer text",
+            "name": "wl_footer",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_ept_wl_enable",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "{site} · Event registration platform",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_ept_wl_welcome",
+            "label": "Dashboard welcome note",
+            "name": "wl_welcome",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "Optional. Shown at the top of the dashboard for every user (e.g. support contact).",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_ept_wl_enable",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "toolbar": "basic",
+            "media_upload": 0,
+            "tabs": "all",
+            "default_value": "",
+            "delay": 0
+        },
+        {
+            "key": "field_ept_tab_email",
+            "label": "Emails",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_ept_email_branding",
+            "label": "Brand registration emails",
+            "name": "email_branding",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Adds your logo, primary colour and a footer to confirmation and notification emails.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 1,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_ept_email_footer",
+            "label": "Email footer",
+            "name": "email_footer",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_ept_email_branding",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "You received this email because you registered on {site}.",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "ept-branding"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [],
+    "active": true,
+    "description": "",
+    "show_in_rest": false,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1794278593
+}

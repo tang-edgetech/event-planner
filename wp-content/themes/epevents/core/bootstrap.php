@@ -39,9 +39,11 @@ require_once EPC_DIR . 'includes/class-site-access.php';
  * Without it the editing screens are missing; the public pages degrade gracefully.
  */
 if ( class_exists( 'ACF' ) && function_exists( 'acf_add_local_field_group' ) ) {
+	// Field groups are ACF Local JSON files (core/acf-json/, acf-json/); these files only add the
+	// options page and the code that fills fields in at runtime.
+	require_once EPC_DIR . 'includes/fields/acf-json.php';
 	require_once EPC_DIR . 'includes/fields/settings.php';
 	require_once EPC_DIR . 'includes/fields/event.php';
-	require_once EPC_DIR . 'includes/fields/microsite.php';
 } else {
 	add_action(
 		'admin_notices',

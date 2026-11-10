@@ -1,0 +1,1061 @@
+{
+    "key": "group_epc_settings",
+    "title": "Event Plus Settings",
+    "fields": [
+        {
+            "key": "field_epc_tab_lists",
+            "label": "Option lists",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_epc_lists_msg",
+            "label": "",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "Reusable lists for dropdowns, radios and checkboxes in any event form. The list with slug <code>salutation<\/code> is used by every <strong>Salutation<\/strong> field.",
+            "esc_html": 0,
+            "new_lines": "wpautop"
+        },
+        {
+            "key": "field_epc_preset_lists",
+            "label": "Lists",
+            "name": "epc_preset_lists",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "collapsed": "field_epc_pl_name",
+            "button_label": "Add list",
+            "min": 0,
+            "max": 0,
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_epc_pl_name",
+                    "label": "Name",
+                    "name": "name",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": false,
+                    "wrapper": {
+                        "width": 50,
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_epc_preset_lists"
+                },
+                {
+                    "key": "field_epc_pl_slug",
+                    "label": "Slug",
+                    "name": "slug",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Auto from name if empty. Do not change once in use.",
+                    "required": false,
+                    "conditional_logic": false,
+                    "wrapper": {
+                        "width": 50,
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_epc_preset_lists"
+                },
+                {
+                    "key": "field_epc_pl_options",
+                    "label": "Options",
+                    "name": "options",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "One option per line.",
+                    "required": false,
+                    "conditional_logic": false,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "rows": 6,
+                    "default_value": "",
+                    "new_lines": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "parent_repeater": "field_epc_preset_lists"
+                }
+            ]
+        },
+        {
+            "key": "field_epc_tab_mail",
+            "label": "Email",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_epc_mail_from_name",
+            "label": "From name",
+            "name": "epc_mail_from_name",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_mail_from_email",
+            "label": "From email",
+            "name": "epc_mail_from_email",
+            "aria-label": "",
+            "type": "email",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_admin_emails",
+            "label": "Default notification recipients",
+            "name": "epc_admin_emails",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "One email per line. Events can override this.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "default_value": "",
+            "new_lines": "",
+            "maxlength": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_epc_smtp_enable",
+            "label": "Send email through SMTP",
+            "name": "epc_smtp_enable",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Recommended: hosting PHP mail often lands in spam. Applies to every email the site sends.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 0,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_smtp_host",
+            "label": "SMTP host",
+            "name": "epc_smtp_host",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_smtp_enable",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 40,
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "smtp.gmail.com \/ mail.yourdomain.com",
+            "default_value": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_smtp_secure",
+            "label": "Encryption",
+            "name": "epc_smtp_secure",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_smtp_enable",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 30,
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "tls": "TLS (port 587)",
+                "ssl": "SSL (port 465)",
+                "none": "None (port 25)"
+            },
+            "default_value": "tls",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "return_format": "value",
+            "create_options": 0,
+            "save_options": 0
+        },
+        {
+            "key": "field_epc_smtp_port",
+            "label": "Port",
+            "name": "epc_smtp_port",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Empty = usual port for the encryption.",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_smtp_enable",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 30,
+                "class": "",
+                "id": ""
+            },
+            "placeholder": 587,
+            "min": 1,
+            "max": 65535,
+            "default_value": "",
+            "step": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_smtp_auth",
+            "label": "Server requires login",
+            "name": "epc_smtp_auth",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_smtp_enable",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 40,
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 1,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_smtp_user",
+            "label": "Username",
+            "name": "epc_smtp_user",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_smtp_enable",
+                        "operator": "==",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_epc_smtp_auth",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 30,
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "Usually the full email address",
+            "default_value": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_smtp_pass",
+            "label": "Password",
+            "name": "epc_smtp_pass",
+            "aria-label": "",
+            "type": "password",
+            "instructions": "Stored encrypted. Leave empty to keep the saved password. For Gmail \/ Microsoft 365 use an app password.",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_smtp_enable",
+                        "operator": "==",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_epc_smtp_auth",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 30,
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_smtp_test",
+            "label": "Send a test email",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "<div id=\"epc-smtp-test\"><\/div>",
+            "esc_html": 0,
+            "new_lines": "wpautop"
+        },
+        {
+            "key": "field_epc_tab_track",
+            "label": "Tracking",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_epc_track_enabled",
+            "label": "Enable visitor tracking",
+            "name": "epc_track_enabled",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 1,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_track_admins",
+            "label": "Track logged-in editors",
+            "name": "epc_track_admins",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 0,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_track_dnt",
+            "label": "Respect \"Do Not Track\"",
+            "name": "epc_track_dnt",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 33,
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 0,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_geo_provider",
+            "label": "Location (country \/ region \/ city) source",
+            "name": "epc_geo_provider",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Results are cached per IP for 7 days. Raw IP addresses are never stored — only a salted hash.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "headers": "Cloudflare \/ proxy headers only (no external calls)",
+                "ipapi": "ipapi.co (free tier, ~1,000 lookups\/day)",
+                "ipinfo": "ipinfo.io (token required)",
+                "none": "Disabled"
+            },
+            "default_value": "headers",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "return_format": "value",
+            "create_options": 0,
+            "save_options": 0
+        },
+        {
+            "key": "field_epc_geo_token",
+            "label": "ipinfo.io token",
+            "name": "epc_geo_token",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_geo_provider",
+                        "operator": "==",
+                        "value": "ipinfo"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_track_retention",
+            "label": "Keep raw visit data for (days)",
+            "name": "epc_track_retention",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "0 = forever.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "default_value": 730,
+            "min": 0,
+            "max": "",
+            "step": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_tab_access",
+            "label": "Site access",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_epc_access_mode",
+            "label": "Who can see what",
+            "name": "epc_access_mode",
+            "aria-label": "",
+            "type": "radio",
+            "instructions": "In \"Direct links only\", events and microsites are also kept out of search, sitemaps and the public API, so their links cannot be discovered.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "private": "Direct links only: the homepage and everything else show the maintenance page; event forms and microsites open only from their link",
+                "public": "Public website: homepage and listings are visible"
+            },
+            "default_value": "private",
+            "layout": "vertical",
+            "other_choice": 0,
+            "save_other_choice": 0,
+            "allow_null": 0,
+            "return_format": "value"
+        },
+        {
+            "key": "field_epc_access_posts",
+            "label": "News articles open by direct link",
+            "name": "epc_access_posts",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Needed when microsites show a \"News\" section that links to articles.",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_access_mode",
+                        "operator": "==",
+                        "value": "private"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 1,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_access_pages",
+            "label": "Pages open by direct link",
+            "name": "epc_access_pages",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "The privacy policy page always opens (consent checkboxes link to it).",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_access_mode",
+                        "operator": "==",
+                        "value": "private"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 0,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_maint_title",
+            "label": "Maintenance page title",
+            "name": "epc_maint_title",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "We will be back soon",
+            "default_value": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_maint_email",
+            "label": "Contact email (optional)",
+            "name": "epc_maint_email",
+            "aria-label": "",
+            "type": "email",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_maint_message",
+            "label": "Maintenance page message",
+            "name": "epc_maint_message",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "Empty = standard text.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 70,
+                "class": "",
+                "id": ""
+            },
+            "toolbar": "basic",
+            "media_upload": 0,
+            "delay": 1,
+            "tabs": "all",
+            "default_value": ""
+        },
+        {
+            "key": "field_epc_maint_bg",
+            "label": "Background image (optional)",
+            "name": "epc_maint_bg",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Empty = brand colour.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 30,
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": 0,
+            "min_height": 0,
+            "min_size": 0,
+            "max_width": 0,
+            "max_height": 0,
+            "max_size": 0,
+            "mime_types": ""
+        },
+        {
+            "key": "field_epc_tab_features",
+            "label": "Features",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_epc_features_intro",
+            "label": "",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "Optional features. Each is off until you switch it on.",
+            "esc_html": 0,
+            "new_lines": "wpautop"
+        },
+        {
+            "key": "field_epc_f_alert",
+            "label": "Capacity alert email",
+            "name": "epc_feature_capacity_alert",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Emails the event's notification recipients when registrations reach a percentage of capacity, and again when full.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 0,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_f_alert_pct",
+            "label": "Alert at",
+            "name": "epc_capacity_alert_pct",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_f_alert",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "default_value": 90,
+            "min": 1,
+            "max": 99,
+            "append": "%",
+            "step": "",
+            "placeholder": "",
+            "prepend": ""
+        },
+        {
+            "key": "field_epc_f_waitlist",
+            "label": "When a seat frees up (events with a waiting list)",
+            "name": "epc_feature_waitlist",
+            "aria-label": "",
+            "type": "radio",
+            "instructions": "A seat frees up when an applicant is cancelled or deleted, or the maximum capacity is raised.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "manual": "Do nothing (follow up manually)",
+                "notify": "Email the team that a seat is available",
+                "auto": "Give the seat to the next person on the waiting list and email them"
+            },
+            "default_value": "manual",
+            "layout": "vertical",
+            "other_choice": 0,
+            "save_other_choice": 0,
+            "allow_null": 0,
+            "return_format": "value"
+        },
+        {
+            "key": "field_epc_f_ics",
+            "label": "Calendar invite in confirmation emails",
+            "name": "epc_feature_ics",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Attaches an .ics file (Outlook, Apple Calendar) and an \"Add to Google Calendar\" link. Needs the event start date. You can also use {calendar_link} in email text.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 0,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_f_countdown",
+            "label": "Countdown on new banners",
+            "name": "epc_feature_countdown",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Turns the countdown on by default when a banner is added. Each banner can still switch it off.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 0,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_f_mask",
+            "label": "Hide personal data from Viewers",
+            "name": "epc_feature_mask_viewers",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Users who cannot edit applicants see emails, phone numbers and NRIC partly hidden (e.g. j•••@mail.com, ••••••-••-1234).",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 0,
+            "message": "",
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_epc_f_wl_subject",
+            "label": "Waiting list email subject",
+            "name": "epc_waitlist_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "You are on the waiting list: {event_title}",
+            "default_value": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_f_offer_subject",
+            "label": "Seat offer email subject",
+            "name": "epc_offer_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_f_waitlist",
+                        "operator": "==",
+                        "value": "auto"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "A seat is now available: {event_title}",
+            "default_value": "",
+            "maxlength": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_epc_f_wl_body",
+            "label": "Waiting list email",
+            "name": "epc_waitlist_body",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "Sent when someone joins the waiting list. Empty = standard text. Placeholders: {fullname}, {event_title}, {event_date}, {registration_details}…",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "toolbar": "basic",
+            "media_upload": 0,
+            "delay": 1,
+            "tabs": "all",
+            "default_value": ""
+        },
+        {
+            "key": "field_epc_f_offer_body",
+            "label": "Seat offer email",
+            "name": "epc_offer_body",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "Sent when a waiting applicant gets a seat. Empty = standard text.",
+            "required": false,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_epc_f_waitlist",
+                        "operator": "==",
+                        "value": "auto"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": 50,
+                "class": "",
+                "id": ""
+            },
+            "toolbar": "basic",
+            "media_upload": 0,
+            "delay": 1,
+            "tabs": "all",
+            "default_value": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "epc-settings"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [],
+    "active": true,
+    "description": "",
+    "show_in_rest": false,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1794278592
+}
