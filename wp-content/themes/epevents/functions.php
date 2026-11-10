@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EPT_VERSION', '2.0.0' );
+define( 'EPT_VERSION', '2.0.1' );
 
 // The core used to be the "EP Events Core" plugin. If that plugin is still active on a server,
 // loading both would declare every class twice, so ask for it to be removed instead.

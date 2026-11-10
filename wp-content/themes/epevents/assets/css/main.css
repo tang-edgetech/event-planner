@@ -28,6 +28,12 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 body { margin: 0; font-family: var(--ep-font); font-size: 16px; line-height: 1.65; color: var(--ep-text); background: var(--ep-page); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+/* Sticky footer: the page fills at least the screen and <main> takes the spare height, so the footer never floats above empty space. */
+body { display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; }
+body.admin-bar { min-height: calc(100vh - 32px); min-height: calc(100svh - 32px); }
+@media (max-width: 782px) { body.admin-bar { min-height: calc(100vh - 46px); min-height: calc(100svh - 46px); } }
+body > .ep-main, body > .ep-maint { flex: 1; }
+body > .ep-footer { flex-shrink: 0; }
 img, video, svg { max-width: 100%; height: auto; display: block; }
 a { color: var(--ep-accent); }
 h1, h2, h3, h4 { line-height: 1.2; margin: 0 0 .6em; font-family: var(--ep-font-heading); font-weight: var(--ep-heading-weight); letter-spacing: -.01em; }
