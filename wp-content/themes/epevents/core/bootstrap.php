@@ -11,7 +11,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EPC_VERSION', '2.0.0' );
+define( 'EPC_VERSION', '2.1.0' );
 define( 'EPC_FILE', __FILE__ );
 define( 'EPC_DIR', trailingslashit( get_template_directory() ) . 'core/' );
 define( 'EPC_URL', trailingslashit( get_template_directory_uri() ) . 'core/' );
@@ -36,13 +36,13 @@ require_once EPC_DIR . 'includes/class-site-access.php';
 
 /**
  * Requirement: ACF Pro. Plugins load before the theme, so it can be checked right away.
- * Without it the editing screens are missing; the public pages degrade gracefully.
+ * ACF registers the post types, options pages and field groups, so without it events and
+ * microsites do not exist.
  */
 if ( class_exists( 'ACF' ) && function_exists( 'acf_add_local_field_group' ) ) {
-	// Field groups are ACF Local JSON files (core/acf-json/, acf-json/); these files only add the
-	// options page and the code that fills fields in at runtime.
+	// Post types, options pages and field groups are ACF Local JSON files (core/acf-json/, acf-json/).
+	// These files only set the JSON folders and fill in a few choices from code.
 	require_once EPC_DIR . 'includes/fields/acf-json.php';
-	require_once EPC_DIR . 'includes/fields/settings.php';
 	require_once EPC_DIR . 'includes/fields/event.php';
 } else {
 	add_action(
@@ -67,12 +67,11 @@ EPC_Admin::init();
 EPC_Site_Access::init();
 
 /**
- * One-time setup. Runs when the theme is activated, and once after every core version change
+ * One-time setup (default option lists, analytics table, permalinks). Runs when the theme is activated, and once after every core version change
  * (covers sites where the theme was already active, e.g. after uploading a new version or
  * moving from the old EP Events Core plugin). Roles install themselves on `init` already.
  */
 function epc_setup(): void {
-	EPC_Post_Types::register();
 	EPC_Analytics::install_table();
 	if ( false === get_option( 'epc_seeded' ) ) {
 		epc_seed_defaults();

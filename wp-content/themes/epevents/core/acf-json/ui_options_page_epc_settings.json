@@ -1,0 +1,23 @@
+{
+    "key": "ui_options_page_epc_settings",
+    "title": "Event Plus Settings",
+    "active": true,
+    "menu_order": 0,
+    "page_title": "Event Plus Settings",
+    "menu_slug": "epc-settings",
+    "parent_slug": "epc",
+    "advanced_configuration": true,
+    "icon_url": "",
+    "menu_title": "Settings",
+    "position": 90,
+    "redirect": false,
+    "description": "",
+    "menu_icon": [],
+    "update_button": "Update",
+    "updated_message": "Options Updated",
+    "capability": "epc_manage_settings",
+    "data_storage": "options",
+    "post_id": "",
+    "autoload": false,
+    "modified": 1794279090
+}

@@ -69,25 +69,6 @@ class EPC_Roles {
 		return array_filter( self::matrix_roles(), fn( $r ) => self::role_rank( $r ) < $mine, ARRAY_FILTER_USE_KEY );
 	}
 
-	public static function cpt_caps( string $one, string $many ): array {
-		return array(
-			'edit_post'              => "edit_{$one}",
-			'read_post'              => "read_{$one}",
-			'delete_post'            => "delete_{$one}",
-			'edit_posts'             => "edit_{$many}",
-			'edit_others_posts'      => "edit_others_{$many}",
-			'publish_posts'          => "publish_{$many}",
-			'read_private_posts'     => "read_private_{$many}",
-			'delete_posts'           => "delete_{$many}",
-			'delete_private_posts'   => "delete_private_{$many}",
-			'delete_published_posts' => "delete_published_{$many}",
-			'delete_others_posts'    => "delete_others_{$many}",
-			'edit_private_posts'     => "edit_private_{$many}",
-			'edit_published_posts'   => "edit_published_{$many}",
-			'create_posts'           => "create_{$many}",
-		);
-	}
-
 	/**
 	 * Permission catalogue.
 	 * key => [ group, label, description, caps[], default for manager, default for viewer ]

@@ -190,24 +190,9 @@ function ept_logo_url(): string {
 }
 
 /* -------------------------------------------------------------------------
- * Options page. Its fields are in ACF (Field Groups → "Branding"), saved as acf-json/group_ept_branding.json.
+ * Appearance → Branding is an ACF options page with its field group (ACF → Options Pages / Field Groups),
+ * saved as acf-json/ui_options_page_ept_branding.json and acf-json/group_ept_branding.json.
  * ---------------------------------------------------------------------- */
-
-add_action( 'acf/init', function () {
-	if ( ! function_exists( 'acf_add_options_sub_page' ) ) {
-		return;
-	}
-	acf_add_options_sub_page(
-		array(
-			'page_title'  => 'Branding',
-			'menu_title'  => 'Branding',
-			'menu_slug'   => 'ept-branding',
-			'parent_slug' => 'themes.php',
-			'capability'  => 'edit_theme_options',
-			'position'    => 1,
-		)
-	);
-} );
 
 /** Font choices come from ept_font_catalogue(), so adding a font in code updates both selects. */
 foreach ( array( 'field_ept_brand_font_heading', 'field_ept_brand_font_body' ) as $ept_font_field ) {
