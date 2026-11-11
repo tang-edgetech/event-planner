@@ -53,14 +53,14 @@ class EPC_Admin {
 	}
 
 	public static function admin_bar( WP_Admin_Bar $bar ): void {
-		if ( is_admin() || ! is_singular( array( EPC_Post_Types::EVENT, EPC_Post_Types::MICROSITE ) ) || ! current_user_can( 'tmg_reports_view' ) ) {
+		if ( is_admin() || ! is_singular( array( EPC_Post_Types::EVENT, EPC_Post_Types::MICROSITE ) ) || ! epc_report_url( get_queried_object_id() ) ) {
 			return;
 		}
 		$bar->add_node(
 			array(
 				'id'    => 'epc-report',
 				'title' => 'Page report',
-				'href'  => admin_url( 'admin.php?page=tamago-reports&f%5Bpost%5D=' . get_queried_object_id() ),
+				'href'  => epc_report_url( get_queried_object_id() ),
 			)
 		);
 	}
@@ -128,16 +128,27 @@ class EPC_Admin {
 		if ( ! $events ) {
 			$events = get_posts( array( 'post_type' => EPC_Post_Types::EVENT, 'numberposts' => 12, 'post_status' => 'any' ) );
 		}
-		// Visits come from Tamago Reports; registrations are its "registration" goal.
-		$stats  = function_exists( 'tmg_reports_query' ) ? tmg_reports_query( array( 'range' => '7d', 'metrics' => array( 'views', 'visitors', 'conversions' ) ) ) : array();
-		$week   = array( 'v' => $stats['views'] ?? 0, 'u' => $stats['visitors'] ?? 0, 's' => $stats['conversions'] ?? 0 );
+		// Registrations come from the theme's own applicants; visits only when Tamago Reports is active.
+		$reports = epc_plugin( 'reports' ) && function_exists( 'tmg_reports_query' );
+		$stats   = $reports ? tmg_reports_query( array( 'range' => '7d', 'metrics' => array( 'views', 'visitors' ) ) ) : array();
+		$week    = array(
+			'v' => $stats['views'] ?? 0,
+			'u' => $stats['visitors'] ?? 0,
+			's' => count( get_posts( array( 'post_type' => EPC_Post_Types::APPLICANT, 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'date_query' => array( array( 'after' => '7 days ago' ) ) ) ) ),
+		);
 		$recent = get_posts( array( 'post_type' => EPC_Post_Types::APPLICANT, 'numberposts' => 8 ) );
 		?>
 		<div class="wrap epc-dashboard">
 			<h1>Event Plus</h1>
+			<?php $missing = current_user_can( 'activate_plugins' ) ? epc_missing_helpers() : array(); ?>
+			<?php if ( $missing ) : ?>
+				<p class="description">Optional helper plugins not active: <?php echo esc_html( implode( ' · ', $missing ) ); ?>. The site works without them.</p>
+			<?php endif; ?>
 			<div class="epc-kpis">
+				<?php if ( $reports ) : ?>
 				<div class="epc-kpi"><span>Visits (7 days)</span><strong><?php echo esc_html( number_format_i18n( (int) $week['v'] ) ); ?></strong></div>
 				<div class="epc-kpi"><span>Visitors (7 days)</span><strong><?php echo esc_html( number_format_i18n( (int) $week['u'] ) ); ?></strong></div>
+				<?php endif; ?>
 				<div class="epc-kpi"><span>Registrations (7 days)</span><strong><?php echo esc_html( number_format_i18n( (int) $week['s'] ) ); ?></strong></div>
 				<div class="epc-kpi"><span>Events</span><strong><?php echo (int) wp_count_posts( EPC_Post_Types::EVENT )->publish; ?></strong></div>
 			</div>
@@ -159,7 +170,7 @@ class EPC_Admin {
 										<?php if ( current_user_can( 'edit_post', $e->ID ) ) : ?><a href="<?php echo esc_url( get_edit_post_link( $e->ID ) ); ?>">Edit</a> | <?php endif; ?>
 										<a href="<?php echo esc_url( get_permalink( $e->ID ) ); ?>" target="_blank">View</a>
 										<?php if ( current_user_can( 'epc_view_applicants' ) ) : ?> | <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=' . EPC_Post_Types::APPLICANT . '&epc_event=' . $e->ID ) ); ?>">Applicants</a><?php endif; ?>
-										<?php if ( current_user_can( 'tmg_reports_view' ) ) : ?> | <a href="<?php echo esc_url( admin_url( 'admin.php?page=tamago-reports&f%5Bpost%5D=' . $e->ID ) ); ?>">Report</a><?php endif; ?>
+										<?php if ( epc_report_url( $e->ID ) ) : ?> | <a href="<?php echo esc_url( epc_report_url( $e->ID ) ); ?>">Report</a><?php endif; ?>
 									</div>
 								</td>
 								<td><?php echo esc_html( (string) get_field( 'event_date_text', $e->ID ) ); ?></td>
@@ -220,13 +231,9 @@ class EPC_Post_Types {
 		}
 		if ( self::EVENT === $post->post_type && current_user_can( 'epc_view_applicants' ) ) {
 			$actions['epc_applicants'] = '<a href="' . esc_url( admin_url( 'edit.php?post_type=' . self::APPLICANT . '&epc_event=' . $post->ID ) ) . '">Applicants</a>';
-			$actions['epc_report']     = '<a href="' . esc_url( admin_url( 'admin.php?page=tamago-reports&f%5Bpost%5D=' . $post->ID ) ) . '">Report</a>';
-			if ( ! current_user_can( 'tmg_reports_view' ) ) {
-				unset( $actions['epc_report'] );
-			}
 		}
-		if ( self::MICROSITE === $post->post_type && current_user_can( 'tmg_reports_view' ) ) {
-			$actions['epc_report'] = '<a href="' . esc_url( admin_url( 'admin.php?page=tamago-reports&f%5Bpost%5D=' . $post->ID ) ) . '">Report</a>';
+		if ( in_array( $post->post_type, array( self::EVENT, self::MICROSITE ), true ) && epc_report_url( $post->ID ) ) {
+			$actions['epc_report'] = '<a href="' . esc_url( epc_report_url( $post->ID ) ) . '">Report</a>';
 		}
 		return $actions;
 	}

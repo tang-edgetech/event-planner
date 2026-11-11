@@ -1,12 +1,16 @@
 <?php
 /**
- * Connects the theme to the four Tamago plugins, which provide email sending, visitor reports,
- * import / export and roles & permissions. The theme only tells them what Event Plus has:
+ * Optional connection to the four Tamago helper plugins (email sending, visitor reports,
+ * import / export, roles & permissions). The theme works without any of them; when one is
+ * active, the theme tells it what Event Plus has:
  *
  * - its permissions (shown in Roles & Permissions, the Tamago Roles screen);
- * - that their screens belong under the Event Plus menu;
  * - registrations, recorded as the "registration" goal in Tamago Reports;
  * - the "Applicants" data source in Tamago Import & Export (see applicants/applicants-io.php).
+ *
+ * Without them: emails go through WordPress's own sending with the sender from Settings → Email,
+ * the Applicants list exports CSV itself, the Overview shows registrations from the theme's
+ * own data, and WordPress's own roles and capabilities apply.
  *
  * Every setting of the plugins is made on their own screens (see docs/event-plus-settings.md).
  *
@@ -15,14 +19,33 @@
 
 defined( 'ABSPATH' ) || exit;
 
-/** The Tamago plugins the site needs: main file => name. */
+/** The optional Tamago helper plugins: key => array( main file, name, what it adds ). */
 function epc_tamago_plugins(): array {
 	return array(
-		'tamago-smtp/tamago-smtp.php'     => 'Tamago SMTP',
-		'tamago-reports/tamago-reports.php' => 'Tamago Reports',
-		'tamago-io/tamago-io.php'         => 'Tamago Import & Export',
-		'tamago-roles/tamago-roles.php'   => 'Tamago Roles',
+		'smtp'    => array( 'tamago-smtp/tamago-smtp.php', 'Tamago SMTP', 'sending through a mail server, test emails and an email log' ),
+		'reports' => array( 'tamago-reports/tamago-reports.php', 'Tamago Reports', 'visitor reports and registration conversion rates' ),
+		'io'      => array( 'tamago-io/tamago-io.php', 'Tamago Import & Export', 'Excel / JSON exports and imports, applicant imports' ),
+		'roles'   => array( 'tamago-roles/tamago-roles.php', 'Tamago Roles', 'the Event Plus roles, the permission grid and hidden Developers' ),
 	);
+}
+
+/** Whether a Tamago helper plugin is loaded: 'smtp', 'reports', 'io' or 'roles'. */
+function epc_plugin( string $key ): bool {
+	$probe = array(
+		'smtp'    => 'tmg_smtp_screen_url',
+		'reports' => 'tmg_reports_track',
+		'io'      => 'tmg_io_send_download',
+		'roles'   => 'tmg_roles_public_name',
+	);
+	return isset( $probe[ $key ] ) && function_exists( $probe[ $key ] );
+}
+
+/** Link to the visitor report of one event or microsite, or '' when Tamago Reports is not there or not allowed. */
+function epc_report_url( int $post_id ): string {
+	if ( ! epc_plugin( 'reports' ) || ! current_user_can( 'tmg_reports_view' ) ) {
+		return '';
+	}
+	return admin_url( 'admin.php?page=tamago-reports&f%5Bpost%5D=' . $post_id );
 }
 
 /**
@@ -115,13 +138,29 @@ add_action(
 );
 
 /**
- * Tamago Reports runs in "wait for consent" mode with consent given at once, which keeps a visitor
- * ID in the browser exactly as the old Event Plus tracker did (returning visitors, registrations
- * linked to their visit). Visitors from before the switch keep their old ID.
+ * Where a registration came from, without any plugin: the first page of the browser session keeps
+ * the referring site and the UTM tags in sessionStorage ("epc_src"); the form sends them along and
+ * they are stored on the applicant. Nothing leaves the browser until the visitor registers.
  */
 add_action(
 	'wp_head',
 	function () {
+		echo "<script>try{if(!sessionStorage.getItem('epc_src')){var q=new URLSearchParams(location.search),s={},r='';try{r=document.referrer?new URL(document.referrer).hostname:'';}catch(e){}if(r&&r!==location.hostname){s.ref_domain=r;}['utm_source','utm_medium','utm_campaign'].forEach(function(k){if(q.get(k)){s[k]=q.get(k).slice(0,100);}});sessionStorage.setItem('epc_src',JSON.stringify(s));}}catch(e){}</script>\n";
+	},
+	1
+);
+
+/**
+ * With Tamago Reports: it runs in "wait for consent" mode with consent given at once, which keeps a
+ * visitor ID in the browser exactly as the old Event Plus tracker did (returning visitors,
+ * registrations linked to their visit). Visitors from before the switch keep their old ID.
+ */
+add_action(
+	'wp_head',
+	function () {
+		if ( ! epc_plugin( 'reports' ) ) {
+			return;
+		}
 		echo "<script>try{if(!localStorage.getItem('tmg_vid')&&localStorage.getItem('epc_vid')){localStorage.setItem('tmg_vid',localStorage.getItem('epc_vid'));}}catch(e){}window.tamagoReports=window.tamagoReports||{q:[]};if(window.tamagoReports.q){window.tamagoReports.q.push(['consent',true]);}</script>\n";
 	},
 	2
@@ -136,21 +175,50 @@ function epc_public_name( int $user_id ): string {
 	return $user ? $user->display_name : 'User';
 }
 
-/** Missing Tamago plugins: tell whoever can install plugins. */
+/*
+ * Safety net without Tamago Roles (it does this and more by rank when active):
+ * - only users who can manage options may edit, delete or change the role of an Administrator or
+ *   Developer account (WordPress itself lets anyone with "edit users" edit every account);
+ * - Developers have no public author page.
+ */
+add_filter(
+	'map_meta_cap',
+	function ( array $caps, string $cap, int $user_id, array $args ): array {
+		if ( epc_plugin( 'roles' ) || ! in_array( $cap, array( 'edit_user', 'delete_user', 'promote_user', 'remove_user' ), true ) || empty( $args[0] ) || (int) $args[0] === $user_id ) {
+			return $caps;
+		}
+		$target = get_userdata( (int) $args[0] );
+		if ( $target && array_intersect( array( 'administrator', 'ep_developer' ), (array) $target->roles ) && ! user_can( $user_id, 'manage_options' ) ) {
+			$caps[] = 'do_not_allow';
+		}
+		return $caps;
+	},
+	10,
+	4
+);
 add_action(
-	'admin_notices',
+	'template_redirect',
 	function () {
-		if ( ! current_user_can( 'activate_plugins' ) ) {
+		if ( epc_plugin( 'roles' ) || ! is_author() ) {
 			return;
 		}
-		$missing = array();
-		foreach ( epc_tamago_plugins() as $file => $name ) {
-			if ( ! is_plugin_active( $file ) ) {
-				$missing[] = $name;
-			}
-		}
-		if ( $missing ) {
-			echo '<div class="notice notice-warning"><p>The <strong>EP Events</strong> theme uses these plugins, which are not active: <strong>' . esc_html( implode( ', ', $missing ) ) . '</strong>. Install and activate them (Plugins screen).</p></div>';
+		$author = get_queried_object();
+		if ( $author instanceof WP_User && in_array( 'ep_developer', (array) $author->roles, true ) ) {
+			global $wp_query;
+			$wp_query->set_404();
+			status_header( 404 );
+			nocache_headers();
 		}
 	}
 );
+
+/** Helper plugins that are not active, as "Name (what it adds)" – shown as a hint on Event Plus → Overview. */
+function epc_missing_helpers(): array {
+	$missing = array();
+	foreach ( epc_tamago_plugins() as $key => $p ) {
+		if ( ! epc_plugin( $key ) ) {
+			$missing[] = $p[1] . ' (' . $p[2] . ')';
+		}
+	}
+	return $missing;
+}

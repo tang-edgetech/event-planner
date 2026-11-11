@@ -6,8 +6,8 @@
  * Loaded by the theme's functions.php. Everything here is business logic and data; nothing in
  * this folder decides how the public pages look (that is the rest of the theme).
  *
- * Requires: Advanced Custom Fields PRO, and the Tamago plugins for email sending, reports,
- * import / export and roles & permissions (core/tamago.php).
+ * Requires: Advanced Custom Fields PRO. Optional helpers: the Tamago plugins for email sending,
+ * reports, import / export and roles & permissions (core/tamago.php); the theme works without them.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -19,7 +19,7 @@ define( 'EPC_URL', trailingslashit( get_template_directory_uri() ) . 'core/' );
 
 // Each folder is one feature area; the file names say which screen or job they serve.
 require_once EPC_DIR . 'helpers.php';
-require_once EPC_DIR . 'tamago.php'; // email sending, reports, import / export, roles: the Tamago plugins
+require_once EPC_DIR . 'tamago.php'; // optional Tamago helper plugins (email, reports, import / export, roles)
 require_once EPC_DIR . 'registration/validator.php';
 require_once EPC_DIR . 'registration/capacity.php';
 require_once EPC_DIR . 'email/mailer.php';
@@ -61,7 +61,7 @@ EPC_Site_Access::init();
  * One-time setup (default option lists, Event Plus capabilities for Administrator and Developer,
  * permalinks). Runs when the theme is activated, and once after every core version change
  * (covers sites where the theme was already active, e.g. after uploading a new version).
- * Every other role gets its permissions in Tamago Roles.
+ * Other roles get their permissions in Tamago Roles when it is active (or any role editor).
  */
 function epc_setup(): void {
 	foreach ( array( 'administrator', 'ep_developer' ) as $role_key ) {

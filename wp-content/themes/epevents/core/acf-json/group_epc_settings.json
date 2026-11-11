@@ -156,7 +156,7 @@
                 "class": "",
                 "id": ""
             },
-            "message": "The mail server, the sender name and address, test emails and the email log are in <strong>SMTP<\/strong> (own admin menu). Visitor tracking options are in <strong>Reports → Settings<\/strong>.",
+            "message": "Emails are sent by WordPress. With the optional <strong>Tamago SMTP<\/strong> plugin they go through a mail server instead, with test emails and an email log (own admin menu: <strong>SMTP<\/strong>). Visitor tracking options are in <strong>Reports → Settings<\/strong> when the optional Tamago Reports plugin is active.",
             "new_lines": "wpautop",
             "esc_html": 0
         },
@@ -179,6 +179,45 @@
             "new_lines": "",
             "maxlength": "",
             "placeholder": ""
+        },
+        {
+            "key": "field_epc_from_name",
+            "label": "Sender name",
+            "name": "epc_from_name",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Shown as \"From\" on every email the site sends. Empty: the site title.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_epc_from_email",
+            "label": "Sender email",
+            "name": "epc_from_email",
+            "aria-label": "",
+            "type": "email",
+            "instructions": "Use an address on the site's own domain. Empty: WordPress's default (wordpress@your-domain). If Tamago SMTP forces its own sender, that one is used instead.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
         },
         {
             "key": "field_epc_tab_access",
@@ -653,5 +692,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1794387262
+    "modified": 1794388410
 }

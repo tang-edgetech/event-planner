@@ -280,7 +280,8 @@ class EPC_Applicants_Admin {
 			'status' => sanitize_key( $_GET['epc_status'] ?? '' ), // phpcs:ignore
 		);
 		echo '<div class="alignleft actions epc-export-buttons">';
-		foreach ( array( 'xlsx' => 'Excel', 'csv' => 'CSV', 'json' => 'JSON' ) as $fmt => $label ) {
+		$formats = epc_plugin( 'io' ) ? array( 'xlsx' => 'Excel', 'csv' => 'CSV', 'json' => 'JSON' ) : array( 'csv' => 'CSV' );
+		foreach ( $formats as $fmt => $label ) {
 			$url = wp_nonce_url( add_query_arg( $args + array( 'format' => $fmt ), admin_url( 'admin-post.php' ) ), 'epc_export' );
 			echo '<a class="button" href="' . esc_url( $url ) . '">Export ' . esc_html( $label ) . '</a> ';
 		}

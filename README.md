@@ -20,12 +20,22 @@ Git tracks the theme, the four Tamago plugins, `docs/` and this README; WordPres
 | PHP | 8.0 or later (local: 8.3) | |
 | MySQL / MariaDB | any version WordPress supports | Needs `GET_LOCK` (standard), used against overbooking |
 | **Advanced Custom Fields PRO** | 6.x (local: 6.8.11) | **The only third-party plugin.** Installed separately in `wp-content/plugins/advanced-custom-fields-pro/`, not bundled in the theme, so it keeps receiving its own updates. Licence key: ACF → Updates (or `define( 'ACF_PRO_LICENSE', '…' );` in `wp-config.php`). It registers the post types, options pages and field groups, so without it events and microsites do not exist (the theme shows an admin warning). |
-| **Tamago SMTP** (`tamago-smtp`) | 1.0.0 | Mail server, sender, test email, email log. In this repository. |
-| **Tamago Reports** (`tamago-reports`) | 1.0.0 | Visitor analytics, goals (registrations), real-time. In this repository. |
-| **Tamago Import & Export** (`tamago-io`) | 1.0.0 | Any content, ACF values and structure, applicants sheet. In this repository. |
-| **Tamago Roles** (`tamago-roles`) | 1.0.0 | Roles, ranks, permission matrix, admin menus, content access. In this repository. |
-| Theme **EP Events** (`epevents`) | 3.0.0 | Must be the active theme. Warns when a Tamago plugin is not active. |
+| Theme **EP Events** (`epevents`) | 3.0.0 | Must be the active theme. |
+| *Optional:* **Tamago SMTP** (`tamago-smtp`) | 1.0.0 | Mail server, forced sender, test email, email log. In this repository. |
+| *Optional:* **Tamago Reports** (`tamago-reports`) | 1.0.0 | Visitor analytics, goals (registrations), real-time. In this repository. |
+| *Optional:* **Tamago Import & Export** (`tamago-io`) | 1.0.0 | Any content, ACF values and structure, applicants sheet (Excel / JSON). In this repository. |
+| *Optional:* **Tamago Roles** (`tamago-roles`) | 1.0.0 | Roles, ranks, permission matrix, admin menus, content access, hidden Developers. In this repository. |
 
+The four Tamago plugins are **helpers, not requirements**: the theme runs with only ACF Pro. Without them:
+
+| Without | What the site does instead |
+|---|---|
+| Tamago SMTP | Emails go through WordPress's own sending (the server's mail), with the sender from Event Plus → Settings → Email. No email log. |
+| Tamago Reports | No visitor statistics. Registrations still record their source (referring site, UTM tags) from the theme's own script; the Overview counts registrations from the applicants. |
+| Tamago Import & Export | The Applicants list still exports **CSV**. No Excel / JSON, no imports. |
+| Tamago Roles | WordPress's own roles and capabilities apply (roles already saved stay). The theme still stops anyone without *Manage options* from editing Administrator / Developer accounts, and hides Developer author pages. |
+
+Event Plus → Overview lists the helpers that are not active (to users who can install plugins). `epc_plugin( 'smtp' | 'reports' | 'io' | 'roles' )` tells code whether one is loaded.
 Nothing else is needed: no form, SMTP, analytics, export, roles or maintenance plugin from outside.
 Optional `wp-config.php` constants are listed under [Deploying to staging](#deploying-to-staging-cpanel).
 
@@ -47,7 +57,7 @@ wp-content/themes/epevents/
 │   │                      applicants-io.php ("Applicants" sheet for Tamago Import & Export)
 │   ├── email/             mailer.php (event emails; sending itself is Tamago SMTP)
 │   ├── access/            site-access.php · admin.php (menu, overview, list links)
-│   ├── tamago.php         link to the Tamago plugins: permissions, menu, registration goal, warnings
+│   ├── tamago.php         optional link to the Tamago plugins (permissions, registration goal), epc_plugin(), fallbacks
 │   ├── assets/            admin CSS, registration form CSS/JS
 │   ├── tests/run.php      automated checks
 │   └── dev/               developer-only scripts (demo content seeder, migrate-to-tamago.php)
@@ -117,7 +127,7 @@ Post types, options pages and field groups are all set up in **ACF Pro**, not in
 
 ## Developer guidelines
 
-- **Where code goes**: each folder in `core/` is one feature area named after what it does (registration, applicants, email, access). Email sending, reports, import / export and roles are **not** theme code: they are the Tamago plugins, configured on their screens (see `docs/event-plus-settings.md`). The theme only connects to them in `core/tamago.php`.
+- **Where code goes**: each folder in `core/` is one feature area named after what it does (registration, applicants, email, access). Email sending, reports, import / export and roles are **not** theme code: they are the optional Tamago plugins, configured on their screens (see `docs/event-plus-settings.md`). The theme only connects to them in `core/tamago.php`, and **must keep working without them**: call a plugin function only after `epc_plugin( '…' )` returns true, and give the feature a plain fallback (or hide it).
 - **A new permission**: add it to `epc_permissions()` in `core/tamago.php` (it appears in Roles & Permissions at once), and check its capability with `current_user_can()`. Every file starts with a comment saying what it does and which *Screen* it serves – read that first.
 - **Adding a feature**: put it in the folder it belongs to (or a new plain-named folder) as a class with a static `init()` that adds its hooks; `require_once` it and call `init()` in `core/bootstrap.php`. Class names keep the `EPC_` prefix (e.g. `EPC_Form` in `registration/form.php`). Create its fields in ACF → Field Groups (they save to `core/acf-json/`), its admin assets go in `core/assets/`.
 - **Adding a microsite section**: add a layout to the *Sections* field in ACF → Field Groups → Microsite, then a template `template-parts/sections/{layout}.php` (file name = layout name).
@@ -133,7 +143,7 @@ Post types, options pages and field groups are all set up in **ACF Pro**, not in
 
 - URL: http://localhost/event-planner/ · admin: http://localhost/event-planner/wp-admin/
 - Database: `epevents` (MariaDB, root, no password)
-- Plugins: Advanced Custom Fields PRO (licence entered under ACF → Updates) and the four Tamago plugins
+- Plugins: Advanced Custom Fields PRO (licence entered under ACF → Updates) and the four optional Tamago plugins
 - Plugin test sites (clean WordPress, one per plugin): `http://localhost/tamago-lab-smtp|reports|io|roles/` (+ `tamago-lab-io2` for imports); each plugin folder is linked into them, logins in `.local-credentials.txt`. Self-tests: `php tools/wp-cli.phar --path=../tamago-lab-io eval-file wp-content/plugins/tamago-io/tests/run.php --user=1` (same pattern for each plugin; SMTP needs its test mail server `php ../tamago-lab-smtp/smtp-sink/sink.php`).
 - Active theme: EP Events
 - WP-CLI: `php tools/wp-cli.phar --path=. …` (local test logins are in the git-ignored `.local-credentials.txt`)
@@ -208,7 +218,7 @@ Waiting-list and seat-offer email texts are editable in the same tab. People on 
 Emails are built in `core/email/mailer.php`; features and status changes in `core/applicants/features.php` (`EPC_Features::set_status()` is the only place a status should change).
 
 ## Email sending (SMTP) – Tamago SMTP
-**SMTP** (own admin menu: Settings · Test · Logs · Tools). Settings → Email keeps only the default notification recipients.
+**SMTP** (own admin menu: Settings · Test · Logs · Tools). Event Plus → Settings → Email keeps the default notification recipients and a sender name / email, used when Tamago SMTP is not active or does not force its own sender.
 
 - Server, encryption, login and password (encrypted, never shown again; dropped when the host or username changes). Provider presets.
 - From name / From email, forced for every email the site sends.

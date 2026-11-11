@@ -1,6 +1,7 @@
 <?php
 /**
- * Applicants in and out of Excel / CSV / JSON, through Tamago Import & Export.
+ * Applicants in and out of Excel / CSV / JSON, through Tamago Import & Export when it is active;
+ * without it the Applicants list still exports CSV (send_csv()).
  *
  * - "Applicants" data source: export one row per applicant with one column per form field, and
  *   import applicant lists from any system (old website, Google Forms, Excel) into an event, with
@@ -139,14 +140,32 @@ class EPC_Applicants_IO {
 	/** Export buttons above the Applicants list (filtered by event and status). */
 	public static function list_export(): void {
 		check_admin_referer( 'epc_export' );
-		if ( ! current_user_can( 'epc_export_applicants' ) || ! function_exists( 'tmg_io_send_download' ) ) {
+		if ( ! current_user_can( 'epc_export_applicants' ) ) {
 			wp_die( 'Not allowed.', 'Not allowed', array( 'response' => 403, 'back_link' => true ) );
 		}
 		$event  = absint( $_GET['event'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification
 		$status = sanitize_key( $_GET['status'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification
 		$format = sanitize_key( $_GET['format'] ?? 'xlsx' ); // phpcs:ignore WordPress.Security.NonceVerification
 		$name   = 'applicants-' . ( $event ? sanitize_title( get_the_title( $event ) ) : 'all' ) . '-' . wp_date( 'Ymd-His' );
-		tmg_io_send_download( array( 'Applicants' => self::table( self::rows( $event, $status ) ) ), $name, $format );
+		$table  = self::table( self::rows( $event, $status ) );
+		if ( epc_plugin( 'io' ) ) {
+			tmg_io_send_download( array( 'Applicants' => $table ), $name, $format );
+		}
+		self::send_csv( $table, $name ); // Without Tamago Import & Export: CSV only.
+	}
+
+	/** CSV download (UTF-8 with BOM so Excel shows accents). Cells starting with = + - @ are prefixed so spreadsheets do not run them. */
+	public static function send_csv( array $table, string $name ): void {
+		nocache_headers();
+		header( 'Content-Type: text/csv; charset=UTF-8' );
+		header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $name ) . '.csv"' );
+		$out = fopen( 'php://output', 'w' );
+		fwrite( $out, "\xEF\xBB\xBF" );
+		foreach ( $table as $row ) {
+			fputcsv( $out, array_map( fn( $v ) => preg_match( '/^[=+\-@\t\r]/', (string) $v ) ? "'" . $v : (string) $v, $row ) );
+		}
+		fclose( $out );
+		exit;
 	}
 
 	/** Applicant rows with one column per form field (union across events), masked like on screen. */

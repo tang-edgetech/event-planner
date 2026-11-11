@@ -22,14 +22,14 @@ Import **Roles last**: its preset refers to permissions the other plugins and th
 
 ## A. Event Plus (this repository)
 
-The theme (`core/tamago.php`) already:
+The plugins are optional helpers: the theme works without them (see the README, *Requirements*). When they are active, the theme (`core/tamago.php`):
 
 - lists the Event Plus permissions in Tamago Roles (Events, Microsites, Applicants, Content, Settings, Users);
 - leaves each plugin on its own admin menu (Reports, Import & Export, SMTP, Roles & Permissions), beside Event Plus;
 - records every registration in Tamago Reports as the goal **Registration** (conversion), with the visitor's campaign source;
 - gives Tamago Reports consent at once, so visitors keep one ID in the browser exactly as before (returning visitors, registrations linked to their visit);
 - adds the source **Applicants (one column per form field)** to Tamago Import & Export, and keeps the Export buttons above the Applicants list;
-- shows a warning to Developers when one of the four plugins is not active.
+- lists the helpers that are not active on Event Plus → Overview (a hint, not a warning).
 
 ### Moving an existing Event Plus site (staging / live) – once
 
@@ -56,7 +56,7 @@ Without WP-CLI (cPanel only): activate the four plugins on the Plugins screen, t
 
 | Before | Now |
 |---|---|
-| Event Plus → Settings → Email (server, From) | **SMTP** (Settings · Test · Logs · Tools). Settings → Email keeps only the default notification recipients. |
+| Event Plus → Settings → Email (server, From) | **SMTP** (Settings · Test · Logs · Tools). Settings → Email keeps the default notification recipients and a fallback sender (used without Tamago SMTP). |
 | Settings → Tracking | **Reports → Settings** |
 | Event Plus → Reports | **Reports** (more tables, real-time, comparison with the previous period) |
 | Event Plus → Import / Export | **Import & Export** (any content incl. ACF; applicants are the source *Applicants*) |
