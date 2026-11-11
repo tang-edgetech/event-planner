@@ -1,8 +1,9 @@
 <?php
 /**
  * Event Plus admin: the Event Plus menu and Overview screen, the read-only applicant view, admin styles,
- * and the Duplicate / Applicants / Report links on the Events and Microsites lists.
- * Screens: Event Plus → Overview, Events, Microsites.
+ * the Duplicate / Applicants / Report links on the Events and Microsites lists, and where staff land
+ * after logging in (login_redirect()).
+ * Screens: Event Plus → Overview, Events, Microsites; the login page.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -11,6 +12,7 @@ class EPC_Admin {
 
 	public static function init(): void {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ), 5 );
+		add_filter( 'login_redirect', array( __CLASS__, 'login_redirect' ), 60, 3 ); // after Tamago Roles (50)
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'assets' ) );
 		add_filter( 'post_row_actions', array( __CLASS__, 'applicant_row_actions' ), 20, 2 );
 		add_filter( 'acf/prepare_field/key=field_epc_ev_reg_status', array( __CLASS__, 'guard_reg_status' ) );
@@ -30,6 +32,51 @@ class EPC_Admin {
 		add_submenu_page( 'epc', 'Overview', 'Overview', 'epc_view_dashboard', 'epc', array( __CLASS__, 'dashboard' ) );
 		// Hidden: read-only applicant view (for Viewers).
 		add_submenu_page( 'epc', 'Applicant', 'Applicant', 'epc_view_applicants', 'epc-applicant', array( __CLASS__, 'applicant_view' ) );
+	}
+
+	/**
+	 * Where each role lands after logging in: role => destination. A wp-admin page ("admin.php?page=epc",
+	 * "edit.php?post_type=ep_event"), a site path ("/events/") or a full URL on this site.
+	 * Change it in code with the `epc_login_redirects` filter; roles not listed keep WordPress's default
+	 * (Dashboard, or Profile for users who cannot edit posts).
+	 */
+	public static function login_redirects(): array {
+		$overview = 'admin.php?page=epc';
+		return (array) apply_filters(
+			'epc_login_redirects',
+			array(
+				'ep_super_admin' => $overview,
+				'ep_manager'     => $overview,
+				'ep_viewer'      => $overview,
+			)
+		);
+	}
+
+	/**
+	 * Sends staff to their page after login instead of WordPress's Dashboard / Profile. Only when the
+	 * user did not ask for a specific page, and only when Tamago Roles has no "After login go to" rule
+	 * for them (its rule runs first and wins).
+	 */
+	public static function login_redirect( $redirect, $requested, $user ) {
+		if ( ! $user instanceof WP_User ) {
+			return $redirect;
+		}
+		$generic = array( '', admin_url(), admin_url( '/' ), admin_url( 'index.php' ), home_url( '/wp-admin/' ) );
+		if ( ! in_array( (string) $requested, $generic, true ) || ! in_array( (string) $redirect, $generic, true ) ) {
+			return $redirect; // A page was asked for, or Tamago Roles already chose one.
+		}
+		$map = self::login_redirects();
+		foreach ( (array) $user->roles as $role ) {
+			if ( empty( $map[ $role ] ) ) {
+				continue;
+			}
+			$to = (string) $map[ $role ];
+			if ( preg_match( '#^https?://#i', $to ) ) {
+				return wp_validate_redirect( $to, $redirect );
+			}
+			return 0 === strpos( $to, '/' ) ? home_url( $to ) : admin_url( $to );
+		}
+		return $redirect;
 	}
 
 	public static function assets( string $hook ): void {

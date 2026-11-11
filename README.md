@@ -307,6 +307,21 @@ WordPress *Administrator* is treated as Developer.
 | Manage users | ✔ | – | – |
 | Manage permissions | ✔ | – | – |
 
+### Where each role lands after login
+WordPress sends users who cannot edit posts to their **Profile** after login. Super Admin, Manager and Viewer cannot edit posts (events and microsites use their own permissions), so the site picks their page instead. Two ways to set it; the first that has a rule wins:
+
+1. **No code – Tamago Roles** (when active): Roles & Permissions → **Admin menus** → choose the role → *After login go to*. Accepts a wp-admin page (`admin.php?page=epc`, `edit.php?post_type=ep_event`), a site path (`/events/`) or a full URL on this site. Also *After logout go to*.
+2. **Theme code – always there**, also without any plugin: `EPC_Admin::login_redirects()` in `core/access/admin.php` sends Super Admin, Manager and Viewer to Event Plus → Overview. Change it with a filter, e.g. in `core/access/admin.php` or a small file required from `core/bootstrap.php`:
+   ```php
+   add_filter( 'epc_login_redirects', function ( array $map ): array {
+       $map['ep_manager']   = 'edit.php?post_type=ep_applicant'; // Applicants list
+       $map['ep_developer'] = 'admin.php?page=tamago-reports';   // a role not listed keeps WordPress's default
+       return $map;
+   } );
+   ```
+
+Either way a page the user asked for is kept (e.g. they opened an event's edit link and had to log in first). Test: log out, log in as each role, check where you land.
+
 User management rules:
 - Nobody can edit, delete or promote a user ranked above them.
 - Roles can only be assigned up to your own level (a Super Admin can add another Super Admin, never a Developer).
