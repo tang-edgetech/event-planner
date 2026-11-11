@@ -6,7 +6,7 @@ third-party libraries and has no build step.
 
 ## Screens
 
-**Settings → SMTP**. The parent menu can be changed with `tamago_menu_parent( 'options-general.php', 'smtp' )`.
+Own top-level menu **SMTP** (below Settings). Return a parent slug from `tamago_menu_parent( '', 'smtp' )` to nest it (e.g. `options-general.php`); move it with `tamago_menu_position`.
 
 | Tab | Capability | What it does |
 |---|---|---|
@@ -66,7 +66,7 @@ On activation, both capabilities are given to `administrator`. They are offered 
 | `tmg_smtp_log_row` | filter | `array $row` before insert. Return false to skip the row |
 | `tmg_smtp_logged` | action | `int $log_id, array $row` |
 | `tamago_permissions` | filter | Registers the two permissions (shared Tamago integration) |
-| `tamago_menu_parent` | filter | `( 'options-general.php', 'smtp' )` |
+| `tamago_menu_parent` | filter | `( '', 'smtp' )` – empty = own top-level menu |
 
 The log uses `wp_mail` (last), `pre_wp_mail` (last), `phpmailer_init` (last), and `wp_mail_succeeded` / `wp_mail_failed` (first).
 Open emails are kept on a stack, so an email sent from inside another email's hooks is logged correctly. Tamago SMTP sets its own

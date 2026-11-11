@@ -5,7 +5,7 @@
  * Handlers (admin-post.php): tmg_smtp_save_settings, tmg_smtp_export_settings, tmg_smtp_import_settings.
  * Each checks its nonce and the tmg_smtp_manage capability.
  *
- * Screens: Settings → SMTP (parent filterable with tamago_menu_parent( 'options-general.php', 'smtp' )).
+ * Screens: top-level SMTP menu (or a submenu: filter tamago_menu_parent( '', 'smtp' ) returns a parent slug).
  *
  * @package TamagoSMTP
  */
@@ -37,15 +37,15 @@ class TMG_SMTP_Admin {
 		if ( ! TMG_SMTP_Permissions::can_manage() && ! TMG_SMTP_Permissions::can_view_logs() ) {
 			return;
 		}
-		$parent     = (string) apply_filters( 'tamago_menu_parent', 'options-general.php', 'smtp' );
-		self::$hook = (string) add_submenu_page(
-			$parent,
-			__( 'SMTP', 'tamago-smtp' ),
-			__( 'SMTP', 'tamago-smtp' ),
-			TMG_SMTP_Permissions::menu_cap(),
-			self::SLUG,
-			array( __CLASS__, 'render' )
-		);
+		$parent = (string) apply_filters( 'tamago_menu_parent', '', 'smtp' );
+		$title  = __( 'SMTP', 'tamago-smtp' );
+		if ( '' === $parent ) {
+			// Own top-level menu; position filterable through tamago_menu_position.
+			$position   = apply_filters( 'tamago_menu_position', 80.1, 'smtp' );
+			self::$hook = (string) add_menu_page( $title, $title, TMG_SMTP_Permissions::menu_cap(), self::SLUG, array( __CLASS__, 'render' ), 'dashicons-email-alt', $position );
+		} else {
+			self::$hook = (string) add_submenu_page( $parent, $title, $title, TMG_SMTP_Permissions::menu_cap(), self::SLUG, array( __CLASS__, 'render' ) );
+		}
 		if ( self::$hook ) {
 			add_action( 'load-' . self::$hook, array( __CLASS__, 'load' ) );
 		}

@@ -555,14 +555,14 @@ try {
 	unset( $evil['settings']['roles']['ep_developer']['caps']['tmg_roles_manage'] );
 	$evil['settings']['roles']['ep_developer']['rank']           = 1;
 	$evil['settings']['roles']['administrator']['caps']          = array( 'read' => true );
-	$evil['settings']['options']['menu_rules']['ep_developer']   = array( 'users.php', 'users.php|tamago-roles' );
+	$evil['settings']['options']['menu_rules']['ep_developer']   = array_merge( array( 'users.php' ), TMG_Roles_Admin_Screen::menu_ids() );
 	$evil['settings']['options']['no_admin']                     = array( 'ep_developer' );
 	$evil['settings']['options']['protected_caps']               = array( 'tmg_roles_manage' );
 	$evil['settings']['options']['protected_min_rank']           = 99;
 	$plan = TMG_Roles_Transfer::plan( $evil, get_userdata( $dev ) );
 	TMG_Roles_Transfer::apply( $plan );
 	TMG_Roles_Capabilities::flush();
-	tmg_t( 'import: own access kept (manage cap, rank, menu, wp-admin)', user_can( get_userdata( $dev ), 'tmg_roles_manage' ) && 4 === tmg_roles_rank( $dev ) && ! in_array( 'users.php|tamago-roles', TMG_Roles_Admin_Experience::hidden_menu( $dev ), true ) && ! in_array( 'ep_developer', (array) TMG_Roles_Settings::get( 'no_admin' ), true ), implode( ' | ', $plan['notes'] ) );
+	tmg_t( 'import: own access kept (manage cap, rank, menu, wp-admin)', user_can( get_userdata( $dev ), 'tmg_roles_manage' ) && 4 === tmg_roles_rank( $dev ) && ! array_intersect( TMG_Roles_Admin_Screen::menu_ids(), TMG_Roles_Admin_Experience::hidden_menu( $dev ) ) && ! in_array( 'ep_developer', (array) TMG_Roles_Settings::get( 'no_admin' ), true ), implode( ' | ', $plan['notes'] ) );
 	tmg_t( 'import: notes explain what was kept', count( $plan['notes'] ) >= 3 );
 	tmg_t( 'import: administrator not reduced by a file', ! empty( get_role( 'administrator' )->capabilities['manage_options'] ) && user_can( get_userdata( $admin ), 'tmg_roles_manage' ) );
 	TMG_Roles_Transfer::apply( TMG_Roles_Transfer::plan( $before, null ) );

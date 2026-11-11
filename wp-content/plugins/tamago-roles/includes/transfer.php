@@ -191,8 +191,7 @@ class TMG_Roles_Transfer {
 		}
 
 		// 4. The screen stays in their menu, and wp-admin stays open to them.
-		$parent = TMG_Roles_Admin_Screen::parent();
-		$ids    = array( $parent, $parent . '|' . TMG_Roles::PAGE );
+		$ids = TMG_Roles_Admin_Screen::menu_ids();
 		if ( isset( $plan['options']['menu_rules'] ) ) {
 			foreach ( $roles as $role ) {
 				if ( isset( $plan['options']['menu_rules'][ $role ] ) && array_intersect( $ids, $plan['options']['menu_rules'][ $role ] ) ) {

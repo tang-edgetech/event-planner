@@ -5,7 +5,7 @@
  * Both return the masked SMTP conversation and a plain-language hint when something fails.
  * Both use the saved settings (save first, then test).
  *
- * Screens: Settings → SMTP → Test (AJAX: tmg_smtp_send_test, tmg_smtp_check_connection). Also WP-CLI `test`.
+ * Screens: SMTP → Test (AJAX: tmg_smtp_send_test, tmg_smtp_check_connection). Also WP-CLI `test`.
  *
  * @package TamagoSMTP
  */

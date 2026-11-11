@@ -43,7 +43,8 @@ Every PHP file starts with a docblock saying what it does and a `Screens:` or `U
    Every screen and action checks its own capability, never `manage_options`.
 2. **Menu placement** — each screen's parent is filterable so a theme can group them:
    `apply_filters( 'tamago_menu_parent', $default_parent, 'smtp' | 'reports' | 'io' | 'roles' )`.
-   Defaults: SMTP → `options-general.php`, Reports → its own top-level menu, Import & Export → `tools.php`, Roles → `users.php`.
+   Default `''` = each plugin has its own top-level menu (Reports 3.1, Roles 70.1, Import & Export 75.1, SMTP 80.1);
+   the position is filterable: `apply_filters( 'tamago_menu_position', $default, $plugin )`.
 3. **Settings as JSON** — each plugin's screen has an "Export settings / Import settings" box, plus
    `wp tamago-<x> settings export [<file>]` and `wp tamago-<x> settings import <file>`.
    File shape: `{ "plugin": "tamago-smtp", "version": "1.0.0", "exported": "<ISO date>", "settings": { … } }`.

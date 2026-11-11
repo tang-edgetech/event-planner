@@ -3,7 +3,7 @@
  * User profile additions: extra roles (users may hold several roles) and per-user permission
  * overrides with the effective result. The overrides table is shared with the Users tab.
  *
- * Screens: Users → Edit user (user-edit.php); Users → Roles & Permissions → Users.
+ * Screens: Users → Edit user (user-edit.php); Roles & Permissions → Users.
  */
 
 defined( 'ABSPATH' ) || exit;

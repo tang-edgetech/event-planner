@@ -3,7 +3,7 @@
  * Admin screen: menu entry (parent filterable through `tamago_menu_parent`), tabs Export ·
  * Import · History · Settings, assets. The Import tab steps live in admin-import-screen.php.
  *
- * Screens: Tools → Import & Export.
+ * Screens: Import & Export.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -22,7 +22,7 @@ class TMG_IO_Admin_Screen {
 	}
 
 	public static function parent(): string {
-		return (string) apply_filters( 'tamago_menu_parent', 'tools.php', 'io' );
+		return (string) apply_filters( 'tamago_menu_parent', '', 'io' );
 	}
 
 	/** URL of the screen with query args. Works outside the admin menu too (admin-post). */
@@ -40,7 +40,14 @@ class TMG_IO_Admin_Screen {
 				break;
 			}
 		}
-		self::$hook = (string) add_submenu_page( self::parent(), __( 'Import & Export', 'tamago-io' ), __( 'Import & Export', 'tamago-io' ), $cap, self::SLUG, array( __CLASS__, 'render' ) );
+		$title = __( 'Import & Export', 'tamago-io' );
+		if ( '' === self::parent() ) {
+			// Own top-level menu; position filterable through tamago_menu_position.
+			$position   = apply_filters( 'tamago_menu_position', 75.1, 'io' );
+			self::$hook = (string) add_menu_page( $title, $title, $cap, self::SLUG, array( __CLASS__, 'render' ), 'dashicons-database-import', $position );
+		} else {
+			self::$hook = (string) add_submenu_page( self::parent(), $title, $title, $cap, self::SLUG, array( __CLASS__, 'render' ) );
+		}
 	}
 
 	public static function assets( string $hook ): void {

@@ -52,7 +52,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
  * @param array  $args Extra query arguments.
  */
 function tmg_smtp_screen_url( string $tab = '', array $args = array() ): string {
-	$parent = (string) apply_filters( 'tamago_menu_parent', 'options-general.php', 'smtp' );
+	$parent = (string) apply_filters( 'tamago_menu_parent', '', 'smtp' );
 	$base   = preg_match( '/\.php(\?|$)/', $parent ) ? $parent : 'admin.php';
 	$query  = array( 'page' => 'tamago-smtp' );
 	if ( '' !== $tab ) {

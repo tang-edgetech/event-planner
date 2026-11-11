@@ -9,7 +9,7 @@ Requires WordPress 6.3+, PHP 7.4+. ACF is optional; ZIP and Excel need the PHP `
 
 ## Screens
 
-**Tools → Import & Export** (parent filterable, see Hooks). Tabs:
+Own top-level menu **Import & Export** (below Tools; parent and position filterable, see Hooks). Tabs:
 
 | Tab | Capability | What it does |
 |---|---|---|
@@ -162,7 +162,7 @@ Settings file: `{ "plugin": "tamago-io", "version", "exported", "settings": { �
 
 | Hook | Type | Arguments |
 |---|---|---|
-| `tamago_menu_parent` | filter | `$parent` (default `tools.php`), `'io'` |
+| `tamago_menu_parent` | filter | `$parent` (default `''` = own top-level menu), `'io'` |
 | `tamago_permissions` | filter | `$permissions` |
 | `tmg_io_sources` | filter | `$sources` (see below) |
 | `tmg_io_export_post` | filter | `$entry`, `WP_Post $post`, `$choices` — return false to leave a post out |

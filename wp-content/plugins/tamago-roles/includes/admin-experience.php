@@ -121,8 +121,7 @@ class TMG_Roles_Admin_Experience {
 		$hidden = $user ? self::common( 'menu_rules', self::rule_roles( $user ) ) : array();
 		if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) {
 			// Never lock administrators out of this screen.
-			$parent = TMG_Roles_Admin_Screen::parent();
-			$hidden = array_values( array_diff( $hidden, array( $parent, $parent . '|' . TMG_Roles::PAGE ) ) );
+			$hidden = array_values( array_diff( $hidden, TMG_Roles_Admin_Screen::menu_ids() ) );
 		}
 		/**
 		 * Admin menu items hidden (and blocked) for a user.

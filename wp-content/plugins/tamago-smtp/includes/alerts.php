@@ -69,7 +69,7 @@ class TMG_SMTP_Alerts {
 			/* translators: %s: URL */
 			$lines[] = sprintf( __( 'Details: %s', 'tamago-smtp' ), tmg_smtp_screen_url( 'logs', array( 'log' => (int) $failed['log_id'] ) ) );
 		}
-		$lines[] = __( 'You get at most one of these alerts per hour. Change this in Settings → SMTP.', 'tamago-smtp' );
+		$lines[] = __( 'You get at most one of these alerts per hour. Change this in SMTP → Settings.', 'tamago-smtp' );
 
 		self::$sending = true;
 		try {

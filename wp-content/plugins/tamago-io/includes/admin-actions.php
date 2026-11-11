@@ -4,7 +4,7 @@
  * mapping, import options, starting runs, AJAX steps, reports, history, settings.
  * Every handler checks a nonce and its own capability.
  *
- * Screens: Tools → Import & Export (all tabs post here).
+ * Screens: Import & Export (all tabs post here).
  */
 
 defined( 'ABSPATH' ) || exit;

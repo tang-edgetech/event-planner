@@ -3,7 +3,7 @@
  * Import tab steps: upload → column mapping (CSV / Excel / plain JSON) → preview with options →
  * progress (AJAX steps, resumable) → report.
  *
- * Screens: Tools → Import & Export → Import.
+ * Screens: Import & Export → Import.
  */
 
 defined( 'ABSPATH' ) || exit;

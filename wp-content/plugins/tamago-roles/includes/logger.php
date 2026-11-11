@@ -3,7 +3,7 @@
  * Change log: a custom table of who changed which role, permission, override or setting, and when.
  * Capped to the "log_limit" setting (oldest rows are pruned).
  *
- * Used by: every module that changes something; Screens: Users → Roles & Permissions → Log.
+ * Used by: every module that changes something; Screens: Roles & Permissions → Log.
  */
 
 defined( 'ABSPATH' ) || exit;

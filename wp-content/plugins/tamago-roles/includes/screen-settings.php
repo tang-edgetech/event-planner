@@ -3,7 +3,7 @@
  * Settings tab: rank rules, staff public name, admin-rule scope, log size, delete-data switch,
  * settings JSON export / import (with a diff to confirm) and safe-mode instructions.
  *
- * Screens: Users → Roles & Permissions → Settings.
+ * Screens: Roles & Permissions → Settings.
  */
 
 defined( 'ABSPATH' ) || exit;

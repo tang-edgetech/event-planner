@@ -3,7 +3,7 @@
  * The Roles & Permissions screen shell: menu entry (Users by default, filterable through
  * tamago_menu_parent), tabs, assets, notices and the shared form helpers used by the tab files.
  *
- * Screens: Users → Roles & Permissions (tabs Roles · Permissions · Users · Admin menus · Content access · Settings · Log).
+ * Screens: Roles & Permissions (tabs Roles · Permissions · Users · Admin menus · Content access · Settings · Log).
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -26,7 +26,13 @@ class TMG_Roles_Admin_Screen {
 	}
 
 	public static function parent(): string {
-		return (string) apply_filters( 'tamago_menu_parent', 'users.php', 'roles' );
+		return (string) apply_filters( 'tamago_menu_parent', '', 'roles' );
+	}
+
+	/** Menu IDs of this screen as used in menu rules: "slug" when top-level, else "parent" and "parent|slug". */
+	public static function menu_ids(): array {
+		$parent = self::parent();
+		return '' === $parent ? array( TMG_Roles::PAGE ) : array( $parent, $parent . '|' . TMG_Roles::PAGE );
 	}
 
 	public static function tabs(): array {
@@ -44,7 +50,14 @@ class TMG_Roles_Admin_Screen {
 
 	public static function menu(): void {
 		$cap        = current_user_can( TMG_Roles::CAP_MANAGE ) ? TMG_Roles::CAP_MANAGE : TMG_Roles::CAP_MANAGE_USERS;
-		self::$hook = (string) add_submenu_page( self::parent(), __( 'Roles & Permissions', 'tamago-roles' ), __( 'Roles & Permissions', 'tamago-roles' ), $cap, TMG_Roles::PAGE, array( __CLASS__, 'render' ) );
+		$title = __( 'Roles & Permissions', 'tamago-roles' );
+		if ( '' === self::parent() ) {
+			// Own top-level menu; position filterable through tamago_menu_position.
+			$position   = apply_filters( 'tamago_menu_position', 70.1, 'roles' );
+			self::$hook = (string) add_menu_page( $title, $title, $cap, TMG_Roles::PAGE, array( __CLASS__, 'render' ), 'dashicons-shield', $position );
+		} else {
+			self::$hook = (string) add_submenu_page( self::parent(), $title, $title, $cap, TMG_Roles::PAGE, array( __CLASS__, 'render' ) );
+		}
 	}
 
 	public static function assets( $hook ): void {

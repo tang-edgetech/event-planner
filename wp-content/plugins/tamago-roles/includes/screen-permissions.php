@@ -4,7 +4,7 @@
  * "select all", search and raw capabilities per permission; and the protected capabilities box
  * with the "Technical WordPress areas" preset.
  *
- * Screens: Users → Roles & Permissions → Permissions.
+ * Screens: Roles & Permissions → Permissions.
  */
 
 defined( 'ABSPATH' ) || exit;

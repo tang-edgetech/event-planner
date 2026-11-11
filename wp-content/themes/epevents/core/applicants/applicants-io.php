@@ -10,7 +10,7 @@
  * Events, microsites, pages, settings and ACF structure are exported with Tamago Import & Export's
  * own options (it handles ACF fields and media), so nothing else is needed here.
  *
- * Screens: Event Plus → Import & Export (source "Applicants"); Applicants list (Export buttons).
+ * Screens: Import & Export (source "Applicants"); Applicants list (Export buttons).
  */
 
 defined( 'ABSPATH' ) || exit;

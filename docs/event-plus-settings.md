@@ -25,7 +25,7 @@ Import **Roles last**: its preset refers to permissions the other plugins and th
 The theme (`core/tamago.php`) already:
 
 - lists the Event Plus permissions in Tamago Roles (Events, Microsites, Applicants, Content, Settings, Users);
-- puts the plugin screens under the **Event Plus** menu (Reports, Import & Export, SMTP, Roles & Permissions);
+- leaves each plugin on its own admin menu (Reports, Import & Export, SMTP, Roles & Permissions), beside Event Plus;
 - records every registration in Tamago Reports as the goal **Registration** (conversion), with the visitor's campaign source;
 - gives Tamago Reports consent at once, so visitors keep one ID in the browser exactly as before (returning visitors, registrations linked to their visit);
 - adds the source **Applicants (one column per form field)** to Tamago Import & Export, and keeps the Export buttons above the Applicants list;
@@ -48,7 +48,7 @@ The theme (`core/tamago.php`) already:
    - **Roles**: ranks, the permission matrix **as it is now on that site** (not the defaults), per-user Allow/Deny overrides, the developer-only WordPress areas, hidden menus and admin-bar items, the landing page after login and the hidden Developer names.
    - It runs each part once; running it again does nothing.
 4. ACF → Field Groups → *Event Plus Settings* → **Sync** (the Email tab lost its server fields, the Tracking tab moved to Reports).
-5. Check: Event Plus → SMTP → **Test** → send a test email; register once on an event; Event Plus → Reports shows the visit and one *Registration* conversion.
+5. Check: **SMTP** → **Test** → send a test email; register once on an event; **Reports** shows the visit and one *Registration* conversion.
 
 Without WP-CLI (cPanel only): activate the four plugins on the Plugins screen, then import the four presets as in part B, re-enter the SMTP password and set the roles' permissions in the matrix. Saved visits from before the move are then not copied.
 
@@ -56,11 +56,11 @@ Without WP-CLI (cPanel only): activate the four plugins on the Plugins screen, t
 
 | Before | Now |
 |---|---|
-| Event Plus → Settings → Email (server, From) | Event Plus → **SMTP** (Settings · Test · Logs · Tools). Settings → Email keeps only the default notification recipients. |
-| Settings → Tracking | Event Plus → **Reports → Settings** |
-| Event Plus → Reports | Event Plus → **Reports** (more tables, real-time, comparison with the previous period) |
-| Event Plus → Import / Export | Event Plus → **Import & Export** (any content incl. ACF; applicants are the source *Applicants*) |
-| Event Plus → Permissions | Event Plus → **Roles & Permissions** |
+| Event Plus → Settings → Email (server, From) | **SMTP** (Settings · Test · Logs · Tools). Settings → Email keeps only the default notification recipients. |
+| Settings → Tracking | **Reports → Settings** |
+| Event Plus → Reports | **Reports** (more tables, real-time, comparison with the previous period) |
+| Event Plus → Import / Export | **Import & Export** (any content incl. ACF; applicants are the source *Applicants*) |
+| Event Plus → Permissions | **Roles & Permissions** |
 | Opening a blocked WordPress screen showed "only available to Developers" | It now goes to Event Plus → Overview with a notice |
 | Developer shown as "System" in an applicant's history | Shown as the site name, as on the front end |
 
@@ -71,8 +71,8 @@ New for staff: an **email log** (every email with status, recipient, full conten
 ## B. Another project: settings screen by screen
 
 Install the four plugins from `wp-content/plugins/tamago-*` (no other plugin is needed; ACF is optional and used when present).
-By default the screens are under **Settings → SMTP**, **Reports** (own menu), **Tools → Import & Export** and **Users → Roles & Permissions**.
-To group them under your own menu, add to the theme: `add_filter( 'tamago_menu_parent', fn() => 'your-menu-slug' );`
+By default each plugin has its own top-level admin menu: **Reports** (below Dashboard), **Roles & Permissions** (below Users), **Import & Export** (below Tools) and **SMTP** (below Settings). Positions can be changed with `add_filter( 'tamago_menu_position', fn( $pos, $plugin ) => …, 10, 2 );`.
+To group them under a menu of your own instead, add to the theme: `add_filter( 'tamago_menu_parent', fn() => 'your-menu-slug' );` (Event Plus does not do this).
 
 ### 1. Tamago SMTP – how Event Plus sends email
 

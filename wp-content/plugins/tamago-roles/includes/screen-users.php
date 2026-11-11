@@ -3,7 +3,7 @@
  * Users tab: users the current user may manage, with roles, rank and overrides; per-user
  * permission overrides (grant / deny) with the effective result.
  *
- * Screens: Users → Roles & Permissions → Users (and ?user=<id>).
+ * Screens: Roles & Permissions → Users (and ?user=<id>).
  */
 
 defined( 'ABSPATH' ) || exit;

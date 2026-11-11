@@ -24,7 +24,8 @@ class TMG_Reports_Admin_Screen {
 		$parent = (string) apply_filters( 'tamago_menu_parent', '', 'reports' );
 		$title  = __( 'Reports', 'tamago-reports' );
 		if ( '' === $parent ) {
-			self::$hook = (string) add_menu_page( $title, $title, TMG_Reports_Permissions::VIEW, self::SLUG, array( __CLASS__, 'render' ), 'dashicons-chart-area', 3 );
+			$position   = apply_filters( 'tamago_menu_position', 3.1, 'reports' );
+			self::$hook = (string) add_menu_page( $title, $title, TMG_Reports_Permissions::VIEW, self::SLUG, array( __CLASS__, 'render' ), 'dashicons-chart-area', $position );
 		} else {
 			self::$hook = (string) add_submenu_page( $parent, $title, $title, TMG_Reports_Permissions::VIEW, self::SLUG, array( __CLASS__, 'render' ) );
 		}

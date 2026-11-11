@@ -3,7 +3,7 @@
  * Admin menus tab: per role, the admin menu checklist (captured from the live menu), admin bar items,
  * front-end toolbar, dashboard widgets, login / logout redirects and "no wp-admin access".
  *
- * Screens: Users → Roles & Permissions → Admin menus (?role=<key>).
+ * Screens: Roles & Permissions → Admin menus (?role=<key>).
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -140,8 +140,7 @@ class TMG_Roles_Screen_Menus {
 		// Lock-out guard: whoever saves keeps this screen in their own menu.
 		$me = wp_get_current_user();
 		if ( in_array( $role, (array) $me->roles, true ) ) {
-			$parent = TMG_Roles_Admin_Screen::parent();
-			$hidden = array_diff( $hidden, array( $parent, $parent . '|' . TMG_Roles::PAGE ) );
+			$hidden = array_diff( $hidden, TMG_Roles_Admin_Screen::menu_ids() );
 			$noadmin = false;
 		}
 

@@ -9,7 +9,7 @@
  * The body is shown in a sandboxed iframe (srcdoc, no scripts, no same-origin) with a Content-Security-Policy
  * that blocks remote images until the viewer asks for them (tracking pixels).
  *
- * Screens: Settings → SMTP → Logs.
+ * Screens: SMTP → Logs.
  *
  * @package TamagoSMTP
  */

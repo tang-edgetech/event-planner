@@ -2,7 +2,7 @@
 /**
  * Email log list (WP_List_Table): search, filters (status, date range, source), sorting, paging, bulk delete.
  *
- * Screens: Settings → SMTP → Logs.
+ * Screens: SMTP → Logs.
  *
  * @package TamagoSMTP
  */

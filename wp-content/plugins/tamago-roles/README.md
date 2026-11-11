@@ -4,7 +4,7 @@ Roles, ranks, permissions and access control for WordPress. Replaces role editor
 admin-menu editors and content-restriction plugins. WordPress 6.3+, PHP 7.4+, no build step, works with or without ACF.
 
 ## Screens
-**Users → Roles & Permissions** (parent filterable with `tamago_menu_parent`, context `'roles'`).
+Own top-level menu **Roles & Permissions** (below Users). Return a parent slug from `tamago_menu_parent` (context `'roles'`) to nest it; move it with `tamago_menu_position`.
 
 | Tab | What it does | Capability |
 |---|---|---|

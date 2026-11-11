@@ -2,7 +2,7 @@
  * Tamago SMTP admin screen: provider presets, field toggles, test email / connection check (AJAX),
  * log detail view tabs and remote-image toggle, delete confirmations.
  *
- * Used by: Settings → SMTP (all tabs). Data comes from wp_localize_script( 'tmgSmtp' ).
+ * Used by: SMTP (all tabs). Data comes from wp_localize_script( 'tmgSmtp' ).
  */
 (function () {
 	'use strict';

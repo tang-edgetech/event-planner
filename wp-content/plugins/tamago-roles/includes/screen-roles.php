@@ -3,7 +3,7 @@
  * Roles tab: list with ranks and user counts, create / clone / rename / re-rank / delete (with reassignment),
  * default role for new users, reset to defaults / save as defaults, and the advanced capability editor.
  *
- * Screens: Users → Roles & Permissions → Roles (and ?role=<key> for one role).
+ * Screens: Roles & Permissions → Roles (and ?role=<key> for one role).
  */
 
 defined( 'ABSPATH' ) || exit;

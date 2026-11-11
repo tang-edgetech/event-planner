@@ -3,7 +3,7 @@
  * Connects the theme to the four Tamago plugins, which provide email sending, visitor reports,
  * import / export and roles & permissions. The theme only tells them what Event Plus has:
  *
- * - its permissions (shown in Event Plus → Permissions, the Tamago Roles screen);
+ * - its permissions (shown in Roles & Permissions, the Tamago Roles screen);
  * - that their screens belong under the Event Plus menu;
  * - registrations, recorded as the "registration" goal in Tamago Reports;
  * - the "Applicants" data source in Tamago Import & Export (see applicants/applicants-io.php).
@@ -69,8 +69,6 @@ function epc_capabilities(): array {
 
 add_filter( 'tamago_permissions', fn( array $p ) => array_merge( $p, epc_permissions() ) );
 
-/** The plugins' screens sit under Event Plus, where staff already work. */
-add_filter( 'tamago_menu_parent', fn( $parent, $plugin = '' ) => 'epc', 10, 2 );
 
 /** Registrations count as the "registration" goal in Tamago Reports. */
 add_filter(

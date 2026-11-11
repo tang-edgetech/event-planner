@@ -156,7 +156,7 @@
                 "class": "",
                 "id": ""
             },
-            "message": "The mail server, the sender name and address, test emails and the email log are in <strong>Event Plus → SMTP<\/strong>. Visitor tracking options are in <strong>Event Plus → Reports → Settings<\/strong>.",
+            "message": "The mail server, the sender name and address, test emails and the email log are in <strong>SMTP<\/strong> (own admin menu). Visitor tracking options are in <strong>Reports → Settings<\/strong>.",
             "new_lines": "wpautop",
             "esc_html": 0
         },
@@ -653,5 +653,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1794295237
+    "modified": 1794387262
 }

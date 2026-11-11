@@ -206,7 +206,7 @@ class TMG_Roles_CLI {
 		WP_CLI::line( "    define( 'TMG_ROLES_SAFE_MODE', true );" );
 		WP_CLI::line( '' );
 		WP_CLI::line( 'or run:  wp config set TMG_ROLES_SAFE_MODE true --raw' );
-		WP_CLI::line( 'Then log in as an administrator, fix the settings in Users → Roles & Permissions, and remove the line' );
+		WP_CLI::line( 'Then log in as an administrator, fix the settings in Roles & Permissions, and remove the line' );
 		WP_CLI::line( '(wp config delete TMG_ROLES_SAFE_MODE). Role capabilities themselves are stored by WordPress and can be' );
 		WP_CLI::line( 'repaired with: wp tamago-roles grant <role> <permission>   or   wp role reset <role>.' );
 	}

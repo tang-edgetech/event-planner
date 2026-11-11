@@ -42,7 +42,7 @@ add_filter( 'acf/json/save_file_name', fn( $name, $post ) => ( $post['key'] ?? p
 
 /**
  * "Add new" permission: Events and Microsites use their own create_ep_* capability (granted in
- * Event Plus → Permissions); Applicants are never created by hand.
+ * Roles & Permissions); Applicants are never created by hand.
  */
 add_filter( 'register_post_type_args', function ( array $args, string $post_type ): array {
 	if ( EPC_Post_Types::APPLICANT === $post_type ) {

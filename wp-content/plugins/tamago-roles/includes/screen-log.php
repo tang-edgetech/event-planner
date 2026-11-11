@@ -2,7 +2,7 @@
 /**
  * Log tab: who changed which role, permission, override or setting, and when; search, paging and CSV export.
  *
- * Screens: Users → Roles & Permissions → Log.
+ * Screens: Roles & Permissions → Log.
  */
 
 defined( 'ABSPATH' ) || exit;

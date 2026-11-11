@@ -3,7 +3,7 @@
  * History list (WP_List_Table): imports, dry runs and exports with their results, report
  * downloads, "Continue" for unfinished imports. Users see their own runs; managers see all.
  *
- * Screens: Tools → Import & Export → History.
+ * Screens: Import & Export → History.
  */
 
 defined( 'ABSPATH' ) || exit;

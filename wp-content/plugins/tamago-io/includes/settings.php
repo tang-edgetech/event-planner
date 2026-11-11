@@ -3,7 +3,7 @@
  * Settings: one option (`tmg_io_settings`) with defaults in code, constant locks
  * (`TMG_IO_<NAME>` in wp-config.php) and the settings JSON export / import shape.
  *
- * Used by: every part of the plugin; Screens: Tools → Import & Export → Settings.
+ * Used by: every part of the plugin; Screens: Import & Export → Settings.
  */
 
 defined( 'ABSPATH' ) || exit;

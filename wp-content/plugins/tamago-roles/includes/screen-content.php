@@ -3,7 +3,7 @@
  * Content access tab: default rule per public post type, the default "restricted" message,
  * and overviews of terms and items that carry their own rules.
  *
- * Screens: Users → Roles & Permissions → Content access.
+ * Screens: Roles & Permissions → Content access.
  */
 
 defined( 'ABSPATH' ) || exit;
