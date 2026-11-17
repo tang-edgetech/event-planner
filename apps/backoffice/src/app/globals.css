@@ -1,0 +1,276 @@
+@import "tailwindcss";
+
+/*
+ * Event Plus backoffice styles.
+ * - Ant Design classes are prefixed ep-ant- (src/theme/themes.ts).
+ * - Our own repeating elements use ep- classes defined here, coloured by the active theme's CSS variables.
+ */
+@theme {
+  --color-ep-primary: var(--ep-primary);
+  --color-ep-ink: var(--ep-ink);
+  --color-ep-muted: var(--ep-muted);
+  --color-ep-ground: var(--ep-ground);
+  --color-ep-card: var(--ep-card);
+  --color-ep-border: var(--ep-border);
+  --color-ep-gold: #c8963e;
+}
+
+html,
+body {
+  background: var(--ep-ground, #f7f3ef);
+}
+.ep-root {
+  min-height: 100vh;
+  background: var(--ep-ground);
+  color: var(--ep-ink);
+  font-family: var(--ep-font);
+}
+
+/* Sign-in, setup and other full-screen cards */
+.ep-auth {
+  @apply flex min-h-screen items-center justify-center px-4 py-10;
+}
+.ep-auth__card {
+  @apply w-full max-w-md border p-6 shadow-sm sm:p-8;
+  background: var(--ep-card);
+  border-color: var(--ep-border);
+  border-radius: calc(var(--ep-radius) + 4px);
+}
+.ep-auth__brand {
+  @apply mb-6 flex items-center gap-2 text-lg font-bold;
+}
+.ep-logo {
+  @apply inline-block size-6 shrink-0 rounded-md;
+  background: var(--ep-primary);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ep-accent) 70%, transparent);
+}
+
+.ep-notice {
+  @apply flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center;
+}
+.ep-notice__title {
+  @apply text-2xl font-bold;
+  color: var(--ep-primary);
+}
+.ep-notice__text {
+  @apply max-w-md;
+  color: var(--ep-muted);
+}
+
+/* App shell: sidebar or top menu */
+.ep-shell {
+  @apply flex min-h-screen;
+}
+.ep-shell--top {
+  @apply flex-col;
+}
+.ep-sider {
+  @apply sticky top-0 hidden h-screen w-60 shrink-0 flex-col overflow-y-auto lg:flex;
+  background: var(--ep-nav-bg);
+  border-right: 1px solid var(--ep-border);
+}
+.ep-brand {
+  @apply flex h-16 items-center gap-2 px-5 text-base font-bold;
+  color: var(--ep-nav-ink);
+}
+.ep-brand strong {
+  color: var(--ep-nav-active-bg);
+}
+.ep-nav {
+  @apply flex flex-col gap-0.5 px-3 pb-6;
+}
+.ep-nav__group {
+  @apply px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider opacity-70;
+  color: var(--ep-nav-ink);
+}
+.ep-nav__item {
+  @apply flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm no-underline transition-colors;
+  color: var(--ep-nav-ink);
+}
+.ep-nav__item:hover {
+  color: var(--ep-nav-ink);
+  background: color-mix(in srgb, var(--ep-nav-ink) 12%, transparent);
+}
+.ep-nav__item.is-active {
+  @apply font-semibold;
+  background: var(--ep-nav-active-bg);
+  color: var(--ep-nav-active-ink);
+}
+.ep-topnav {
+  @apply sticky top-0 z-20 flex h-14 items-center gap-1 overflow-x-auto overflow-y-hidden px-4;
+  background: var(--ep-nav-bg);
+  border-bottom: 1px solid var(--ep-border);
+  scrollbar-width: none;
+}
+.ep-topnav::-webkit-scrollbar {
+  display: none;
+}
+.ep-topnav .ep-brand {
+  @apply h-14 px-2 pr-4;
+}
+.ep-topnav .ep-nav__item {
+  @apply whitespace-nowrap py-1.5;
+}
+.ep-main {
+  @apply flex min-w-0 flex-1 flex-col;
+}
+.ep-header {
+  @apply sticky top-0 z-10 flex h-14 items-center justify-between gap-3 border-b px-4 sm:px-6;
+  background: var(--ep-card);
+  border-color: var(--ep-border);
+}
+.ep-shell--top .ep-header {
+  @apply top-14;
+}
+.ep-content {
+  @apply mx-auto w-full max-w-[1400px] flex-1 px-4 py-5 sm:px-6 sm:py-6;
+}
+
+/* Page building blocks */
+.ep-page-head {
+  @apply mb-5 flex flex-wrap items-start justify-between gap-3;
+}
+.ep-page-head__title {
+  @apply m-0 text-xl font-bold sm:text-2xl;
+}
+.ep-page-head__sub {
+  @apply mt-1 text-sm;
+  color: var(--ep-muted);
+}
+.ep-card {
+  @apply border p-4 sm:p-5;
+  background: var(--ep-card);
+  border-color: var(--ep-border);
+  border-radius: var(--ep-radius);
+}
+.ep-card__title {
+  @apply mb-3 mt-0 text-base font-semibold;
+}
+.ep-kpis {
+  @apply mb-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6;
+}
+.ep-kpi {
+  @apply border px-4 py-3;
+  background: var(--ep-card);
+  border-color: var(--ep-border);
+  border-radius: var(--ep-radius);
+  border-top: 3px solid var(--ep-primary);
+}
+.ep-kpi__label {
+  @apply text-xs uppercase tracking-wide;
+  color: var(--ep-muted);
+}
+.ep-kpi__value {
+  @apply mt-1 text-2xl font-bold;
+}
+.ep-grid-2 {
+  @apply grid gap-4 xl:grid-cols-[2fr_1fr];
+}
+.ep-filters {
+  @apply mb-4 flex flex-wrap items-center gap-2;
+}
+.ep-filters > * {
+  @apply max-sm:!w-full;
+}
+.ep-tabs {
+  @apply mb-5 flex gap-1 overflow-x-auto overflow-y-hidden border-b;
+  border-color: var(--ep-border);
+}
+.ep-tabs__item {
+  @apply -mb-px whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-sm no-underline;
+  color: var(--ep-muted);
+}
+.ep-tabs__item:hover {
+  color: var(--ep-ink);
+}
+.ep-tabs__item.is-active {
+  @apply font-semibold;
+  color: var(--ep-primary);
+  border-color: var(--ep-primary);
+}
+.ep-muted {
+  color: var(--ep-muted);
+}
+.ep-bar {
+  @apply mt-1 block h-1.5 w-28 overflow-hidden rounded-full;
+  background: var(--ep-border);
+}
+.ep-bar > span {
+  @apply block h-full rounded-full;
+  background: var(--ep-primary);
+}
+.ep-sticky-actions {
+  @apply sticky bottom-0 z-10 -mx-4 mt-6 flex flex-wrap justify-end gap-2 border-t px-4 py-3 sm:-mx-6 sm:px-6;
+  background: var(--ep-card);
+  border-color: var(--ep-border);
+}
+.ep-desc {
+  @apply whitespace-pre-line text-sm leading-relaxed;
+}
+
+/* Form builder rows */
+.ep-builder-row {
+  @apply mb-2 border;
+  border-color: var(--ep-border);
+  border-radius: var(--ep-radius);
+  background: var(--ep-card);
+}
+.ep-builder-row:nth-child(even) {
+  background: color-mix(in srgb, var(--ep-ground) 70%, var(--ep-card));
+}
+.ep-builder-row__head {
+  @apply flex flex-wrap items-center gap-2 px-3 py-2;
+}
+
+/* Rich text */
+.ep-rte {
+  @apply border;
+  border-color: var(--ep-border);
+  border-radius: var(--ep-radius);
+  background: var(--ep-card);
+}
+.ep-rte__bar {
+  @apply flex flex-wrap gap-1 border-b p-1;
+  border-color: var(--ep-border);
+}
+.ep-rte__area {
+  @apply min-h-[120px] px-3 py-2 text-sm leading-relaxed outline-none;
+}
+.ep-rte__area p {
+  @apply my-1;
+}
+.ep-rte__area ul {
+  @apply list-disc pl-5;
+}
+.ep-rte__area ol {
+  @apply list-decimal pl-5;
+}
+.ep-rte__area a {
+  @apply underline;
+  color: var(--ep-primary);
+}
+
+/* Microsite builder */
+.ep-builder {
+  @apply grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)];
+}
+.ep-preview-frame {
+  @apply mx-auto block border bg-white transition-all;
+  border-color: var(--ep-border);
+  border-radius: var(--ep-radius);
+}
+
+/* Charts */
+.ep-chart {
+  @apply w-full overflow-x-auto;
+}
+.ep-chart rect.bar {
+  fill: var(--ep-primary);
+}
+.ep-chart rect.bar:hover {
+  fill: var(--ep-accent);
+}
+.ep-chart text {
+  fill: var(--ep-muted);
+  font-size: 10px;
+}

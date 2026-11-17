@@ -1,0 +1,12 @@
+# This folder sits inside XAMPP's web root. Apache only serves the legacy WordPress site;
+# the new apps run on their own dev servers (Laravel: php artisan serve, Next.js: npm run dev),
+# so their source, .env files and tools must never be reachable over http://localhost/event-planner/.
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /event-planner/
+RewriteRule ^$ legacy/wordpress/ [R=302,L]
+RewriteRule ^(apps|docs|tools)(/|$) - [F,L]
+RewriteRule (^|/)\. - [F,L]
+</IfModule>

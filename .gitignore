@@ -1,13 +1,25 @@
-# WordPress core, ACF Pro & environment are not versioned — only our theme and the Tamago plugins.
+# Root: only the folders listed here are versioned.
+# Each app in apps/ has its own .gitignore (vendor/, node_modules/, .env, builds).
 /*
 !/.gitignore
+!/.htaccess
 !/README.md
 !/docs/
-!/wp-content/
-/wp-content/*
-!/wp-content/themes/
-/wp-content/themes/*
-!/wp-content/themes/epevents/
-!/wp-content/plugins/
-/wp-content/plugins/*
-!/wp-content/plugins/tamago-*/
+!/apps/
+
+# Legacy WordPress site: WordPress core, ACF Pro, wp-config.php and uploads are not versioned,
+# only the Event Plus theme, the Tamago plugins, its README and docs.
+!/legacy/
+/legacy/*
+!/legacy/wordpress/
+/legacy/wordpress/*
+!/legacy/wordpress/README.md
+!/legacy/wordpress/docs/
+!/legacy/wordpress/wp-content/
+/legacy/wordpress/wp-content/*
+!/legacy/wordpress/wp-content/themes/
+/legacy/wordpress/wp-content/themes/*
+!/legacy/wordpress/wp-content/themes/epevents/
+!/legacy/wordpress/wp-content/plugins/
+/legacy/wordpress/wp-content/plugins/*
+!/legacy/wordpress/wp-content/plugins/tamago-*/
