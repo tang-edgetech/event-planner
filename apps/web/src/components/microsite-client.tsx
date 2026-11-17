@@ -147,7 +147,12 @@ export function Reveal() {
       { threshold: 0.08 },
     );
     els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+    // Safety net: never leave a section invisible (e.g. in a background tab or a scaled preview frame).
+    const fallback = window.setTimeout(() => els.forEach((el) => el.classList.add("is-visible")), 2500);
+    return () => {
+      io.disconnect();
+      window.clearTimeout(fallback);
+    };
   }, []);
   return null;
 }

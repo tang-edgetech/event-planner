@@ -48,7 +48,7 @@ function Wrap({ s, children, site }: { s: Section; children: React.ReactNode; si
         `ep-pad-${str(st.padding) || "md"}`,
         light ? "ep-on-dark" : "",
         bg === "image" ? `ep-bg-image ep-bg-${fit}` : "",
-        site.settings.animations === false ? "" : "ep-reveal",
+        site.settings.animations === false || s.id === site.sections[0]?.id ? "" : "ep-reveal",
       ].join(" ")}
       style={style}
     >

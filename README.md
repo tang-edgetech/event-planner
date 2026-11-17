@@ -59,7 +59,27 @@ First visit to `{secret}` opens **/setup** to create the first Super Admin; it c
 The `developer` account (top role, hidden from everyone else) uses `DEVELOPER_PASSWORD` or the default from the
 requirements; on any server other than local it must choose a new password at first sign-in.
 
-Tests: `cd apps/api && php artisan test` (sign-in, 2FA, roles, setup, registration rules, exports).
+Tests: `cd apps/api && php artisan test` (sign-in, 2FA, roles, setup, registration rules, exports, WordPress import).
+
+## Importing from the old WordPress site
+
+Two steps; WordPress itself is only read, never changed. Safe to repeat: items already imported (matched by their
+WordPress ID) are updated, not duplicated.
+
+```bash
+# 1. Export (run from the project root; needs the legacy site and ACF Pro active)
+php tools/wp-cli.phar --path=legacy/wordpress eval-file apps/api/database/import/wordpress-export.php > wp-export.json
+
+# 2. Import into the new database (add --dry-run to only count)
+cd apps/api
+php artisan import:wordpress ../../wp-export.json
+```
+
+Imported: events with their registration forms (field keys keep their WordPress names, with `_` instead of `-`),
+applicants with answers, status, campaign source and activity history, microsites with all sections (except
+"News / blog", which has no source in the new system), images (copied into the media library), option lists and
+email/maintenance settings. Links to the old site become `/event/…` and `/e/…` paths. WordPress users are not
+imported: create backoffice users in Users.
 
 ## Backoffice map (each tab is its own address)
 
