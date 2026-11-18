@@ -114,6 +114,13 @@ export const THEMES: EpTheme[] = [
 
 export const findTheme = (key?: string | null) => THEMES.find((t) => t.key === key) ?? THEMES[0];
 
+/** Blend two #rrggbb colours: share of `a` from 0 to 1. */
+function mix(a: string, b: string, share: number): string | undefined {
+  if (!/^#[0-9a-f]{6}/i.test(a) || !/^#[0-9a-f]{6}/i.test(b)) return undefined;
+  const ch = (h: string, i: number) => parseInt(h.slice(1 + i * 2, 3 + i * 2), 16);
+  return `#${[0, 1, 2].map((i) => Math.round(ch(a, i) * share + ch(b, i) * (1 - share)).toString(16).padStart(2, "0")).join("")}`;
+}
+
 /** Ant Design theme for a scheme. */
 export function antTheme(t: EpTheme): ThemeConfig {
   return {
@@ -134,6 +141,8 @@ export function antTheme(t: EpTheme): ThemeConfig {
     components: {
       Layout: { siderBg: t.navBg, headerBg: t.card, bodyBg: t.ground },
       Button: { primaryColor: t.dark ? "#042F2E" : "#FFFFFF" },
+      // Ticked rows: a light tint of the primary colour, so the text stays easy to read.
+      Table: { rowSelectedBg: mix(t.primary, t.card, 0.08), rowSelectedHoverBg: mix(t.primary, t.card, 0.13) },
     },
   };
 }

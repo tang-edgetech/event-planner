@@ -135,6 +135,17 @@ class ApplicantController extends Controller
         return response()->json(['ok' => true, 'changed' => $changed]);
     }
 
+    public function bulkDelete(Request $request): JsonResponse
+    {
+        $data = $request->validate(['ids' => ['required', 'array', 'min:1', 'max:2000'], 'ids.*' => ['integer']]);
+        $applicants = Applicant::query()->whereIn('id', $data['ids'])->with('event:id,title')->get();
+        $applicants->each->delete();
+        $events = $applicants->pluck('event.title')->filter()->unique()->map(fn ($t) => "\"{$t}\"")->implode(', ');
+        Audit::log('applicant.bulk_deleted', "{$request->user()->name} deleted {$applicants->count()} applicant(s)", "{$request->user()->name} selected {$applicants->count()} applicant(s)".($events ? " of {$events}" : '').' and deleted their registrations. Seats they held are free again.', 'success', null, ['ids' => $applicants->pluck('id')->all()]);
+
+        return response()->json(['ok' => true, 'changed' => $applicants->count()]);
+    }
+
     public function resend(Request $request, Applicant $applicant, EventMailer $mailer): JsonResponse
     {
         $kind = $applicant->status === 'waitlist' ? 'waitlist' : 'registered';

@@ -82,3 +82,28 @@ export function Kpi({ label, value }: { label: string; value: React.ReactNode })
     </div>
   );
 }
+
+/** Table sorter → ?sort=&order= for the API (no order = the list's usual order). */
+export function sortParams(sorter: unknown): { sort?: string; order?: "asc" | "desc" } {
+  const s = (Array.isArray(sorter) ? sorter[0] : sorter) as { order?: "ascend" | "descend" | null; columnKey?: React.Key } | undefined;
+  return s?.order ? { sort: String(s.columnKey), order: s.order === "ascend" ? "asc" : "desc" } : { sort: undefined, order: undefined };
+}
+
+/** Bar above a list: how many rows are ticked, a way to clear them, and the actions that work on them. */
+export function BulkBar({ count, onClear, hint, children }: { count: number; onClear: () => void; hint: string; children?: React.ReactNode }) {
+  return (
+    <div className={`ep-bulkbar${count ? " is-active" : ""}`} role="region" aria-label="Selected rows">
+      {count ? (
+        <span className="text-sm">
+          <strong>{count}</strong> selected ·{" "}
+          <button type="button" className="ep-linkbtn" onClick={onClear}>
+            Clear
+          </button>
+        </span>
+      ) : (
+        <span className="ep-muted text-sm">{hint}</span>
+      )}
+      <div className="flex flex-wrap gap-2">{children}</div>
+    </div>
+  );
+}

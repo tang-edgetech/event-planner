@@ -33,7 +33,7 @@ export function Countdown({ to }: { to: string }) {
 }
 
 /** Button that opens a pop-up list of links. */
-export function ModalButton({ label, title, links, className }: { label: string; title?: string; links: { label: string; url: string }[]; className: string }) {
+export function ModalButton({ label, title, links, className, style }: { label: string; title?: string; links: { label: string; url: string }[]; className: string; style?: React.CSSProperties }) {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (!open) return;
@@ -43,7 +43,7 @@ export function ModalButton({ label, title, links, className }: { label: string;
   }, [open]);
   return (
     <>
-      <button type="button" className={className} onClick={() => setOpen(true)}>
+      <button type="button" className={className} style={style} onClick={() => setOpen(true)}>
         {label}
       </button>
       {open ? (

@@ -26,6 +26,7 @@ import type { Me, Permission } from "@/lib/types";
 import { useEpTheme } from "./providers";
 import { IdleGuard } from "./idle-guard";
 import { NotFoundView } from "./ui";
+import { PageFade } from "./page-transition";
 import { PasswordForm, TwoFactorManager } from "./account-forms";
 
 type NavItem = { href: string; label: string; icon: React.ReactNode; perm?: Permission; group: "Manage" | "System" };
@@ -167,7 +168,9 @@ function Shell({ me, children }: { me: Me; children: React.ReactNode }) {
           </div>
           <UserMenu me={me} />
         </header>
-        <main className="ep-content">{children}</main>
+        <main className="ep-content">
+          <PageFade>{children}</PageFade>
+        </main>
       </div>
       <Drawer open={drawer} onClose={() => setDrawer(false)} placement="left" size={280} title={me.settings.site_name} styles={{ body: { padding: 0, background: "var(--ep-nav-bg)" } }}>
         <nav className="ep-nav pt-3">{links(true, () => setDrawer(false))}</nav>

@@ -79,30 +79,32 @@ a {
 }
 
 /* Buttons */
+/* Button colours: --ep-btn-bg / --ep-btn-fg come from Microsite → Settings → Button colours, or from one button's own colours. */
 .ep-btn {
   @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 px-5 py-2.5 text-sm font-semibold no-underline transition;
-  border-color: var(--ep-accent);
+  border-color: var(--ep-btn-bg, var(--ep-accent));
 }
 .ep-btn--sm {
   @apply px-3 py-1.5;
 }
 .ep-btn--solid {
-  background: var(--ep-accent);
-  color: #fff;
+  background: var(--ep-btn-bg, var(--ep-accent));
+  color: var(--ep-btn-fg, #fff);
 }
 .ep-btn--solid:hover {
   filter: brightness(1.1);
 }
 .ep-btn--outline {
   @apply bg-transparent;
-  color: var(--ep-accent);
+  color: var(--ep-btn-bg, var(--ep-accent));
 }
-.ep-on-dark .ep-btn--outline {
+.ep-on-dark .ep-btn--outline:not(.ep-btn--custom) {
   @apply border-white text-white;
 }
 .ep-btn--light {
-  @apply border-white bg-white;
-  color: var(--ep-accent);
+  border-color: var(--ep-btn-fg, #fff);
+  background: var(--ep-btn-fg, #fff);
+  color: var(--ep-btn-bg, var(--ep-accent));
 }
 .ep-btn:disabled {
   @apply cursor-wait opacity-60;
@@ -256,7 +258,11 @@ a {
 
 /* Microsite */
 .ep-microsite {
-  @apply flex-1 bg-white;
+  @apply flex flex-1 flex-col bg-white;
+  min-height: 100vh;
+}
+.ep-microsite > main {
+  flex: 1;
 }
 .ep-preview-bar {
   @apply sticky top-0 z-50 px-4 py-2 text-center text-xs font-bold uppercase tracking-wide text-white;
@@ -608,4 +614,61 @@ a {
 .ep-modal__close {
   @apply cursor-pointer border-0 bg-transparent text-2xl leading-none;
   color: var(--ep-muted);
+}
+
+/* Page loading: pre-loader on arrival, top bar when leaving for another page, content fades in. */
+.ep-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  transition: opacity 0.35s ease, visibility 0.35s;
+  animation: ep-preloader-out 0.35s ease 5s forwards; /* never blocks the page if scripts fail */
+}
+.ep-preloader.is-done {
+  opacity: 0;
+  visibility: hidden;
+}
+.ep-preloader__spinner {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid color-mix(in srgb, var(--ep-accent) 18%, transparent);
+  border-top-color: var(--ep-accent);
+  animation: ep-spin 0.8s linear infinite;
+}
+@keyframes ep-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes ep-preloader-out {
+  to { opacity: 0; visibility: hidden; }
+}
+.ep-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2000;
+  height: 3px;
+  width: 0;
+  background: var(--ep-accent);
+  opacity: 0;
+  pointer-events: none;
+}
+.ep-topbar.is-loading {
+  opacity: 1;
+  width: 85%;
+  transition: width 6s cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+.ep-page-fade {
+  animation: ep-fade-in 0.4s ease-out both;
+}
+@keyframes ep-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ep-page-fade { animation: none; }
+  .ep-preloader__spinner { animation-duration: 2s; }
 }

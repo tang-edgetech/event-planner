@@ -9,6 +9,7 @@ import { api } from "@/lib/api";
 import { useMe } from "@/lib/session";
 import type { MicrositeDetail } from "@/lib/types";
 import { NotFoundView, PageHead, PublishTag, RouteTabs } from "@/components/ui";
+import { DraftBanner, PublishButton } from "@/components/publish-control";
 import { SiteContext } from "../site-context";
 
 /** /microsites/{id}/builder | settings */
@@ -19,6 +20,7 @@ export default function MicrositeLayout({ children }: { children: React.ReactNod
 
   if (isLoading) return <Skeleton active />;
   if (isError || !site) return <NotFoundView />;
+  const pub = { kind: "microsite" as const, id: site.id, title: site.title, status: site.status, address: `/e/${site.slug}` };
 
   return (
     <SiteContext.Provider value={site}>
@@ -39,9 +41,11 @@ export default function MicrositeLayout({ children }: { children: React.ReactNod
                 Open public page
               </Button>
             </a>
+            <PublishButton {...pub} />
           </>
         }
       />
+      <DraftBanner {...pub} />
       <RouteTabs
         items={[
           { href: `/microsites/${id}/builder`, label: "Page builder" },

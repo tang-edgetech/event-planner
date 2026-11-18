@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Microsite;
 use App\Support\Audit;
 use App\Support\Html;
+use App\Support\Sorting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -24,9 +25,11 @@ class MicrositeController extends Controller
     {
         $sites = Microsite::query()->with('event:id,title')
             ->when($request->string('q')->trim()->value(), fn ($q, $t) => $q->where(fn ($w) => $w->where('title', 'like', "%{$t}%")->orWhere('slug', 'like', "%{$t}%")))
-            ->when($request->input('status'), fn ($q, $s) => $q->where('status', $s))
-            ->orderByDesc('updated_at')
-            ->paginate(min(100, max(5, (int) $request->input('per_page', 20))));
+            ->when($request->input('status'), fn ($q, $s) => $q->where('status', $s));
+        if (! Sorting::apply($sites, $request, ['title' => 'title', 'status' => 'status', 'updated_at' => 'updated_at', 'created_at' => 'created_at'])) {
+            $sites->orderByDesc('updated_at');
+        }
+        $sites = $sites->paginate(min(100, max(5, (int) $request->input('per_page', 20))));
 
         return response()->json([
             'data' => collect($sites->items())->map(fn (Microsite $m) => [
@@ -123,6 +126,37 @@ class MicrositeController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    /** Publish, unpublish or delete several microsites at once. */
+    public function bulk(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array', 'min:1', 'max:500'],
+            'ids.*' => ['integer'],
+            'action' => ['required', Rule::in(['publish', 'draft', 'delete'])],
+        ]);
+        $sites = Microsite::query()->whereIn('id', $data['ids'])->get();
+        $me = $request->user()->name;
+        $changed = 0;
+        foreach ($sites as $site) {
+            if ($data['action'] === 'delete') {
+                $site->delete();
+                $changed++;
+            } elseif ($site->status !== ($status = $data['action'] === 'publish' ? 'published' : 'draft')) {
+                $site->forceFill(['status' => $status])->save();
+                $changed++;
+            }
+        }
+        $titles = $sites->pluck('title')->map(fn ($t) => "\"{$t}\"")->implode(', ');
+        [$verb, $effect] = match ($data['action']) {
+            'publish' => ['published', 'Visitors can now open them.'],
+            'draft' => ['unpublished', 'They are back to Draft; their addresses show "Page not found".'],
+            'delete' => ['deleted', 'Their addresses now show "Page not found".'],
+        };
+        Audit::log("microsite.bulk_{$data['action']}", "{$me} {$verb} {$changed} microsite(s)", "{$me} selected {$sites->count()} microsite(s) ({$titles}) and {$verb} them. {$effect}", 'success', null, ['ids' => $sites->pluck('id')->all()]);
+
+        return response()->json(['ok' => true, 'changed' => $changed]);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -198,6 +232,8 @@ class MicrositeController extends Controller
         return [
             'accent_color' => $color($settings['accent_color'] ?? null),
             'page_bg' => $color($settings['page_bg'] ?? null),
+            'button_bg' => $color($settings['button_bg'] ?? null),
+            'button_text' => $color($settings['button_text'] ?? null),
             'show_nav' => (bool) ($settings['show_nav'] ?? true),
             'nav_logo' => is_string($settings['nav_logo'] ?? null) ? strip_tags($settings['nav_logo']) : null,
             'nav_cta_label' => is_string($settings['nav_cta_label'] ?? null) ? mb_substr(strip_tags($settings['nav_cta_label']), 0, 60) : null,

@@ -7,6 +7,7 @@ use App\Models\TwoFactorDevice;
 use App\Models\User;
 use App\Support\Audit;
 use App\Support\PasswordRules;
+use App\Support\Sorting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,9 +29,12 @@ class UserController extends Controller
             })
             ->when($request->input('role'), fn ($q, $role) => $q->where('role', $role))
             ->when($request->input('status'), fn ($q, $status) => $q->where('status', $status))
-            ->withCount(['twoFactorDevices as two_factor_count' => fn ($q) => $q->whereNotNull('confirmed_at')])
-            ->orderBy('name')
-            ->paginate(min(100, max(5, (int) $request->input('per_page', 20))));
+            ->withCount(['twoFactorDevices as two_factor_count' => fn ($q) => $q->whereNotNull('confirmed_at')]);
+        $rank = 'CASE role '.collect(config('permissions.roles'))->map(fn ($r, $k) => "WHEN '{$k}' THEN ".(int) $r['rank'])->implode(' ').' ELSE 0 END';
+        if (! Sorting::apply($users, $request, ['name' => 'name', 'role' => DB::raw($rank), 'status' => 'status', 'last_login_at' => 'last_login_at', 'two_factor_count' => 'two_factor_count', 'created_at' => 'created_at'])) {
+            $users->orderBy('name');
+        }
+        $users = $users->paginate(min(100, max(5, (int) $request->input('per_page', 20))));
 
         $online = $this->onlineUserIds();
 
@@ -210,6 +214,47 @@ class UserController extends Controller
         Audit::log('user.deleted', "{$me->name} deleted the user {$label}", "{$me->name} permanently deleted the account of {$label}. Their past activity stays in the audit log.", 'success', null, [], null, $label);
 
         return response()->json(['ok' => true]);
+    }
+
+    /** Activate, deactivate or sign out several users at once. Accounts the admin may not manage are skipped. */
+    public function bulk(Request $request): JsonResponse
+    {
+        /** @var User $me */
+        $me = $request->user();
+        abort_unless($me->hasPermission('users.manage'), 403);
+        $data = $request->validate([
+            'ids' => ['required', 'array', 'min:1', 'max:500'],
+            'ids.*' => ['integer'],
+            'action' => ['required', Rule::in(['activate', 'deactivate', 'force_logout'])],
+        ]);
+        $users = User::query()->visibleTo($me)->whereIn('id', $data['ids'])->get()->filter(fn (User $u) => $me->canManage($u))->values();
+        $changed = 0;
+        foreach ($users as $user) {
+            if ($data['action'] === 'force_logout') {
+                $user->endAllSessions();
+                $changed++;
+
+                continue;
+            }
+            $status = $data['action'] === 'activate' ? User::STATUS_ACTIVE : User::STATUS_INACTIVE;
+            if ($user->status !== $status) {
+                $user->forceFill(['status' => $status])->save();
+                if ($status === User::STATUS_INACTIVE) {
+                    $user->endAllSessions();
+                }
+                $changed++;
+            }
+        }
+        $names = $users->pluck('name')->implode(', ') ?: 'nobody';
+        $skipped = count(array_unique($data['ids'])) - $users->count();
+        [$verb, $effect] = match ($data['action']) {
+            'activate' => ['activated', 'They can sign in again.'],
+            'deactivate' => ['deactivated', 'They were signed out and can no longer sign in.'],
+            'force_logout' => ['signed out', 'All their open sessions ended; they must sign in again.'],
+        };
+        Audit::log("user.bulk_{$data['action']}", "{$me->name} {$verb} {$changed} user(s)", "{$me->name} selected users and {$verb} {$names}. {$effect}".($skipped ? " {$skipped} selected account(s) were skipped because {$me->name} may not manage them." : ''), 'success', null, ['ids' => $users->pluck('id')->all()]);
+
+        return response()->json(['ok' => true, 'changed' => $changed, 'skipped' => $skipped]);
     }
 
     private function visibleOr404(Request $request, User $user): User

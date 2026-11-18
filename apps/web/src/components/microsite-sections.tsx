@@ -2,6 +2,7 @@ import { media } from "@/lib/public-api";
 import type { PublicEvent, PublicMicrosite, Section } from "@/lib/types";
 import { RegistrationForm } from "./registration-form";
 import { Carousel, Countdown, ModalButton } from "./microsite-client";
+import { hexColor } from "@/lib/colors";
 
 type Obj = Record<string, unknown>;
 const str = (v: unknown) => (typeof v === "string" ? v : "");
@@ -79,10 +80,12 @@ function Buttons({ items, site }: { items: unknown; site: PublicMicrosite }) {
   return (
     <div className="ep-buttons">
       {btns.map((b, i) => {
-        const cls = `ep-btn ep-btn--${str(b.style) || "solid"}`;
+        const custom = b.colors === "custom" && (hexColor(b.bg_color) || hexColor(b.text_color));
+        const cls = `ep-btn ep-btn--${str(b.style) || "solid"}${custom ? " ep-btn--custom" : ""}`;
+        const style = custom ? ({ ...(hexColor(b.bg_color) ? { "--ep-btn-bg": hexColor(b.bg_color) } : {}), ...(hexColor(b.text_color) ? { "--ep-btn-fg": hexColor(b.text_color) } : {}) } as React.CSSProperties) : undefined;
         const label = str(b.label) || "Learn more";
         if (b.action === "modal") {
-          return <ModalButton key={i} className={cls} label={label} title={str(b.modal_title)} links={list<{ label: string; url: string }>(b.modal_links)} />;
+          return <ModalButton key={i} className={cls} style={style} label={label} title={str(b.modal_title)} links={list<{ label: string; url: string }>(b.modal_links)} />;
         }
         let href = str(b.url) || "#";
         if (b.action === "event") {
@@ -93,7 +96,7 @@ function Buttons({ items, site }: { items: unknown; site: PublicMicrosite }) {
         }
         const external = b.action === "url" && b.new_tab;
         return (
-          <a key={i} className={cls} href={href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+          <a key={i} className={cls} style={style} href={href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
             {label}
           </a>
         );

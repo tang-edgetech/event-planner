@@ -166,6 +166,40 @@ body {
 .ep-grid-2 {
   @apply grid gap-4 xl:grid-cols-[2fr_1fr];
 }
+.ep-draft-banner {
+  @apply mb-5 flex flex-wrap items-center gap-3 rounded-lg border-2 px-4 py-3 text-sm;
+  border-color: #d48806;
+  background: #fffbe6;
+  color: #5c3b00;
+}
+.ep-draft-banner__icon {
+  @apply text-xl;
+  color: #d48806;
+}
+.ep-publish-btn {
+  animation: ep-pulse 2.4s ease-out 3;
+}
+@keyframes ep-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ep-primary) 55%, transparent); }
+  70% { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ep-publish-btn { animation: none; }
+}
+.ep-bulkbar {
+  @apply mb-3 flex min-h-12 flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2 transition-colors;
+  border-color: var(--ep-border);
+  background: var(--ep-card);
+}
+.ep-bulkbar.is-active {
+  border-color: var(--ep-primary);
+  background: color-mix(in srgb, var(--ep-primary) 6%, var(--ep-card));
+}
+.ep-linkbtn {
+  @apply cursor-pointer border-0 bg-transparent p-0 font-medium underline;
+  color: var(--ep-primary);
+}
 .ep-filters {
   @apply mb-4 flex flex-wrap items-center gap-2;
 }
@@ -273,4 +307,68 @@ body {
 .ep-chart text {
   fill: var(--ep-muted);
   font-size: 10px;
+}
+
+/* Page loading: first-visit pre-loader, top progress bar between pages. */
+.ep-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  background: var(--ep-ground, #f6f3ee);
+  transition: opacity 0.35s ease, visibility 0.35s;
+  /* Safety net: disappears on its own even if scripts never run. */
+  animation: ep-preloader-out 0.35s ease 6s forwards;
+}
+.ep-preloader.is-done {
+  opacity: 0;
+  visibility: hidden;
+}
+.ep-preloader__mark {
+  grid-area: 1 / 1;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: var(--ep-primary, #7a0f3d);
+}
+.ep-preloader__spinner {
+  grid-area: 1 / 1;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 3px solid color-mix(in srgb, var(--ep-primary, #7a0f3d) 18%, transparent);
+  border-top-color: var(--ep-primary, #7a0f3d);
+  animation: ep-spin 0.8s linear infinite;
+}
+@keyframes ep-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes ep-preloader-out {
+  to { opacity: 0; visibility: hidden; }
+}
+.ep-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2000;
+  height: 3px;
+  width: 0;
+  background: var(--ep-primary, #7a0f3d);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--ep-primary, #7a0f3d) 60%, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+.ep-topbar.is-loading {
+  opacity: 1;
+  width: 85%;
+  transition: width 8s cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+.ep-topbar.is-done {
+  opacity: 0;
+  width: 100%;
+  transition: width 0.2s ease, opacity 0.3s ease 0.15s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ep-preloader__spinner { animation-duration: 2s; }
 }

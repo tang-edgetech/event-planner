@@ -59,6 +59,7 @@ Route::prefix('admin')->middleware('web')->group(function () {
         Route::get('users/{user}/two-factor', [UserController::class, 'twoFactorDevices']);
         Route::delete('users/{user}/two-factor/{device}', [UserController::class, 'removeTwoFactorDevice']);
         Route::post('users/{user}/force-logout', [UserController::class, 'forceLogout']);
+        Route::post('users/bulk', [UserController::class, 'bulk']);
         Route::delete('users/{user}', [UserController::class, 'destroy']);
 
         // Events
@@ -70,6 +71,7 @@ Route::prefix('admin')->middleware('web')->group(function () {
         });
         Route::middleware('can:events.manage')->group(function () {
             Route::post('events', [EventController::class, 'store']);
+            Route::post('events/bulk', [EventController::class, 'bulk']);
             Route::put('events/{event}', [EventController::class, 'update']);
             Route::post('events/{event}/duplicate', [EventController::class, 'duplicate']);
             Route::delete('events/{event}', [EventController::class, 'destroy']);
@@ -85,6 +87,7 @@ Route::prefix('admin')->middleware('web')->group(function () {
             Route::put('applicants/{applicant}', [ApplicantController::class, 'update']);
             Route::patch('applicants/{applicant}/status', [ApplicantController::class, 'status']);
             Route::post('applicants/bulk-status', [ApplicantController::class, 'bulkStatus']);
+            Route::post('applicants/bulk-delete', [ApplicantController::class, 'bulkDelete']);
             Route::post('applicants/{applicant}/resend', [ApplicantController::class, 'resend']);
             Route::delete('applicants/{applicant}', [ApplicantController::class, 'destroy']);
         });
@@ -96,6 +99,7 @@ Route::prefix('admin')->middleware('web')->group(function () {
         });
         Route::middleware('can:microsites.manage')->group(function () {
             Route::post('microsites', [MicrositeController::class, 'store']);
+            Route::post('microsites/bulk', [MicrositeController::class, 'bulk']);
             Route::put('microsites/{microsite}', [MicrositeController::class, 'update']);
             Route::post('microsites/{microsite}/preview', [MicrositeController::class, 'preview']);
             Route::post('microsites/{microsite}/duplicate', [MicrositeController::class, 'duplicate']);

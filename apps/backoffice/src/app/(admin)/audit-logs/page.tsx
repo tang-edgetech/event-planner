@@ -9,9 +9,9 @@ import { api, download, errorMessage } from "@/lib/api";
 import { fmtDateTime } from "@/lib/format";
 import { useCan } from "@/lib/session";
 import type { AuditRow, Paged } from "@/lib/types";
-import { NotFoundView, PageHead } from "@/components/ui";
+import { BulkBar, NotFoundView, PageHead, sortParams } from "@/components/ui";
 
-type Filters = { q?: string; status?: string; category?: string[]; user_id?: number; from?: string; to?: string; page: number; per_page: number };
+type Filters = { q?: string; status?: string; category?: string[]; user_id?: number; from?: string; to?: string; sort?: string; order?: string; page: number; per_page: number };
 type Response = Paged<AuditRow> & { filters: { categories: { value: string; label: string }[]; users: { value: number; label: string }[] } };
 
 /**
@@ -102,13 +102,15 @@ export default function AuditLogsPage() {
           }}
         />
       </div>
-      {selected.length ? (
-        <div className="mb-2 text-sm">
-          <strong>{selected.length}</strong> selected ·{" "}
-          <Button type="link" size="small" className="!px-0" onClick={() => setSelected([])}>
-            Clear selection
+      {can("audit.export") ? (
+        <BulkBar count={selected.length} onClear={() => setSelected([])} hint="Tick entries to export just those.">
+          <Button icon={<DownloadOutlined />} disabled={!selected.length} loading={exporting} onClick={() => exportAs("csv", true)}>
+            Export selected (CSV)
           </Button>
-        </div>
+          <Button icon={<DownloadOutlined />} disabled={!selected.length} loading={exporting} onClick={() => exportAs("json", true)}>
+            Export selected (JSON)
+          </Button>
+        </BulkBar>
       ) : null}
       <Table<AuditRow>
         rowKey="id"
@@ -117,7 +119,10 @@ export default function AuditLogsPage() {
         dataSource={data?.data}
         scroll={{ x: 900 }}
         rowSelection={can("audit.export") ? { selectedRowKeys: selected, onChange: (keys) => setSelected(keys as number[]), preserveSelectedRowKeys: true } : undefined}
-        pagination={{ current: f.page, pageSize: f.per_page, total: data?.meta.total, showSizeChanger: true, pageSizeOptions: [25, 50, 100, 200], onChange: (page, per_page) => set({ page, per_page }) }}
+        onChange={(_, __, sorter, extra) => {
+          if (extra.action === "sort") set(sortParams(sorter));
+        }}
+        pagination={{ current: f.page, pageSize: f.per_page, total: data?.meta.total, showSizeChanger: true, pageSizeOptions: [25, 50, 100, 200], showTotal: (t) => `${t} entries`, onChange: (page, per_page) => set({ page, per_page }) }}
         expandable={{
           expandRowByClick: true,
           expandedRowRender: (r) => (
@@ -145,12 +150,15 @@ export default function AuditLogsPage() {
         columns={[
           {
             title: "",
-            width: 36,
+            key: "status",
+            sorter: true,
+            showSorterTooltip: { title: "Sort errors first or last" },
+            width: 56,
             render: (_, r) => (r.status === "success" ? <CheckCircleFilled style={{ color: "#1E6B35" }} aria-label="Success" /> : <CloseCircleFilled style={{ color: "#B42335" }} aria-label="Error" />),
           },
-          { title: "When", width: 180, render: (_, r) => <span className="whitespace-nowrap">{fmtDateTime(r.created_at)}</span> },
+          { title: "When", key: "id", sorter: true, defaultSortOrder: "descend", width: 190, render: (_, r) => <span className="whitespace-nowrap">{fmtDateTime(r.created_at)}</span> },
           { title: "What happened", render: (_, r) => <span className={r.status === "error" ? "font-medium" : undefined}>{r.summary}</span> },
-          { title: "Area", width: 160, render: (_, r) => <Tag>{r.category_label}</Tag> },
+          { title: "Area", key: "category", sorter: true, width: 160, render: (_, r) => <Tag>{r.category_label}</Tag> },
           { title: "By", width: 160, dataIndex: "user_name", ellipsis: true },
         ]}
       />

@@ -4,7 +4,7 @@
  */
 export type FieldDef =
   | { key: string; label: string; type: "text" | "textarea" | "richtext" | "image" | "images" | "video" | "switch" | "number" | "color" | "datetime" | "event" | "code"; help?: string; showIf?: (data: Record<string, unknown>) => boolean }
-  | { key: string; label: string; type: "select" | "radio"; options: { value: string; label: string }[]; help?: string; showIf?: (data: Record<string, unknown>) => boolean }
+  | { key: string; label: string; type: "select" | "radio"; options: { value: string; label: string }[]; fallback?: string; help?: string; showIf?: (data: Record<string, unknown>) => boolean }
   | { key: string; label: string; type: "repeater"; itemLabel: string; fields: FieldDef[]; help?: string; showIf?: (data: Record<string, unknown>) => boolean };
 
 const opt = (...pairs: [string, string][]) => pairs.map(([value, label]) => ({ value, label }));
@@ -27,6 +27,9 @@ export const BUTTON_FIELDS: FieldDef[] = [
     { key: "url", label: "Address", type: "text" },
   ] },
   { key: "style", label: "Style", type: "radio", options: opt(["solid", "Solid"], ["outline", "Outline"], ["light", "Light"]) },
+  { key: "colors", label: "Colours", type: "radio", fallback: "default", options: opt(["default", "Site default"], ["custom", "Custom for this button"]), help: "Site default comes from Settings → Button colours." },
+  { key: "bg_color", label: "Button colour", type: "color", showIf: (d) => d.colors === "custom", help: "Fill of Solid, border and text of Outline." },
+  { key: "text_color", label: "Text colour", type: "color", showIf: (d) => d.colors === "custom", help: "Text of Solid, fill of Light." },
 ];
 
 export const SECTION_TYPES: Record<string, { label: string; description: string; fields: FieldDef[]; defaults: { data: Record<string, unknown>; settings: Record<string, unknown> } }> = {

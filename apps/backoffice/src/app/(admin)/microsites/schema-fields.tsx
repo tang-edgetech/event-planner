@@ -59,9 +59,9 @@ function FieldInput({ f, value, onChange, disabled }: { f: FieldDef; value: unkn
     case "event":
       return <EventSelect value={(value as number) ?? null} onChange={onChange} disabled={disabled} />;
     case "select":
-      return <Select value={(value as string) ?? undefined} onChange={onChange} options={f.options} disabled={disabled} className="!w-full" aria-label={f.label} />;
+      return <Select value={(value as string) ?? f.fallback} onChange={onChange} options={f.options} disabled={disabled} className="!w-full" aria-label={f.label} />;
     case "radio":
-      return <Radio.Group optionType="button" size="small" value={(value as string) ?? undefined} onChange={(e) => onChange(e.target.value)} options={f.options} disabled={disabled} />;
+      return <Radio.Group optionType="button" size="small" value={(value as string) ?? f.fallback} onChange={(e) => onChange(e.target.value)} options={f.options} disabled={disabled} />;
     case "repeater":
       return <Repeater f={f} value={(value as Obj[]) ?? []} onChange={onChange} disabled={disabled} />;
     default:

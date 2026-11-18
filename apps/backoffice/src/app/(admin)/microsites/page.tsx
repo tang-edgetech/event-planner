@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { App, Button, Dropdown, Form, Input, Modal, Select, Table } from "antd";
-import { CopyOutlined, DeleteOutlined, EditOutlined, ExportOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons";
+import { CloudUploadOutlined, CopyOutlined, DeleteOutlined, EditOutlined, ExportOutlined, FileOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { api, errorMessage, formErrors } from "@/lib/api";
 import { fromNow } from "@/lib/format";
 import { useCan, useMe } from "@/lib/session";
 import type { Paged } from "@/lib/types";
-import { PageHead, PublishTag } from "@/components/ui";
+import { BulkBar, PageHead, PublishTag, sortParams } from "@/components/ui";
 import { EventSelect } from "./schema-fields";
 
 type Row = { id: number; title: string; slug: string; status: string; event: { id: number; title: string } | null; sections_count: number; updated_at: string };
@@ -21,7 +21,8 @@ export default function MicrositesPage() {
   const router = useRouter();
   const qc = useQueryClient();
   const { message, modal } = App.useApp();
-  const [p, setP] = useState<{ q?: string; status?: string; page: number }>({ page: 1 });
+  const [p, setP] = useState<{ q?: string; status?: string; sort?: string; order?: string; page: number; per_page: number }>({ page: 1, per_page: 20 });
+  const [selected, setSelected] = useState<number[]>([]);
   const [creating, setCreating] = useState(false);
   const [form] = Form.useForm();
   const { data, isFetching } = useQuery({ queryKey: ["microsites", p], queryFn: async () => (await api.get<Paged<Row>>("/microsites", { params: p })).data, placeholderData: keepPreviousData });
@@ -54,6 +55,41 @@ export default function MicrositesPage() {
       },
     });
 
+  const setPublished = async (r: Row, published: boolean) => {
+    try {
+      await api.post("/microsites/bulk", { ids: [r.id], action: published ? "publish" : "draft" });
+      message.success(published ? `“${r.title}” is published` : `“${r.title}” is back to Draft`);
+      qc.invalidateQueries({ queryKey: ["microsites"] });
+      qc.invalidateQueries({ queryKey: ["microsite"] });
+    } catch (e) {
+      message.error(errorMessage(e));
+    }
+  };
+  const bulk = (action: "publish" | "draft" | "delete") => {
+    const text = {
+      publish: { title: `Publish ${selected.length} microsite(s)?`, body: "Visitors can open them straight away.", ok: "Publish" },
+      draft: { title: `Unpublish ${selected.length} microsite(s)?`, body: "They go back to Draft and their addresses show “Page not found”.", ok: "Unpublish" },
+      delete: { title: `Delete ${selected.length} microsite(s)?`, body: "Their addresses will show “Page not found”.", ok: "Delete" },
+    }[action];
+    modal.confirm({
+      title: text.title,
+      content: text.body,
+      okText: text.ok,
+      okButtonProps: action === "delete" ? { danger: true } : undefined,
+      onOk: async () => {
+        try {
+          const res = await api.post("/microsites/bulk", { ids: selected, action });
+          message.success(`${res.data.changed} microsite(s) ${action === "publish" ? "published" : action === "draft" ? "unpublished" : "deleted"}`);
+          setSelected([]);
+          qc.invalidateQueries({ queryKey: ["microsites"] });
+          qc.invalidateQueries({ queryKey: ["microsite"] });
+        } catch (e) {
+          message.error(errorMessage(e));
+        }
+      },
+    });
+  };
+
   return (
     <>
       <PageHead
@@ -68,7 +104,7 @@ export default function MicrositesPage() {
         }
       />
       <div className="ep-filters">
-        <Input.Search allowClear placeholder="Search title or address" onSearch={(q) => setP({ ...p, q, page: 1 })} style={{ width: 280 }} />
+        <Input.Search allowClear placeholder="Search title or address" onSearch={(q) => { setSelected([]); setP({ ...p, q, page: 1 }); }} style={{ width: 280 }} />
         <Select
           allowClear
           placeholder="All statuses"
@@ -80,15 +116,34 @@ export default function MicrositesPage() {
           onChange={(status) => setP({ ...p, status, page: 1 })}
         />
       </div>
+      {can("microsites.manage") ? (
+        <BulkBar count={selected.length} onClear={() => setSelected([])} hint="Tick microsites to publish, unpublish or delete several at once.">
+          <Button type="primary" icon={<CloudUploadOutlined />} disabled={!selected.length} onClick={() => bulk("publish")}>
+            Publish
+          </Button>
+          <Button icon={<FileOutlined />} disabled={!selected.length} onClick={() => bulk("draft")}>
+            Unpublish
+          </Button>
+          <Button danger icon={<DeleteOutlined />} disabled={!selected.length} onClick={() => bulk("delete")}>
+            Delete
+          </Button>
+        </BulkBar>
+      ) : null}
       <Table<Row>
         rowKey="id"
         loading={isFetching}
         dataSource={data?.data}
         scroll={{ x: 760 }}
-        pagination={{ current: p.page, pageSize: 20, total: data?.meta.total, onChange: (page) => setP({ ...p, page }) }}
+        rowSelection={can("microsites.manage") ? { selectedRowKeys: selected, onChange: (k) => setSelected(k as number[]), preserveSelectedRowKeys: true } : undefined}
+        onChange={(_, __, sorter, extra) => {
+          if (extra.action === "sort") setP((x) => ({ ...x, ...sortParams(sorter), page: 1 }));
+        }}
+        pagination={{ current: p.page, pageSize: p.per_page, total: data?.meta.total, showSizeChanger: true, showTotal: (t) => `${t} microsite(s)`, onChange: (page, per_page) => setP((x) => ({ ...x, page, per_page })) }}
         columns={[
           {
             title: "Microsite",
+            key: "title",
+            sorter: true,
             render: (_, r) => (
               <div>
                 <Link href={`/microsites/${r.id}/builder`} className="font-semibold">
@@ -100,8 +155,8 @@ export default function MicrositesPage() {
           },
           { title: "Linked event", render: (_, r) => (r.event ? <Link href={`/events/${r.event.id}/details`}>{r.event.title}</Link> : <span className="ep-muted">—</span>) },
           { title: "Sections", dataIndex: "sections_count", width: 100 },
-          { title: "Status", width: 110, render: (_, r) => <PublishTag status={r.status} /> },
-          { title: "Updated", width: 140, render: (_, r) => fromNow(r.updated_at) },
+          { title: "Status", key: "status", sorter: true, width: 120, render: (_, r) => <PublishTag status={r.status} /> },
+          { title: "Updated", key: "updated_at", sorter: true, defaultSortOrder: "descend", width: 150, render: (_, r) => fromNow(r.updated_at) },
           {
             title: "",
             width: 60,
@@ -111,6 +166,13 @@ export default function MicrositesPage() {
                 menu={{
                   items: [
                     { key: "e", icon: <EditOutlined />, label: <Link href={`/microsites/${r.id}/builder`}>{can("microsites.manage") ? "Edit" : "View"}</Link> },
+                    ...(can("microsites.manage")
+                      ? [
+                          r.status === "published"
+                            ? { key: "unpub", icon: <FileOutlined />, label: "Unpublish", onClick: () => setPublished(r, false) }
+                            : { key: "pub", icon: <CloudUploadOutlined />, label: "Publish", onClick: () => setPublished(r, true) },
+                        ]
+                      : []),
                     { key: "o", icon: <ExportOutlined />, label: <a href={`${me.settings.web_url}/e/${r.slug}`} target="_blank" rel="noreferrer">Open public page</a>, disabled: r.status !== "published" },
                     ...(can("microsites.manage")
                       ? [

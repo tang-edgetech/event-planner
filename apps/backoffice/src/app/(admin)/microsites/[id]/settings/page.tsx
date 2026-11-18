@@ -76,6 +76,16 @@ export default function MicrositeSettingsTab() {
             <Switch />
           </Form.Item>
         </div>
+        <Divider titlePlacement="start">Button colours</Divider>
+        <p className="ep-muted -mt-2 mb-4 text-sm">Used by every button on this microsite, including the menu button. A single button can still use its own colours in the page builder.</p>
+        <div className="grid gap-x-4 md:grid-cols-3">
+          <Form.Item label="Button colour" name={["settings", "button_bg"]} getValueFromEvent={hex} extra="Empty = the accent colour.">
+            <ColorPicker allowClear showText format="hex" />
+          </Form.Item>
+          <Form.Item label="Button text colour" name={["settings", "button_text"]} getValueFromEvent={hex} extra="Empty = white.">
+            <ColorPicker allowClear showText format="hex" />
+          </Form.Item>
+        </div>
         <Divider titlePlacement="start">Top menu and footer</Divider>
         <div className="grid gap-x-4 md:grid-cols-3">
           <Form.Item label="Show the top menu" name={["settings", "show_nav"]} valuePropName="checked" extra="Lists sections that have a menu label.">

@@ -18,7 +18,8 @@ class AuditLogController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $logs = $this->query($request)->orderByDesc('id')
+        $sort = in_array($request->input('sort'), ['category', 'status'], true) ? $request->input('sort') : 'id';
+        $logs = $this->query($request)->orderBy($sort, $request->input('order') === 'asc' ? 'asc' : 'desc')->orderByDesc('id')
             ->paginate(min(200, max(10, (int) $request->input('per_page', 25))));
 
         /** @var User $me */

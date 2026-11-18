@@ -8,6 +8,7 @@ use App\Support\Audit;
 use App\Support\FieldValidator;
 use App\Support\FormSchema;
 use App\Support\Html;
+use App\Support\Sorting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -45,9 +46,11 @@ class EventController extends Controller
                 'applicants as applicants_count',
                 'applicants as seated_count' => fn ($q) => $q->whereIn('status', Event::SEATED),
                 'applicants as waitlist_count' => fn ($q) => $q->where('status', 'waitlist'),
-            ])
-            ->orderByRaw('starts_at IS NULL')->orderByDesc('starts_at')->orderByDesc('id')
-            ->paginate(min(100, max(5, (int) $request->input('per_page', 20))));
+            ]);
+        if (! Sorting::apply($events, $request, ['title' => 'title', 'starts_at' => 'starts_at', 'status' => 'status', 'seated_count' => 'seated_count', 'applicants_count' => 'applicants_count', 'created_at' => 'created_at'])) {
+            $events->orderByRaw('starts_at IS NULL')->orderByDesc('starts_at')->orderByDesc('id');
+        }
+        $events = $events->paginate(min(100, max(5, (int) $request->input('per_page', 20))));
 
         return response()->json([
             'data' => collect($events->items())->map(fn (Event $e) => $this->summary($e))->all(),
@@ -130,6 +133,37 @@ class EventController extends Controller
         Audit::log('event.deleted', "{$request->user()->name} deleted the event \"{$event->title}\"", "{$request->user()->name} deleted the event \"{$event->title}\". It is no longer shown on the public site; its {$count} applicant(s) are kept for records.", 'success', $event);
 
         return response()->json(['ok' => true]);
+    }
+
+    /** Publish, unpublish or delete several events at once. */
+    public function bulk(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array', 'min:1', 'max:500'],
+            'ids.*' => ['integer'],
+            'action' => ['required', Rule::in(['publish', 'draft', 'delete'])],
+        ]);
+        $events = Event::query()->whereIn('id', $data['ids'])->get();
+        $me = $request->user()->name;
+        $changed = 0;
+        foreach ($events as $event) {
+            if ($data['action'] === 'delete') {
+                $event->delete();
+                $changed++;
+            } elseif ($event->status !== ($status = $data['action'] === 'publish' ? 'published' : 'draft')) {
+                $event->forceFill(['status' => $status])->save();
+                $changed++;
+            }
+        }
+        $titles = $events->pluck('title')->map(fn ($t) => "\"{$t}\"")->implode(', ');
+        [$verb, $effect] = match ($data['action']) {
+            'publish' => ['published', 'Visitors can now open their registration pages.'],
+            'draft' => ['unpublished', 'They are back to Draft and no longer open to visitors.'],
+            'delete' => ['deleted', 'They are no longer shown on the public site; their applicants are kept for records.'],
+        };
+        Audit::log("event.bulk_{$data['action']}", "{$me} {$verb} {$changed} event(s)", "{$me} selected {$events->count()} event(s) ({$titles}) and {$verb} them. {$effect}", 'success', null, ['ids' => $events->pluck('id')->all()]);
+
+        return response()->json(['ok' => true, 'changed' => $changed]);
     }
 
     /**

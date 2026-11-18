@@ -2,21 +2,22 @@
 
 import Link from "next/link";
 import { App, Badge, Button, Dropdown, Input, Modal, Select, Switch, Table, Tag, Tooltip, Typography } from "antd";
-import { KeyOutlined, LogoutOutlined, MoreOutlined, PlusOutlined, SafetyOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, KeyOutlined, LogoutOutlined, MoreOutlined, PlusOutlined, SafetyOutlined, StopOutlined } from "@ant-design/icons";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { api, errorMessage } from "@/lib/api";
 import { fmtDateTime, fromNow } from "@/lib/format";
 import { useCan, useMe } from "@/lib/session";
 import type { Paged, UserRow } from "@/lib/types";
-import { NotFoundView, PageHead } from "@/components/ui";
+import { BulkBar, NotFoundView, PageHead, sortParams } from "@/components/ui";
 
 export default function UsersPage() {
   const me = useMe();
   const can = useCan();
   const qc = useQueryClient();
   const { message, modal } = App.useApp();
-  const [params, setParams] = useState({ q: "", role: undefined as string | undefined, status: undefined as string | undefined, page: 1, per_page: 20 });
+  const [params, setParams] = useState({ q: "", role: undefined as string | undefined, status: undefined as string | undefined, sort: undefined as string | undefined, order: undefined as string | undefined, page: 1, per_page: 20 });
+  const [selected, setSelected] = useState<number[]>([]);
   const { data, isFetching } = useQuery({
     queryKey: ["users", params],
     queryFn: async () => (await api.get<Paged<UserRow>>("/users", { params })).data,
@@ -62,6 +63,30 @@ export default function UsersPage() {
     });
   };
 
+  const bulk = (action: "activate" | "deactivate" | "force_logout") => {
+    const text = {
+      activate: { title: `Activate ${selected.length} user(s)?`, body: "They can sign in again.", ok: "Activate" },
+      deactivate: { title: `Deactivate ${selected.length} user(s)?`, body: "They are signed out at once and can no longer sign in.", ok: "Deactivate" },
+      force_logout: { title: `Sign ${selected.length} user(s) out everywhere?`, body: "All their open sessions end immediately. They can sign in again.", ok: "Force logout" },
+    }[action];
+    modal.confirm({
+      title: text.title,
+      content: text.body,
+      okText: text.ok,
+      okButtonProps: action === "activate" ? undefined : { danger: true },
+      onOk: async () => {
+        try {
+          const res = await api.post("/users/bulk", { ids: selected, action });
+          message.success(`${res.data.changed} user(s) updated${res.data.skipped ? ` · ${res.data.skipped} skipped (you cannot manage them)` : ""}`);
+          setSelected([]);
+          refresh();
+        } catch (e) {
+          message.error(errorMessage(e));
+        }
+      },
+    });
+  };
+
   return (
     <>
       <PageHead
@@ -91,15 +116,38 @@ export default function UsersPage() {
           onChange={(status) => setParams((p) => ({ ...p, status, page: 1 }))}
         />
       </div>
+      {can("users.manage") ? (
+        <BulkBar count={selected.length} onClear={() => setSelected([])} hint="Tick users to activate, deactivate or sign out several at once.">
+          <Button icon={<CheckCircleOutlined />} disabled={!selected.length} onClick={() => bulk("activate")}>
+            Activate
+          </Button>
+          <Button icon={<StopOutlined />} disabled={!selected.length} onClick={() => bulk("deactivate")}>
+            Deactivate
+          </Button>
+          <Button danger icon={<LogoutOutlined />} disabled={!selected.length} onClick={() => bulk("force_logout")}>
+            Force logout
+          </Button>
+        </BulkBar>
+      ) : null}
       <Table<UserRow>
         rowKey="id"
         loading={isFetching}
         dataSource={data?.data}
         scroll={{ x: 900 }}
-        pagination={{ current: params.page, pageSize: params.per_page, total: data?.meta.total, showSizeChanger: true, onChange: (page, per_page) => setParams((p) => ({ ...p, page, per_page })) }}
+        rowSelection={
+          can("users.manage")
+            ? { selectedRowKeys: selected, onChange: (k) => setSelected(k as number[]), preserveSelectedRowKeys: true, getCheckboxProps: (u) => ({ disabled: !u.can_manage, "aria-label": `Select ${u.name}` }) }
+            : undefined
+        }
+        onChange={(_, __, sorter, extra) => {
+          if (extra.action === "sort") setParams((p) => ({ ...p, ...sortParams(sorter), page: 1 }));
+        }}
+        pagination={{ current: params.page, pageSize: params.per_page, total: data?.meta.total, showSizeChanger: true, showTotal: (t) => `${t} user(s)`, onChange: (page, per_page) => setParams((p) => ({ ...p, page, per_page })) }}
         columns={[
           {
             title: "Name",
+            key: "name",
+            sorter: true,
             render: (_, u) => (
               <div>
                 <Badge status={u.online ? "success" : "default"} />
@@ -113,14 +161,18 @@ export default function UsersPage() {
               </div>
             ),
           },
-          { title: "Role", dataIndex: "role_label", width: 130 },
+          { title: "Role", key: "role", dataIndex: "role_label", sorter: true, width: 140 },
           {
             title: "2FA",
+            key: "two_factor_count",
+            sorter: true,
             width: 90,
             render: (_, u) => (u.two_factor_count ? <Tag color="green" icon={<SafetyOutlined />}>{u.two_factor_count}</Tag> : <Tag>Off</Tag>),
           },
           {
             title: "Last sign-in",
+            key: "last_login_at",
+            sorter: true,
             width: 170,
             render: (_, u) => (
               <Tooltip title={fmtDateTime(u.last_login_at)}>
@@ -130,7 +182,9 @@ export default function UsersPage() {
           },
           {
             title: "Active",
-            width: 90,
+            key: "status",
+            sorter: true,
+            width: 100,
             render: (_, u) => <Switch checked={u.status === "active"} disabled={!u.can_manage} onChange={(v) => toggle(u, v)} aria-label={`${u.name} active`} />,
           },
           {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans, IBM_Plex_Sans, Inter, Manrope, Plus_Jakarta_Sans } from "next/font/google";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { Providers } from "@/components/providers";
+import { Preloader, TopProgress } from "@/components/page-transition";
 import "./globals.css";
 
 // Fonts of the built-in themes. Each is downloaded by the browser only when the active theme uses it.
@@ -23,6 +24,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${fonts} h-full antialiased`}>
       <body className="min-h-full">
         <AntdRegistry>
+          <Preloader />
+          <TopProgress />
           <Providers>{children}</Providers>
         </AntdRegistry>
       </body>

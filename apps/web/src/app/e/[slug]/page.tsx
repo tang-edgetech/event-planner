@@ -3,6 +3,7 @@ import { getPublic, media, visitSource } from "@/lib/public-api";
 import type { PublicMicrosite } from "@/lib/types";
 import { MicrositeSections } from "@/components/microsite-sections";
 import { Reveal, SiteNav } from "@/components/microsite-client";
+import { hexColor } from "@/lib/colors";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -23,7 +24,12 @@ export default async function MicrositePage({ params, searchParams }: Props) {
   const site = await getPublic<PublicMicrosite>("microsites", slug, preview ? { preview } : { track: "1" }, preview ? undefined : await visitSource(sp));
   const s = site.settings;
   const accent = typeof s.accent_color === "string" && s.accent_color ? s.accent_color : undefined;
-  const style = { ...(accent ? { "--ep-accent": accent } : {}), ...(typeof s.page_bg === "string" && s.page_bg ? { background: s.page_bg } : {}) } as React.CSSProperties;
+  const style = {
+    ...(accent ? { "--ep-accent": accent } : {}),
+    ...(hexColor(s.button_bg) ? { "--ep-btn-bg": hexColor(s.button_bg) } : {}),
+    ...(hexColor(s.button_text) ? { "--ep-btn-fg": hexColor(s.button_text) } : {}),
+    ...(typeof s.page_bg === "string" && s.page_bg ? { background: s.page_bg } : {}),
+  } as React.CSSProperties;
   const navItems = site.sections
     .filter((x) => typeof x.settings.nav_label === "string" && x.settings.nav_label && typeof x.settings.anchor === "string" && x.settings.anchor)
     .map((x) => ({ label: String(x.settings.nav_label), href: `#${String(x.settings.anchor)}` }));
