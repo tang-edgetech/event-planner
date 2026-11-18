@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { api } from "@/lib/api";
 
-/** The secret base address: first run → setup, signed in → Overview, otherwise → sign in. */
+/** The backoffice root: first run → setup, signed in → Overview, otherwise → sign in. */
 export default function Home() {
   const router = useRouter();
   const { data } = useQuery({

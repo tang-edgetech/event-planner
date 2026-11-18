@@ -9,7 +9,7 @@ applicants, reports, users with 2FA, and a full audit log. Rebuilt from WordPres
 |---|---|---|
 | `apps/api/` | **API**: Laravel 13 + MySQL (database `event_plus`). No pages; `/` is a 404 | http://localhost:8000 (`php artisan serve`) |
 | `apps/web/` | **Public site**: Next.js + Tailwind. Only `/event/{slug}` and `/e/{slug}` show content; the homepage shows "under maintenance" or a 404 (Settings → Extra). Not indexed by search engines | http://localhost:4003 |
-| `apps/backoffice/` | **Backoffice**: Next.js + Tailwind + Ant Design under a **secret base path** (`BACKOFFICE_BASE_PATH`). Everything else, including `/`, is a plain 404 | http://localhost:4004/{secret}/login |
+| `apps/backoffice/` | **Backoffice**: Next.js + Tailwind + Ant Design. Signed-out visitors see only `/login` and `/setup`; every other page is a plain 404 | http://localhost:4004/login |
 | `docs/` | Documentation for the new system | |
 | `legacy/wordpress/` | The previous WordPress build, kept for reference and data migration. See its [README](legacy/wordpress/README.md) | http://localhost/event-planner/legacy/wordpress/ |
 
@@ -19,11 +19,11 @@ Apache (XAMPP) serves only the legacy WordPress site. The root `.htaccess` block
 
 ```
 Browser ──► web (4003) ──server-side, X-Internal-Key──► api /api/public/*   (404 for anyone without the key)
-Browser ──► backoffice (4004)/{secret}/api/* ──same-origin proxy──► api /api/admin/*   (cookie session + CSRF)
+Browser ──► backoffice (4004)/api/* ──same-origin proxy──► api /api/admin/*   (cookie session + CSRF)
 ```
 
 - Browsers never see the API address. The public site's server calls it with a shared key; the backoffice proxies
-  `{secret}/api/*` and `{secret}/media/*` to it, so the session cookie stays on the backoffice origin.
+  `/api/*` and `/media/*` to it, so the session cookie stays on the backoffice origin.
 - Every save in the backoffice is a background request (axios + TanStack Query); pages never reload.
 - Uploaded images live in `apps/api/storage/app/public/media` and are served as `/media/…` by both front ends.
 
@@ -51,11 +51,11 @@ npm run build && npm start    # http://localhost:4003
 # Backoffice
 cd apps/backoffice
 npm install
-cp .env.example .env.local    # set a new secret BACKOFFICE_BASE_PATH
-npm run build && npm start    # http://localhost:4004/{secret}
+cp .env.example .env.local    # API_URL; BACKOFFICE_BASE_PATH stays empty
+npm run build && npm start    # http://localhost:4004/login
 ```
 
-First visit to `{secret}` opens **/setup** to create the first Super Admin; it closes for good afterwards.
+First visit to http://localhost:4004 opens **/setup** to create the first Super Admin; it closes for good afterwards.
 The `developer` account (top role, hidden from everyone else) uses `DEVELOPER_PASSWORD` or the default from the
 requirements; on any server other than local it must choose a new password at first sign-in.
 
@@ -111,7 +111,7 @@ Users can only manage accounts of a lower rank. Defined in `apps/api/config/perm
 - 2FA with authenticator apps, up to 2 devices per user; can be required for everyone.
 - Inactivity sign-out (default 2 hours): a warning 2 minutes before, then a pop-up that signs the person out;
   the server enforces the same limit. Force logout, reset password and reset 2FA from the Users list.
-- Backoffice hidden under a secret path, `noindex` headers, `Referrer-Policy: no-referrer`, no framing,
+- Backoffice pages answer 404 to signed-out visitors (except sign-in and setup), `noindex` headers, `Referrer-Policy: no-referrer`, no framing,
   signed-out requests look like 404s.
 - Public registrations: signed form token (min. fill time), honeypot, per-IP rate limits, server-side validation of
   every field, a database lock against overbooking, rich text cleaned before display, CSV exports protected
