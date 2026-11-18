@@ -47,7 +47,7 @@ export async function getPublic<T>(kind: "events" | "microsites", slug: string, 
   return (await res.json()) as T;
 }
 
-export type SiteInfo = { site_name: string; home_mode: "maintenance" | "notfound"; maintenance_title: string; maintenance_message: string; contact_email: string };
+export type SiteInfo = { site_name: string; home_mode: "maintenance" | "notfound"; maintenance_title: string; maintenance_message: string; contact_email: string; logo: string | null; favicon: string | null };
 
 export async function getSite(): Promise<SiteInfo | null> {
   try {

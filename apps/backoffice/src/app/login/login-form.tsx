@@ -5,9 +5,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api, errorMessage, formErrors } from "@/lib/api";
+import { BrandMark, useFavicon } from "@/components/brand";
 import { useEpTheme } from "@/components/providers";
 
-type AuthConfig = { login_method: "username" | "email" | "either"; site_name: string; theme: string; setup_needed: boolean };
+type AuthConfig = { login_method: "username" | "email" | "either"; site_name: string; logo: string | null; favicon: string | null; theme: string; setup_needed: boolean };
 
 /** Sign in: username/email + password, then the authenticator code when 2FA is on. */
 export function LoginForm() {
@@ -29,6 +30,7 @@ export function LoginForm() {
     }
   }, [config, router, setThemeKey]);
 
+  useFavicon(config?.favicon);
   const label = config?.login_method === "username" ? "Username" : config?.login_method === "email" ? "Email" : "Username or email";
 
   const finish = async () => {
@@ -70,6 +72,7 @@ export function LoginForm() {
 
   return (
     <>
+      <div className="ep-auth__brand">{config ? <BrandMark logo={config.logo} name={config.site_name} /> : <span className="ep-logo" aria-hidden="true" />}</div>
       <Typography.Title level={4} style={{ marginTop: 0 }}>
         {step === "password" ? "Sign in" : "Two-factor authentication"}
       </Typography.Title>

@@ -91,6 +91,7 @@ imported: create backoffice users in Users.
 | Applicants | `/applicants` (search, event, status, date range, bulk status, CSV/JSON export), `/applicants/{id}` |
 | Reports | `/reports/overview · events · sources` |
 | Users | `/users`, `/users/new`, `/users/{id}/account · password · two-factor` |
+| Roles & permissions | `/roles` (Developer only; everyone else gets “Page not found”) |
 | Audit logs | `/audit-logs` (search, filters, expandable plain-language details, export selected or all as CSV/JSON) |
 | Settings | `/settings/general · security · email · appearance · logs · extra` |
 
@@ -103,7 +104,16 @@ imported: create backoffice users in Users.
 | Manager | Events, microsites, applicants (incl. export), reports |
 | Viewer | Read-only events, microsites, applicants, reports (personal data can be masked in Settings → Extra) |
 
-Users can only manage accounts of a lower rank. Defined in `apps/api/config/permissions.php`.
+Users can only manage accounts of a lower rank. These are the built-in roles; the Developer can change them and add
+new ones in **Roles & permissions** (stored in the `roles` table; `apps/api/config/permissions.php` is the starting set).
+The Developer role always has every permission and cannot be changed. Usernames and email addresses are unique
+(ignoring upper/lower case).
+
+## Templates
+
+The registration form (Event → Registration form) and the page builder (Microsite → Page builder) can **Export
+template** to a `.json` file and **Import template** from a file or by copying from another event / microsite,
+replacing or adding to what is there. Nothing is saved until Save is pressed.
 
 ## Security measures
 

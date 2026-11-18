@@ -7,19 +7,22 @@ import {
   CopyOutlined,
   DeleteOutlined,
   DesktopOutlined,
+  DownloadOutlined,
   EyeInvisibleOutlined,
   EyeOutlined,
+  ImportOutlined,
   MobileOutlined,
   PlusOutlined,
   ReloadOutlined,
   SaveOutlined,
   TabletOutlined,
 } from "@ant-design/icons";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { api, errorMessage } from "@/lib/api";
 import { useCan, useMe } from "@/lib/session";
-import type { Section } from "@/lib/types";
+import type { Paged, Section } from "@/lib/types";
+import { downloadJson, TemplateImport } from "@/components/template-import";
 import { APPEARANCE_FIELDS, SECTION_TYPES } from "../../sections";
 import { SchemaFields } from "../../schema-fields";
 import { useSite } from "../../site-context";
@@ -52,6 +55,23 @@ function Builder() {
   const [previewing, setPreviewing] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
   const [boxWidth, setBoxWidth] = useState(600);
+  const [importing, setImporting] = useState(false);
+  const { data: siteOptions } = useQuery({
+    queryKey: ["microsite-options"],
+    queryFn: async () => (await api.get<Paged<{ id: number; title: string }>>("/microsites", { params: { per_page: 100 } })).data.data.map((m) => ({ value: m.id, label: m.title })),
+    enabled: importing,
+  });
+
+  const exportTemplate = () => {
+    downloadJson(`${site.slug}-page.json`, { kind: "microsite", version: 1, exported_at: new Date().toISOString(), source: site.title, sections });
+    message.success("Template downloaded. Import it into any microsite's Page builder.");
+  };
+  const applyTemplate = (incoming: Section[], mode: "replace" | "append") => {
+    const fresh = incoming.map((s) => ({ ...structuredClone(s), id: uid() }));
+    update(mode === "replace" ? fresh : [...sections, ...fresh]);
+    setOpen([]);
+    message.success(`Imported ${fresh.length} section(s). Preview them, then press Save.`);
+  };
 
   useEffect(() => {
     const el = boxRef.current;
@@ -134,6 +154,17 @@ function Builder() {
 
   return (
     <div className="ep-builder">
+      <TemplateImport<Section[]>
+        open={importing}
+        onClose={() => setImporting(false)}
+        what="page"
+        itemNoun="microsite"
+        sources={(siteOptions ?? []).filter((o) => o.value !== site.id)}
+        loadFrom={async (id) => (await api.get<{ data: { sections: Section[] } }>(`/microsites/${id}`)).data.data.sections ?? []}
+        parse={parsePageTemplate}
+        describe={(t) => `${t.length} section(s)`}
+        onApply={applyTemplate}
+      />
       <div className="min-w-0">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           {editable ? (
@@ -141,6 +172,16 @@ function Builder() {
               <Button icon={<PlusOutlined />}>Add section</Button>
             </Dropdown>
           ) : null}
+          {editable ? (
+            <Button icon={<ImportOutlined />} onClick={() => setImporting(true)}>
+              Import template
+            </Button>
+          ) : null}
+          <Tooltip title="Download these sections as a template file">
+            <Button icon={<DownloadOutlined />} onClick={exportTemplate} aria-label="Export template">
+              Export
+            </Button>
+          </Tooltip>
           <div className="flex-1" />
           {dirty ? <Tag color="gold">Unsaved changes</Tag> : null}
           <Button icon={<EyeOutlined />} onClick={preview} loading={previewing}>
@@ -280,4 +321,24 @@ function Builder() {
       </div>
     </div>
   );
+}
+
+/** Reads a page template file: our own export, or just a list of sections. Unknown section types are left out. */
+function parsePageTemplate(json: unknown): Section[] {
+  const o = (Array.isArray(json) ? { sections: json } : json) as Record<string, unknown> | null;
+  if (!o || typeof o !== "object") throw new Error("This file is not a page template.");
+  if (o.kind && o.kind !== "microsite") {
+    throw new Error(o.kind === "event-form" ? "This is a registration form template. Import it in an event's Registration form instead." : "This file is not a page template.");
+  }
+  if (!Array.isArray(o.sections)) throw new Error("No sections were found in this file.");
+  const sections = (o.sections as Record<string, unknown>[])
+    .filter((s) => s && typeof s === "object" && typeof s.layout === "string" && s.layout in SECTION_TYPES)
+    .map((s) => ({
+      id: "",
+      layout: s.layout as string,
+      data: s.data && typeof s.data === "object" ? (s.data as Record<string, unknown>) : {},
+      settings: s.settings && typeof s.settings === "object" ? (s.settings as Record<string, unknown>) : {},
+    }));
+  if (!sections.length) throw new Error("The file has no sections this page builder knows.");
+  return sections;
 }

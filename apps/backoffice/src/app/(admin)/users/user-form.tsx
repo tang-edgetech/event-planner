@@ -1,6 +1,7 @@
 "use client";
 
 import { Alert, Button, Checkbox, Form, Input, Select, Switch } from "antd";
+import { api } from "@/lib/api";
 import { useMe } from "@/lib/session";
 import { THEMES } from "@/theme/themes";
 
@@ -17,8 +18,22 @@ export type UserValues = {
   must_change_password?: boolean;
 };
 
+/** Asks the server whether a username / email is still free (other accounts only), while typing. */
+const unique = (field: "username" | "email", userId?: number) => ({
+  validator: async (_: unknown, value?: string) => {
+    if (!value || (field === "username" ? !/^[a-zA-Z0-9._-]{3,60}$/.test(value) : !/^\S+@\S+\.\S+$/.test(value))) return;
+    let available = true;
+    try {
+      available = (await api.get<{ available: boolean }>("/users/check", { params: { field, value, ignore: userId } })).data.available;
+    } catch {
+      return; // the server checks again when saving
+    }
+    if (!available) throw new Error(field === "username" ? "This username is already taken. Choose another one." : "This email address already belongs to another account.");
+  },
+});
+
 /** Account information form shared by "Add user" and the Account tab. */
-export function UserFields({ creating, self, canManage }: { creating?: boolean; self?: boolean; canManage?: boolean }) {
+export function UserFields({ creating, self, canManage, userId }: { creating?: boolean; self?: boolean; canManage?: boolean; userId?: number }) {
   const me = useMe();
   const roleOptions = me.roles.filter((r) => me.assignable_roles.includes(r.value)).map((r) => ({ value: r.value, label: r.label }));
   return (
@@ -27,10 +42,17 @@ export function UserFields({ creating, self, canManage }: { creating?: boolean; 
         <Form.Item label="Full name" name="name" rules={[{ required: true, message: "Enter the name." }]}>
           <Input maxLength={120} disabled={!self && !canManage && !creating} />
         </Form.Item>
-        <Form.Item label="Username" name="username" rules={[{ required: true, message: "Enter a username." }, { pattern: /^[a-zA-Z0-9._-]{3,60}$/, message: "3–60 letters, numbers, . _ or -" }]}>
+        <Form.Item
+          label="Username"
+          name="username"
+          validateDebounce={400}
+          normalize={(v?: string) => v?.toLowerCase()}
+          rules={[{ required: true, message: "Enter a username." }, { pattern: /^[a-z0-9._-]{3,60}$/, message: "3–60 letters, numbers, . _ or -" }, unique("username", userId)]}
+          extra="Must be unique. Stored in lower case."
+        >
           <Input maxLength={60} disabled={!self && !canManage && !creating} />
         </Form.Item>
-        <Form.Item label="Email" name="email" rules={[{ required: true, type: "email", message: "Enter a valid email." }]}>
+        <Form.Item label="Email" name="email" validateDebounce={400} rules={[{ required: true, type: "email", message: "Enter a valid email." }, unique("email", userId)]} extra="Must be unique: one account per email address.">
           <Input maxLength={190} disabled={!self && !canManage && !creating} />
         </Form.Item>
         {!self && (canManage || creating) ? (

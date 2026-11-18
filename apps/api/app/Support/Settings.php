@@ -30,6 +30,8 @@ class Settings
                 'timezone' => 'Asia/Kuala_Lumpur',
                 'date_format' => 'D MMM YYYY',
                 'contact_email' => '',
+                'logo' => '',
+                'favicon' => '',
             ],
             'security' => [
                 'login_method' => 'either',

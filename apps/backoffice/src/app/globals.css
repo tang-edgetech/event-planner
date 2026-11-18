@@ -372,3 +372,29 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .ep-preloader__spinner { animation-duration: 2s; }
 }
+
+/* Logo from Settings → General */
+.ep-brand-logo {
+  display: block;
+  max-height: 36px;
+  max-width: 180px;
+  object-fit: contain;
+}
+.ep-auth__brand .ep-brand-logo {
+  max-height: 44px;
+}
+
+/* Users list: inactive accounts are greyed out */
+.ep-user--inactive .ep-user__name,
+.ep-user--inactive .ep-user__name:hover {
+  color: var(--ep-muted);
+}
+
+/* Roles & permissions */
+.ep-perm-group {
+  @apply rounded-lg border px-4 pb-2 pt-3;
+  border-color: var(--ep-border);
+}
+.ep-check {
+  color: var(--ep-primary);
+}

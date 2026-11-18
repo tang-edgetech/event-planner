@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { App, Button, DatePicker, Descriptions, Drawer, Dropdown, Input, Select, Skeleton, Table, Tooltip } from "antd";
+import { App, Button, DatePicker, Dropdown, Input, Select, Table, Tooltip } from "antd";
 import { DeleteOutlined, DownloadOutlined, EyeOutlined, SwapOutlined } from "@ant-design/icons";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Dayjs } from "dayjs";
@@ -25,7 +25,6 @@ export function ApplicantsTable({ eventId }: { eventId?: number }) {
   const { message, modal } = App.useApp();
   const [f, setF] = useState<Filters>({ page: 1, per_page: 25, event_id: eventId });
   const [selected, setSelected] = useState<number[]>([]);
-  const [viewing, setViewing] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const { data, isFetching } = useQuery({ queryKey: ["applicants", f], queryFn: async () => (await api.get<Resp>("/applicants", { params: f })).data, placeholderData: keepPreviousData });
   const { data: events } = useQuery({
@@ -185,96 +184,16 @@ export function ApplicantsTable({ eventId }: { eventId?: number }) {
             width: 90,
             fixed: "right",
             render: (_, a) => (
-              <Button size="small" icon={<EyeOutlined />} onClick={() => setViewing(a.id)} aria-label={`View ${a.name || "applicant"}`}>
-                View
-              </Button>
+              <Link href={`/applicants/${a.id}`} aria-label={`View ${a.name || "applicant"}`}>
+                <Button size="small" icon={<EyeOutlined />}>
+                  View
+                </Button>
+              </Link>
             ),
           },
         ]}
       />
-      <ApplicantDrawer id={viewing} onClose={() => setViewing(null)} />
     </>
   );
 }
 
-type Detail = {
-  id: number;
-  event_title: string;
-  status: string;
-  status_label: string;
-  name: string;
-  email: string | null;
-  phone: string | null;
-  created_at: string;
-  fields: { name: string; label: string }[];
-  data: Record<string, unknown>;
-  source: Record<string, string> | null;
-  notes: string | null;
-};
-
-const show = (v: unknown) => (Array.isArray(v) ? v.join(", ") : v === null || v === undefined || v === "" ? "—" : String(v));
-
-/** Every answer of one applicant, without leaving the list. Editing happens on the full record. */
-function ApplicantDrawer({ id, onClose }: { id: number | null; onClose: () => void }) {
-  const { data: a, isLoading } = useQuery({
-    queryKey: ["applicant", String(id)],
-    queryFn: async () => (await api.get<{ data: Detail }>(`/applicants/${id}`)).data.data,
-    enabled: id !== null,
-  });
-  const source = a?.source ? Object.entries(a.source).filter(([, v]) => v) : [];
-  return (
-    <Drawer
-      open={id !== null}
-      onClose={onClose}
-      size="large"
-      title={a?.name || "Applicant"}
-      extra={
-        id !== null ? (
-          <Link href={`/applicants/${id}`}>
-            <Button type="primary">Open full record</Button>
-          </Link>
-        ) : null
-      }
-    >
-      {isLoading || !a ? (
-        <Skeleton active />
-      ) : (
-        <>
-          <Descriptions size="small" column={1} bordered>
-            <Descriptions.Item label="Event">{a.event_title}</Descriptions.Item>
-            <Descriptions.Item label="Status">
-              <ApplicantStatusTag status={a.status} label={a.status_label} />
-            </Descriptions.Item>
-            <Descriptions.Item label="Registered">{fmtDateTime(a.created_at)}</Descriptions.Item>
-          </Descriptions>
-          <h3 className="mb-2 mt-5 text-sm font-semibold">Answers</h3>
-          <Descriptions size="small" column={1} bordered>
-            {a.fields.map((fd) => (
-              <Descriptions.Item key={fd.name} label={fd.label}>
-                <span className="break-words">{show(a.data?.[fd.name])}</span>
-              </Descriptions.Item>
-            ))}
-          </Descriptions>
-          {source.length ? (
-            <>
-              <h3 className="mb-2 mt-5 text-sm font-semibold">Where they came from</h3>
-              <Descriptions size="small" column={1} bordered>
-                {source.map(([k, v]) => (
-                  <Descriptions.Item key={k} label={k.replace(/_/g, " ")}>
-                    {v}
-                  </Descriptions.Item>
-                ))}
-              </Descriptions>
-            </>
-          ) : null}
-          {a.notes ? (
-            <>
-              <h3 className="mb-2 mt-5 text-sm font-semibold">Notes</h3>
-              <p className="whitespace-pre-wrap text-sm">{a.notes}</p>
-            </>
-          ) : null}
-        </>
-      )}
-    </Drawer>
-  );
-}

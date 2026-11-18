@@ -95,6 +95,8 @@ class SettingsController extends Controller
                 'timezone' => ['sometimes', 'required', 'timezone'],
                 'date_format' => ['sometimes', 'required', Rule::in(['D MMM YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD', 'MMM D, YYYY'])],
                 'contact_email' => ['sometimes', 'nullable', 'email'],
+                'logo' => ['sometimes', 'nullable', 'string', 'max:255', 'regex:/^media\/[A-Za-z0-9._\/-]+$/'],
+                'favicon' => ['sometimes', 'nullable', 'string', 'max:255', 'regex:/^media\/[A-Za-z0-9._\/-]+$/'],
             ],
             'security' => [
                 'login_method' => ['sometimes', 'required', Rule::in(['username', 'email', 'either'])],

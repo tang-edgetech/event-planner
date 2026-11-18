@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Roles;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -68,12 +69,12 @@ class User extends Authenticatable
 
     public function rank(): int
     {
-        return (int) config("permissions.roles.{$this->role}.rank", 0);
+        return (int) (Roles::get((string) $this->role)['rank'] ?? 0);
     }
 
     public function roleLabel(): string
     {
-        return (string) config("permissions.roles.{$this->role}.label", ucfirst($this->role));
+        return (string) (Roles::get((string) $this->role)['label'] ?? ucfirst((string) $this->role));
     }
 
     /**
@@ -81,7 +82,7 @@ class User extends Authenticatable
      */
     public function permissions(): array
     {
-        return array_values(config("permissions.roles.{$this->role}.permissions", []));
+        return Roles::get((string) $this->role)['permissions'] ?? [];
     }
 
     public function hasPermission(string $permission): bool
@@ -115,7 +116,7 @@ class User extends Authenticatable
     public function assignableRoles(): array
     {
         $roles = [];
-        foreach (config('permissions.roles') as $key => $role) {
+        foreach (Roles::all() as $key => $role) {
             if ($key === 'developer') {
                 continue;
             }

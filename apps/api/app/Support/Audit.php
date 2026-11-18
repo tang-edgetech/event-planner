@@ -21,6 +21,7 @@ class Audit
     public const CATEGORIES = [
         'auth' => 'Sign-in & security',
         'user' => 'Users',
+        'role' => 'Roles & permissions',
         'event' => 'Events',
         'applicant' => 'Applicants',
         'registration' => 'Public registrations',

@@ -7,10 +7,6 @@ export default function LoginPage() {
   return (
     <main className="ep-auth">
       <div className="ep-auth__card !max-w-sm">
-        <div className="ep-auth__brand">
-          <span className="ep-logo" aria-hidden="true" />
-          Event Plus
-        </div>
         <LoginForm />
       </div>
     </main>

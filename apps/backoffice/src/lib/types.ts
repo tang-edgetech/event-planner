@@ -29,8 +29,11 @@ export type Me = {
   permissions: Permission[];
   roles: { value: string; label: string; rank: number }[];
   assignable_roles: string[];
+  is_developer: boolean;
   settings: {
     site_name: string;
+    logo: string | null;
+    favicon: string | null;
     date_format: string;
     timezone: string;
     theme: string;

@@ -62,7 +62,7 @@ export default function AccountTab() {
         style={{ maxWidth: 820 }}
         disabled={!user.is_self && !user.can_manage}
       >
-        <UserFields self={user.is_self} canManage={user.can_manage} />
+        <UserFields self={user.is_self} canManage={user.can_manage} userId={user.id} />
         {user.is_self || user.can_manage ? <SaveButton loading={saving} /> : null}
       </Form>
       <Descriptions className="!mt-8" size="small" column={{ xs: 1, md: 2 }} title="Activity">

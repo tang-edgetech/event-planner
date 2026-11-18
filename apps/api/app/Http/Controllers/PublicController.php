@@ -27,6 +27,8 @@ class PublicController extends Controller
             'maintenance_title' => setting('extra', 'maintenance_title'),
             'maintenance_message' => setting('extra', 'maintenance_message'),
             'contact_email' => setting('general', 'contact_email'),
+            'logo' => setting('general', 'logo') ?: null,
+            'favicon' => setting('general', 'favicon') ?: null,
         ]);
     }
 

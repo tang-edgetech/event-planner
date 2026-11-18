@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MicrositeController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SetupController;
 use App\Http\Controllers\Admin\UserController;
@@ -49,6 +50,7 @@ Route::prefix('admin')->middleware('web')->group(function () {
 
         // Users (own account is always reachable; others need users.view / users.manage, checked in the controller)
         Route::get('users', [UserController::class, 'index']);
+        Route::get('users/check', [UserController::class, 'check']);
         Route::post('users', [UserController::class, 'store']);
         Route::get('users/{user}', [UserController::class, 'show']);
         Route::put('users/{user}', [UserController::class, 'update']);
@@ -119,6 +121,12 @@ Route::prefix('admin')->middleware('web')->group(function () {
             Route::get('events', [ReportController::class, 'events']);
             Route::get('sources', [ReportController::class, 'sources']);
         });
+
+        // Roles & permissions (developer only; 404 for everyone else, checked in the controller)
+        Route::get('roles', [RoleController::class, 'index']);
+        Route::post('roles', [RoleController::class, 'store']);
+        Route::put('roles/{key}', [RoleController::class, 'update']);
+        Route::delete('roles/{key}', [RoleController::class, 'destroy']);
 
         // Audit logs
         Route::get('audit-logs', [AuditLogController::class, 'index'])->middleware('can:audit.view');

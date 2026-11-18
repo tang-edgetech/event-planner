@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use App\Support\Audit;
+use App\Support\Roles;
 use App\Support\Settings;
 use App\Support\TwoFactor;
 use Illuminate\Http\JsonResponse;
@@ -22,6 +24,8 @@ class AuthController extends Controller
         return response()->json([
             'login_method' => setting('security', 'login_method', 'either'),
             'site_name' => setting('general', 'site_name', 'Event Plus'),
+            'logo' => setting('general', 'logo') ?: null,
+            'favicon' => setting('general', 'favicon') ?: null,
             'theme' => setting('appearance', 'theme', 'burgundy'),
             'setup_needed' => SetupController::needed(),
         ]);
@@ -148,10 +152,13 @@ class AuthController extends Controller
                 'has_two_factor' => $user->hasTwoFactor(),
             ],
             'permissions' => $user->permissions(),
-            'roles' => collect(config('permissions.roles'))->except('developer')->map(fn ($r, $k) => ['value' => $k, 'label' => $r['label'], 'rank' => $r['rank']])->values(),
+            'roles' => collect(Roles::all())->except(Role::DEVELOPER)->map(fn ($r, $k) => ['value' => $k, 'label' => $r['label'], 'rank' => $r['rank']])->values(),
+            'is_developer' => $user->role === Role::DEVELOPER,
             'assignable_roles' => $user->assignableRoles(),
             'settings' => [
                 'site_name' => setting('general', 'site_name'),
+                'logo' => setting('general', 'logo') ?: null,
+                'favicon' => setting('general', 'favicon') ?: null,
                 'date_format' => setting('general', 'date_format'),
                 'timezone' => setting('general', 'timezone'),
                 'theme' => $appearance['theme'],

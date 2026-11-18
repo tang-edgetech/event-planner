@@ -13,6 +13,7 @@ import {
   GlobalOutlined,
   LogoutOutlined,
   MenuOutlined,
+  SafetyCertificateOutlined,
   SettingOutlined,
   TeamOutlined,
   UserOutlined,
@@ -27,9 +28,10 @@ import { useEpTheme } from "./providers";
 import { IdleGuard } from "./idle-guard";
 import { NotFoundView } from "./ui";
 import { PageFade } from "./page-transition";
+import { BrandMark, useFavicon } from "./brand";
 import { PasswordForm, TwoFactorManager } from "./account-forms";
 
-type NavItem = { href: string; label: string; icon: React.ReactNode; perm?: Permission; group: "Manage" | "System" };
+type NavItem = { href: string; label: string; icon: React.ReactNode; perm?: Permission; developer?: boolean; group: "Manage" | "System" };
 
 const NAV: NavItem[] = [
   { href: "/overview", label: "Overview", icon: <DashboardOutlined />, perm: "dashboard.view", group: "Manage" },
@@ -38,6 +40,7 @@ const NAV: NavItem[] = [
   { href: "/applicants", label: "Applicants", icon: <TeamOutlined />, perm: "applicants.view", group: "Manage" },
   { href: "/reports/overview", label: "Reports", icon: <BarChartOutlined />, perm: "reports.view", group: "Manage" },
   { href: "/users", label: "Users", icon: <UserOutlined />, perm: "users.view", group: "System" },
+  { href: "/roles", label: "Roles & permissions", icon: <SafetyCertificateOutlined />, developer: true, group: "System" },
   { href: "/audit-logs", label: "Audit logs", icon: <AuditOutlined />, perm: "audit.view", group: "System" },
   { href: "/settings/general", label: "Settings", icon: <SettingOutlined />, perm: "settings.manage", group: "System" },
 ];
@@ -116,7 +119,8 @@ function Shell({ me, children }: { me: Me; children: React.ReactNode }) {
   const pathname = usePathname();
   const [drawer, setDrawer] = useState(false);
   const top = me.settings.menu_position === "top";
-  const items = useMemo(() => NAV.filter((n) => !n.perm || me.permissions.includes(n.perm)), [me.permissions]);
+  const items = useMemo(() => NAV.filter((n) => (!n.perm || me.permissions.includes(n.perm)) && (!n.developer || me.is_developer)), [me.permissions, me.is_developer]);
+  useFavicon(me.settings.favicon);
 
   const isActive = (href: string) => {
     const root = "/" + href.split("/")[1];
@@ -142,8 +146,7 @@ function Shell({ me, children }: { me: Me; children: React.ReactNode }) {
 
   const brand = (
     <Link href="/overview" className="ep-brand no-underline">
-      <span className="ep-logo" aria-hidden="true" />
-      <span className="truncate">{me.settings.site_name}</span>
+      <BrandMark logo={me.settings.logo} name={me.settings.site_name} />
     </Link>
   );
 
@@ -228,8 +231,7 @@ function AccountGate({ me, step, onDone }: { me: Me; step: "password" | "two_fac
     <main className="ep-auth">
       <div className="ep-auth__card !max-w-xl">
         <div className="ep-auth__brand">
-          <span className="ep-logo" aria-hidden="true" />
-          {me.settings.site_name}
+          <BrandMark logo={me.settings.logo} name={me.settings.site_name} />
         </div>
         {step === "password" ? (
           <>

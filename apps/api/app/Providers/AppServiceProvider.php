@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Support\Roles;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -18,8 +19,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Every permission in config/permissions.php becomes a gate, used as `can:events.manage` on routes.
-        foreach (config('permissions.permissions', []) as $permission) {
+        // Every permission becomes a gate, used as `can:events.manage` on routes. Roles decide who has which.
+        foreach (Roles::permissions() as $permission) {
             Gate::define($permission, fn (User $user) => $user->hasPermission($permission));
         }
         Gate::define('media.manage', fn (User $user) => $user->hasPermission('events.manage') || $user->hasPermission('microsites.manage'));

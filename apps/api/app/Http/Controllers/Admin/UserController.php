@@ -7,6 +7,7 @@ use App\Models\TwoFactorDevice;
 use App\Models\User;
 use App\Support\Audit;
 use App\Support\PasswordRules;
+use App\Support\Roles;
 use App\Support\Sorting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,6 +17,13 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    /** @var array<string, string> */
+    private const UNIQUE_MESSAGES = [
+        'username.unique' => 'This username is already taken. Choose another one.',
+        'email.unique' => 'This email address already belongs to another account.',
+        'username.regex' => 'Use letters, numbers, dots, dashes and underscores only.',
+    ];
+
     public function index(Request $request): JsonResponse
     {
         /** @var User $me */
@@ -30,7 +38,7 @@ class UserController extends Controller
             ->when($request->input('role'), fn ($q, $role) => $q->where('role', $role))
             ->when($request->input('status'), fn ($q, $status) => $q->where('status', $status))
             ->withCount(['twoFactorDevices as two_factor_count' => fn ($q) => $q->whereNotNull('confirmed_at')]);
-        $rank = 'CASE role '.collect(config('permissions.roles'))->map(fn ($r, $k) => "WHEN '{$k}' THEN ".(int) $r['rank'])->implode(' ').' ELSE 0 END';
+        $rank = 'CASE role '.collect(Roles::all())->map(fn ($r, $k) => 'WHEN '.DB::getPdo()->quote($k).' THEN '.(int) $r['rank'])->implode(' ').' ELSE 0 END';
         if (! Sorting::apply($users, $request, ['name' => 'name', 'role' => DB::raw($rank), 'status' => 'status', 'last_login_at' => 'last_login_at', 'two_factor_count' => 'two_factor_count', 'created_at' => 'created_at'])) {
             $users->orderBy('name');
         }
@@ -58,16 +66,17 @@ class UserController extends Controller
         /** @var User $me */
         $me = $request->user();
         abort_unless($me->hasPermission('users.manage'), 403);
+        $this->normaliseIdentity($request);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
-            'username' => ['required', 'string', 'min:3', 'max:60', 'regex:/^[a-zA-Z0-9._-]+$/', 'unique:users,username'],
+            'username' => ['required', 'string', 'min:3', 'max:60', 'regex:/^[a-z0-9._-]+$/', 'unique:users,username'],
             'email' => ['required', 'email:rfc', 'max:190', 'unique:users,email'],
             'role' => ['required', Rule::in($me->assignableRoles())],
             'status' => ['required', Rule::in([User::STATUS_ACTIVE, User::STATUS_INACTIVE])],
             'password' => ['required', 'confirmed', PasswordRules::make()],
             'must_change_password' => ['boolean'],
-        ]);
+        ], self::UNIQUE_MESSAGES);
 
         $user = User::query()->create([
             ...$data,
@@ -87,10 +96,11 @@ class UserController extends Controller
         $me = $this->visibleOr404($request, $user);
         $self = $me->id === $user->id;
         abort_unless($self || $me->canManage($user), 403);
+        $this->normaliseIdentity($request);
 
         $rules = [
             'name' => ['required', 'string', 'max:120'],
-            'username' => ['required', 'string', 'min:3', 'max:60', 'regex:/^[a-zA-Z0-9._-]+$/', Rule::unique('users', 'username')->ignore($user->id)],
+            'username' => ['required', 'string', 'min:3', 'max:60', 'regex:/^[a-z0-9._-]+$/', Rule::unique('users', 'username')->ignore($user->id)],
             'email' => ['required', 'email:rfc', 'max:190', Rule::unique('users', 'email')->ignore($user->id)],
             'theme' => ['nullable', 'string', 'max:60'],
         ];
@@ -98,7 +108,7 @@ class UserController extends Controller
             $rules['role'] = ['required', Rule::in($me->assignableRoles())];
             $rules['status'] = ['required', Rule::in([User::STATUS_ACTIVE, User::STATUS_INACTIVE])];
         }
-        $data = $request->validate($rules);
+        $data = $request->validate($rules, self::UNIQUE_MESSAGES);
         $data['username'] = strtolower($data['username']);
         $data['email'] = strtolower($data['email']);
         if (! setting('appearance', 'allow_user_theme', false)) {
@@ -255,6 +265,36 @@ class UserController extends Controller
         Audit::log("user.bulk_{$data['action']}", "{$me->name} {$verb} {$changed} user(s)", "{$me->name} selected users and {$verb} {$names}. {$effect}".($skipped ? " {$skipped} selected account(s) were skipped because {$me->name} may not manage them." : ''), 'success', null, ['ids' => $users->pluck('id')->all()]);
 
         return response()->json(['ok' => true, 'changed' => $changed, 'skipped' => $skipped]);
+    }
+
+    /**
+     * Live check while typing: is this username or email address free? Includes hidden accounts,
+     * so it never reveals who they belong to, only that the value is taken.
+     */
+    public function check(Request $request): JsonResponse
+    {
+        /** @var User $me */
+        $me = $request->user();
+        $data = $request->validate([
+            'field' => ['required', Rule::in(['username', 'email'])],
+            'value' => ['required', 'string', 'max:190'],
+            'ignore' => ['nullable', 'integer'],
+        ]);
+        abort_unless($me->hasPermission('users.manage') || (int) ($data['ignore'] ?? 0) === $me->id, 403);
+        $taken = User::query()->whereRaw('LOWER('.$data['field'].') = ?', [mb_strtolower(trim($data['value']))])
+            ->when($data['ignore'] ?? null, fn ($q, $id) => $q->where('id', '!=', $id))->exists();
+
+        return response()->json(['available' => ! $taken]);
+    }
+
+    /** Usernames and email addresses are stored in lower case, so "Ann" and "ann" count as the same. */
+    private function normaliseIdentity(Request $request): void
+    {
+        foreach (['username', 'email'] as $field) {
+            if (is_string($request->input($field))) {
+                $request->merge([$field => mb_strtolower(trim($request->input($field)))]);
+            }
+        }
     }
 
     private function visibleOr404(Request $request, User $user): User

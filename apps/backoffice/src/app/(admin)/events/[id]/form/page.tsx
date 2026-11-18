@@ -1,14 +1,15 @@
 "use client";
 
-import { Button, Checkbox, Divider, Form, Input, Select, Space, Tag, Tooltip, type FormInstance } from "antd";
-import { ArrowDownOutlined, ArrowUpOutlined, CopyOutlined, DeleteOutlined, DownOutlined, PlusOutlined, RightOutlined } from "@ant-design/icons";
+import { App, Button, Checkbox, Divider, Form, Input, Select, Space, Tag, Tooltip, type FormInstance } from "antd";
+import { ArrowDownOutlined, ArrowUpOutlined, CopyOutlined, DeleteOutlined, DownOutlined, DownloadOutlined, ImportOutlined, PlusOutlined, RightOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { api } from "@/lib/api";
 import { useCan } from "@/lib/session";
-import type { FormFieldRow } from "@/lib/types";
+import type { EventDetail, FormFieldRow } from "@/lib/types";
 import { RichText } from "@/components/rich-text";
-import { EventTabForm } from "../../event-context";
+import { downloadJson, TemplateImport } from "@/components/template-import";
+import { EventTabForm, useEventDetail } from "../../event-context";
 
 type Builder = { types: { value: string; label: string }[]; presets: { value: string; label: string; count: number }[] };
 
@@ -52,6 +53,7 @@ export default function FormTab() {
             <RichText minHeight={80} />
           </Form.Item>
           <Divider titlePlacement="start">Fields</Divider>
+          <FormTemplateTools form={form} />
           <FieldList form={form} builder={builder} />
           <Form.Item label="Submit button label" name="submit_label" className="!mt-6" style={{ maxWidth: 320 }}>
             <Input maxLength={60} placeholder="Submit" />
@@ -266,5 +268,97 @@ function FieldEditor({ name, form, builder }: { name: number; form: FormInstance
         );
       }}
     </Form.Item>
+  );
+}
+
+type FormTemplate = { form_intro?: string; submit_label?: string; form_fields: FormFieldRow[] };
+
+/** Reads a registration form template file: our own export, or just a list of fields. */
+function parseFormTemplate(json: unknown): FormTemplate {
+  const o = (Array.isArray(json) ? { form_fields: json } : json) as Record<string, unknown> | null;
+  if (!o || typeof o !== "object") throw new Error("This file is not a registration form template.");
+  if (o.kind && o.kind !== "event-form") {
+    throw new Error(o.kind === "microsite" ? "This is a microsite template. Import it in a microsite's Page builder instead." : "This file is not a registration form template.");
+  }
+  if (!Array.isArray(o.form_fields)) throw new Error("No form fields were found in this file.");
+  const fields = (o.form_fields as unknown[]).filter((f): f is FormFieldRow => !!f && typeof f === "object" && typeof (f as FormFieldRow).type === "string");
+  if (!fields.length) throw new Error("The file has no usable form fields.");
+  return {
+    form_fields: fields,
+    form_intro: typeof o.form_intro === "string" ? o.form_intro : undefined,
+    submit_label: typeof o.submit_label === "string" ? o.submit_label : undefined,
+  };
+}
+
+/** Export this form as a template file, or import one (file or another event). */
+function FormTemplateTools({ form }: { form: FormInstance }) {
+  const event = useEventDetail();
+  const can = useCan();
+  const { message } = App.useApp();
+  const [open, setOpen] = useState(false);
+  const { data: events } = useQuery({
+    queryKey: ["event-options"],
+    queryFn: async () => (await api.get<{ data: { value: number; label: string }[] }>("/events/options")).data.data,
+    enabled: open,
+    staleTime: 60_000,
+  });
+
+  const exportIt = () => {
+    const v = fromRows(form.getFieldsValue(true));
+    downloadJson(`${event.slug}-registration-form.json`, { kind: "event-form", version: 1, exported_at: new Date().toISOString(), source: event.title, ...v });
+    message.success("Template downloaded. Import it into any event's Registration form.");
+  };
+
+  const apply = (t: FormTemplate, mode: "replace" | "append") => {
+    const rows = toRows({ form_fields: t.form_fields }).form_fields as FormFieldRow[];
+    const current = ((form.getFieldValue("form_fields") as FormFieldRow[]) ?? []).filter(Boolean);
+    if (mode === "replace") {
+      form.setFieldsValue({ form_fields: rows, ...(t.form_intro !== undefined ? { form_intro: t.form_intro } : {}), ...(t.submit_label !== undefined ? { submit_label: t.submit_label } : {}) });
+    } else {
+      // Keep field names unique; conditions inside the template follow the renamed fields.
+      const used = new Set(current.map((f) => f.name).filter(Boolean));
+      const renamed: Record<string, string> = {};
+      rows.forEach((r) => {
+        if (!r.name) return;
+        let name = r.name;
+        for (let i = 2; used.has(name); i++) name = `${r.name}_${i}`;
+        if (name !== r.name) renamed[r.name] = name;
+        r.name = name;
+        used.add(name);
+      });
+      rows.forEach((r) => {
+        if (r.cond_field && renamed[r.cond_field]) r.cond_field = renamed[r.cond_field];
+      });
+      form.setFieldsValue({ form_fields: [...current, ...rows] });
+    }
+    message.success(`Imported ${rows.length} field(s). Check them, then press Save changes.`);
+  };
+
+  return (
+    <div className="mb-3 flex flex-wrap justify-end gap-2">
+      {can("events.manage") ? (
+        <Button icon={<ImportOutlined />} onClick={() => setOpen(true)}>
+          Import template
+        </Button>
+      ) : null}
+      <Button icon={<DownloadOutlined />} onClick={exportIt}>
+        Export template
+      </Button>
+      <TemplateImport<FormTemplate>
+        open={open}
+        onClose={() => setOpen(false)}
+        what="registration form"
+        itemNoun="event"
+        sources={(events ?? []).filter((e) => e.value !== event.id)}
+        loadFrom={async (id) => {
+          const e = (await api.get<{ data: EventDetail }>(`/events/${id}`)).data.data;
+          const r = e as unknown as Record<string, unknown>;
+          return { form_fields: e.form_fields, form_intro: typeof r.form_intro === "string" ? r.form_intro : undefined, submit_label: typeof r.submit_label === "string" ? r.submit_label : undefined };
+        }}
+        parse={parseFormTemplate}
+        describe={(t) => `${t.form_fields.length} field(s)${t.form_intro ? " and the text above the form" : ""}`}
+        onApply={apply}
+      />
+    </div>
   );
 }

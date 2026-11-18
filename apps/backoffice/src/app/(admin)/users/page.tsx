@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { App, Badge, Button, Dropdown, Input, Modal, Select, Switch, Table, Tag, Tooltip, Typography } from "antd";
-import { CheckCircleOutlined, KeyOutlined, LogoutOutlined, MoreOutlined, PlusOutlined, SafetyOutlined, StopOutlined } from "@ant-design/icons";
+import { App, Button, Dropdown, Input, Modal, Select, Switch, Table, Tag, Tooltip, Typography } from "antd";
+import { CheckCircleOutlined, EditOutlined, EyeOutlined, KeyOutlined, LogoutOutlined, MoreOutlined, PlusOutlined, SafetyOutlined, StopOutlined } from "@ant-design/icons";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { api, errorMessage } from "@/lib/api";
@@ -149,12 +149,12 @@ export default function UsersPage() {
             key: "name",
             sorter: true,
             render: (_, u) => (
-              <div>
-                <Badge status={u.online ? "success" : "default"} />
-                <Link href={`/users/${u.id}/account`} className="font-semibold">
+              <div className={u.status === "active" ? undefined : "ep-user--inactive"}>
+                <Link href={`/users/${u.id}/account`} className="ep-user__name font-semibold">
                   {u.name}
                 </Link>
                 {u.is_self ? <Tag className="!ml-2">You</Tag> : null}
+                {u.status === "active" ? null : <Tag className="!ml-2">Inactive</Tag>}
                 <div className="ep-muted text-xs">
                   @{u.username} · {u.email}
                 </div>
@@ -186,6 +186,18 @@ export default function UsersPage() {
             sorter: true,
             width: 100,
             render: (_, u) => <Switch checked={u.status === "active"} disabled={!u.can_manage} onChange={(v) => toggle(u, v)} aria-label={`${u.name} active`} />,
+          },
+          {
+            title: "",
+            key: "open",
+            width: 100,
+            render: (_, u) => (
+              <Link href={`/users/${u.id}/account`} aria-label={`${u.can_manage || u.is_self ? "Edit" : "View"} ${u.name}`}>
+                <Button size="small" icon={u.can_manage || u.is_self ? <EditOutlined /> : <EyeOutlined />}>
+                  {u.can_manage || u.is_self ? "Edit" : "View"}
+                </Button>
+              </Link>
+            ),
           },
           {
             title: "",
